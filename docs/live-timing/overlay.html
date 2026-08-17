@@ -539,6 +539,25 @@
     return e;
   }
 
+  // Times like "80.692+1" or "85.832+dnf" break onto a second line at
+  // the "+" so the penalty/status suffix doesn't run together with
+  // the raw time. Returns an element (tag/className) with the broken
+  // text appended as children instead of plain textContent.
+  function elBrokenTime(tag, className, text){
+    var e = document.createElement(tag);
+    if (className) e.className = className;
+    text = text || "";
+    var plusIdx = text.indexOf("+");
+    if (plusIdx > 0){
+      e.appendChild(document.createTextNode(text.slice(0, plusIdx)));
+      e.appendChild(document.createElement("br"));
+      e.appendChild(document.createTextNode(text.slice(plusIdx)));
+    } else {
+      e.appendChild(document.createTextNode(text));
+    }
+    return e;
+  }
+
   function slugify(text){
     return String(text || "")
       .toLowerCase()
@@ -580,8 +599,8 @@
 
       var bestClass = "mt-besttime" + (d.bestStatus !== "ok" ? " mt-" + d.bestStatus : "");
       var bestWrap = el("div", "mt-best-wrap");
-      bestWrap.appendChild(el("div", bestClass, d.best || "\u2014"));
-      if (d.diff) bestWrap.appendChild(el("div", "mt-diff", d.diff));
+      bestWrap.appendChild(elBrokenTime("div", bestClass, d.best || "\u2014"));
+      if (d.diff) bestWrap.appendChild(elBrokenTime("div", "mt-diff", d.diff));
       summary.appendChild(bestWrap);
       summary.appendChild(el("div", "mt-chevron", "\u25be"));
 
@@ -605,14 +624,8 @@
         d.runs.forEach(function(r, i){
           var chip = el("div", "mt-run-chip" + (r.isBest ? " mt-run-best" : ""));
           chip.appendChild(el("span", "mt-run-label", "Run " + (i + 1)));
-          var plusIdx = r.text.indexOf("+");
-          if (plusIdx > -1){
-            chip.appendChild(document.createTextNode(r.text.slice(0, plusIdx)));
-            chip.appendChild(document.createElement("br"));
-            chip.appendChild(document.createTextNode(r.text.slice(plusIdx)));
-          } else {
-            chip.appendChild(document.createTextNode(r.text));
-          }
+          var timeNode = elBrokenTime("span", null, r.text);
+          while (timeNode.firstChild) chip.appendChild(timeNode.firstChild);
           runsWrap.appendChild(chip);
         });
         details.appendChild(runsWrap);
@@ -699,14 +712,19 @@
 
       var row = el("div", "mt-feed-row");
       row.appendChild(el("div", "mt-feed-name", r.driver || "\u2014"));
-      row.appendChild(el("div", "mt-feed-time" + (r.isBest ? " mt-run-best" : ""), r.timeText || "\u2014"));
+      row.appendChild(elBrokenTime("div", "mt-feed-time" + (r.isBest ? " mt-run-best" : ""), r.timeText || "\u2014"));
       entry.appendChild(row);
 
       var carLine = (r.classCode ? r.classCode.toUpperCase() + " #" + r.carNumber + " \u2014 " : "") + (r.car || "");
       entry.appendChild(el("div", "mt-feed-car", carLine));
 
       if (r.bestText){
-        entry.appendChild(el("div", "mt-feed-meta", "Best: " + r.bestText + "  \u2022  Run " + r.runNum));
+        var meta = el("div", "mt-feed-meta");
+        meta.appendChild(document.createTextNode("Best: "));
+        var bestNode = elBrokenTime("span", null, r.bestText);
+        while (bestNode.firstChild) meta.appendChild(bestNode.firstChild);
+        meta.appendChild(document.createTextNode("  \u2022  Run " + r.runNum));
+        entry.appendChild(meta);
       }
 
       card.appendChild(entry);
@@ -754,7 +772,7 @@
 
       var row = el("div", "mt-feed-row");
       row.appendChild(el("div", "mt-feed-name", r.category || "\u2014"));
-      row.appendChild(el("div", "mt-feed-time", r.timeText || "\u2014"));
+      row.appendChild(elBrokenTime("div", "mt-feed-time", r.timeText || "\u2014"));
       entry.appendChild(row);
 
       var carLine = (r.driver || "\u2014") + " \u2014 " + r.classCode.toUpperCase() + " #" + r.carNumber;
@@ -773,15 +791,9 @@
     var select = document.createElement("select");
     select.id = "mtSelect";
 
-    var placeholder = document.createElement("option");
-    placeholder.value = "";
-    placeholder.textContent = "Choose class \u2026";
-    placeholder.disabled = true;
-    select.appendChild(placeholder);
-
     var homeOpt = document.createElement("option");
     homeOpt.value = "__home__";
-    homeOpt.textContent = "Last 10 Runs";
+    homeOpt.textContent = "Home \u2014 Click to choose class";
     select.appendChild(homeOpt);
 
     classes.sort(function(a,b){ return a.order - b.order; });
