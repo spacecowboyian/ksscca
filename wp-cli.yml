@@ -3,19 +3,19 @@
 # Run commands against the live site through WP Engine's SSH gateway:
 #   bin/wp @prod post list --post_type=page --fields=ID,post_title
 #
-# Replace INSTALL_NAME below with the WP Engine install name (visible in the
-# WP Engine portal, or in wp-admin under the WP Engine menu). The gateway
-# hostname, SSH user, and site path are all derived from it.
+# The WP Engine install is named `kansasregion` — the gateway hostname, SSH
+# user, and site path all derive from it. Confirmed via wp-admin (WP Engine
+# menu) and DNS: kansasregion.ssh.wpengine.net resolves.
 #
 # Setup steps and troubleshooting: docs/wp-cli.md
 
 @prod:
-  ssh: INSTALL_NAME@INSTALL_NAME.ssh.wpengine.net
-  path: /sites/INSTALL_NAME
+  ssh: kansasregion@kansasregion.ssh.wpengine.net
+  path: /sites/kansasregion
 
 @staging:
-  ssh: INSTALL_NAMEstg@INSTALL_NAMEstg.ssh.wpengine.net
-  path: /sites/INSTALL_NAMEstg
+  ssh: kansasregionstg@kansasregionstg.ssh.wpengine.net
+  path: /sites/kansasregionstg
 
 # Never let a destructive command run against prod without being asked twice.
 disabled_commands:

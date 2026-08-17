@@ -15,15 +15,15 @@ bin/wp --version
 
 ## What's still needed
 
-### 1. The WP Engine install name
+### ~~1. The WP Engine install name~~ — done
 
-The gateway hostname is derived from it: `<install>.ssh.wpengine.net`. It is **not** `ksscca` — that hostname doesn't resolve:
+The install is **`kansasregion`**, confirmed from the WP Engine panel in wp-admin (`kansasregion.wpengine.com`, `kansasregion.sftp.wpengine.com`) and by DNS:
 
 ```bash
-dig +short ksscca.ssh.wpengine.net   # returns nothing
+dig +short kansasregion.ssh.wpengine.net   # ssh.gcp-p-us-west1-farm-06.wpesvc.net → 34.168.124.108
 ```
 
-Find it in the WP Engine portal (it's the install's name in the site list), or in wp-admin under the **WP Engine** menu. Then replace `INSTALL_NAME` in `wp-cli.yml`.
+Already filled into `wp-cli.yml`.
 
 ### 2. An SSH key uploaded to WP Engine
 
@@ -40,8 +40,10 @@ Keys can take a few minutes to propagate to the install.
 ## Verify the connection
 
 ```bash
-ssh INSTALL_NAME@INSTALL_NAME.ssh.wpengine.net "wp option get siteurl"
+ssh kansasregion@kansasregion.ssh.wpengine.net "wp option get siteurl"
 ```
+
+Until the key is uploaded this returns `Permission denied (publickey)`.
 
 Expected today: `http://www.ksscca.org` — which is itself the bug tracked in #1.
 
@@ -72,7 +74,9 @@ Creating an application password without the wp-admin UI (which hides the featur
 bin/wp @prod user application-password create Ian@futurehat.com claude-code --porcelain
 ```
 
-Store the result as `WP_APP_PASS` in `env.org`. Note this still doesn't make REST writes *safe* over plain http — it's for use after #8 lands, or against the `*.wpengine.com` hostname which does have a valid certificate.
+Store the result as `WP_APP_PASS` in `env.org`. Note this still doesn't make REST writes *safe* over plain http — it's for use after #8 lands.
+
+The `*.wpengine.com` hostname is **not** a workaround, despite having a valid certificate: WordPress issues a canonical 301 from `https://kansasregion.wpengine.com/` straight back to `http://www.ksscca.org/`, so the request never stays on TLS.
 
 The HTTPS cutover search-replace from #8:
 
