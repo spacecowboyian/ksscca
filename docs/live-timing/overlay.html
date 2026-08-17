@@ -10,6 +10,7 @@
     --ink:#14181c;
     --paper:#ffffff;
     --row-alt:#eef2f7;
+    --hover:#dbeafe;
     --accent:#0b3d91;
     --accent-dark:#082a66;
     --border:#ccd3da;
@@ -126,8 +127,11 @@
     text-decoration:none;
     color:inherit;
     display:block;
+    background:var(--paper);
   }
   .mt-feed-entry:last-child{ border-bottom:0; }
+  .mt-feed-entry.mt-alt{ background:var(--row-alt); }
+  .mt-feed-entry:hover{ background:var(--hover); color:inherit; }
   .mt-feed-row{
     display:flex;
     align-items:baseline;
@@ -225,7 +229,7 @@
   td.mt-board-cell{ padding:0 !important; }
 
   .mt-entry{ scroll-margin-top: calc(var(--bar-h) + 6px); }
-  .mt-entry.mt-highlight{ background:#fff6d9; }
+  .mt-entry.mt-highlight{ background:#fff6d9 !important; }
 
   /* The raw per-entry <tr> data is replaced by the .mt-board list below;
      keep it in the DOM (for view-source / fallback) but never show it. */
@@ -242,6 +246,7 @@
     margin:0;
     overflow:hidden;
   }
+  .mt-entry.mt-alt{ background:var(--row-alt); }
   .mt-entry[open]{ box-shadow:inset 0 1px 0 rgba(0,0,0,.06); }
   .mt-entry:first-of-type{ border-left:4px solid #c9a227; }
 
@@ -253,6 +258,7 @@
     gap:10px;
     padding:10px 12px;
   }
+  .mt-entry summary:hover{ background:var(--hover); }
   .mt-entry summary::-webkit-details-marker{ display:none; }
 
   .mt-rank{
@@ -495,7 +501,7 @@
 
     group.drivers.forEach(function(d, idx){
       var entry = document.createElement("details");
-      entry.className = "mt-entry";
+      entry.className = "mt-entry" + (idx % 2 === 1 ? " mt-alt" : "");
       entry.id = driverAnchorId(group.code, d.carNumber, idx);
       entry.setAttribute("data-driver-id", entry.id);
 
@@ -614,9 +620,9 @@
     var card = el("div", "mt-card mt-feed mt-hide-when-focused");
     card.appendChild(el("div", "mt-section-title", "Last 10 Runs"));
 
-    runs.forEach(function(r){
+    runs.forEach(function(r, idx){
       var entry = document.createElement("a");
-      entry.className = "mt-feed-entry";
+      entry.className = "mt-feed-entry" + (idx % 2 === 1 ? " mt-alt" : "");
       entry.href = "#" + driverAnchorId(r.classCode, r.carNumber, 0);
 
       var row = el("div", "mt-feed-row");
@@ -668,10 +674,10 @@
     var card = el("div", "mt-card mt-feed mt-hide-when-focused");
     card.appendChild(el("div", "mt-section-title", "Top Times Of Day"));
 
-    entries.forEach(function(r){
+    entries.forEach(function(r, idx){
       var known = classesByCode[r.classCode];
       var entry = document.createElement(known ? "a" : "div");
-      entry.className = "mt-feed-entry";
+      entry.className = "mt-feed-entry" + (idx % 2 === 1 ? " mt-alt" : "");
       if (known) entry.href = "#" + driverAnchorId(r.classCode, r.carNumber, 0);
 
       var row = el("div", "mt-feed-row");
@@ -694,10 +700,18 @@
 
     var select = document.createElement("select");
     select.id = "mtSelect";
-    var opt0 = document.createElement("option");
-    opt0.value = "";
-    opt0.textContent = "Choose class \u2026";
-    select.appendChild(opt0);
+
+    var placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = "Choose class \u2026";
+    placeholder.disabled = true;
+    select.appendChild(placeholder);
+
+    var homeOpt = document.createElement("option");
+    homeOpt.value = "__home__";
+    homeOpt.textContent = "Last 10 Runs";
+    select.appendChild(homeOpt);
+
     classes.sort(function(a,b){ return a.order - b.order; });
     classes.forEach(function(c){
       var opt = document.createElement("option");
@@ -734,7 +748,7 @@
   function applyFilter(code, ui, resultsTable, classesByCode){
     var isFocused = !!code && classesByCode[code];
     document.body.classList.toggle("mt-focused", isFocused);
-    ui.select.value = isFocused ? code : "";
+    ui.select.value = isFocused ? code : "__home__";
 
     // Landing view (no class picked) never shows the full 46-class
     // results table -- the class list + recent-runs feed are the
@@ -842,10 +856,11 @@
 
     ui.select.addEventListener("change", function(){
       var code = ui.select.value;
-      if (code){ window.location.hash = code; }
+      if (code && code !== "__home__"){ window.location.hash = code; }
       else {
         history.replaceState(null, "", window.location.pathname + window.location.search);
         applyFilter("", ui, resultsTable, classesByCode);
+        if (feed){ feed.scrollIntoView({ block: "start" }); }
       }
     });
 
