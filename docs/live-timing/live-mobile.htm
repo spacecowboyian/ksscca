@@ -3157,6 +3157,20 @@ a.Button {
 (function(){
   "use strict";
 
+  // The AXWare export ships with no <meta name="viewport"> tag at all,
+  // so mobile browsers lay it out at a wide desktop-ish viewport and
+  // zoom the whole page out to fit -- this is why everything looks
+  // tiny on a phone until you pinch-zoom in. Inject one ourselves.
+  (function ensureViewportMeta(){
+    var meta = document.querySelector('meta[name="viewport"]');
+    if (!meta){
+      meta = document.createElement("meta");
+      meta.setAttribute("name", "viewport");
+      document.head.insertBefore(meta, document.head.firstChild);
+    }
+    meta.setAttribute("content", "width=device-width, initial-scale=1, maximum-scale=1");
+  })();
+
   var LABELS = ["Pos","Class","Car #","Driver","Car","Color","Run 1","Run 2","Run 3","Run 4","Best","Diff"];
 
   function findResultsTable(){
