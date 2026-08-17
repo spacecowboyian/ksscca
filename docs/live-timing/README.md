@@ -41,12 +41,16 @@ EOF
 1. **Bigger, real font sizes.** Replaces the `2vw` sizing with a
    `clamp()` so text stays readable instead of shrinking to fit a fixed
    viewport-width formula.
-2. **Card layout on phones.** The overlay JS walks the one big results
-   table, tags each class-header row (`.classhead`) and each 12-column
-   entry row (`.entry-row`, always Pos / Class / Car # / Driver / Car /
-   Color / Run 1–4 / Best / Diff for this export format), and adds a
-   `data-label` to every cell. Under 640px, CSS turns each entry row into
-   a labeled card instead of a squeezed table row.
+2. **Leaderboard list per class, not a raw table.** The overlay JS walks
+   the one big results table (12 fixed columns: Pos / Class / Car # /
+   Driver / Car / Color / Run 1–4 / Best / Diff), parses each class
+   group, and re-renders it as a simple ranked list: driver name (large)
+   with the car model underneath, fastest time on the right, sorted
+   fastest-to-slowest (DNF/DNS sink to the bottom). Tapping an entry
+   expands it (native `<details>`/`<summary>`) to show car #, color,
+   diff-to-leader, and every run as a chip, with the personal-best run
+   highlighted. The original table rows stay in the DOM (for
+   view-source/debugging) but are hidden — the list is what's shown.
 3. **Class focus via the existing bookmark links.** The original
    `#code` bookmark links still work. The overlay listens for
    `hashchange` and, when the hash matches a known class code, hides

@@ -2925,34 +2925,126 @@ a.Button {
      on their own class */
   body.mt-focused .mt-hide-when-focused{ display:none !important; }
 
-  /* ---------- Stacked "card" layout for the results table on phones ---------- */
-  @media (max-width: 640px){
-    table.live.mt-results tr.entry-row{
-      display:block;
-      margin:10px;
-      border:1px solid var(--border);
-      border-radius:8px;
-      overflow:hidden;
-    }
-    table.live.mt-results tr.entry-row td{
-      display:flex;
-      justify-content:space-between;
-      align-items:baseline;
-      gap:10px;
-      border-bottom:1px dotted var(--border);
-      padding:6px 12px !important;
-    }
-    table.live.mt-results tr.entry-row td:last-child{ border-bottom:none; }
-    table.live.mt-results tr.entry-row td::before{
-      content: attr(data-label);
-      font-weight:bold;
-      color:#5b6470;
-      flex-shrink:0;
-    }
-    table.live.mt-results tr.classhead{
-      margin:14px 10px 0 10px;
-      border-radius:8px;
-    }
+  table.live.mt-results tr.classhead{
+    margin:14px 10px 0 10px;
+    border-radius:8px;
+  }
+
+  /* The raw per-entry <tr> data is replaced by the .mt-board list below;
+     keep it in the DOM (for view-source / fallback) but never show it. */
+  table.live.mt-results tr.entry-row{ display:none !important; }
+
+  /* ---------- Leaderboard list: name + car, best time, tap to expand ---------- */
+  .mt-board{ padding:6px 10px 14px; }
+
+  .mt-entry{
+    background:var(--paper);
+    border:1px solid var(--border);
+    border-radius:10px;
+    margin-top:8px;
+    overflow:hidden;
+  }
+  .mt-entry[open]{ box-shadow:0 2px 6px rgba(0,0,0,.12); }
+  .mt-entry:first-of-type{ border-color:#c9a227; border-width:2px; }
+
+  .mt-entry summary{
+    list-style:none;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 12px;
+  }
+  .mt-entry summary::-webkit-details-marker{ display:none; }
+
+  .mt-rank{
+    flex:0 0 auto;
+    width:2em;
+    height:2em;
+    border-radius:50%;
+    background:var(--row-alt);
+    color:var(--accent-dark);
+    font-weight:bold;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:0.95em;
+  }
+  .mt-entry:first-of-type .mt-rank{ background:#c9a227; color:#fff; }
+
+  .mt-who{ flex:1 1 auto; min-width:0; }
+  .mt-name{
+    font-size:1.15em;
+    font-weight:bold;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .mt-car{
+    font-size:0.9em;
+    color:#5b6470;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .mt-besttime{
+    flex:0 0 auto;
+    text-align:right;
+    font-size:1.25em;
+    font-weight:bold;
+    color:var(--good);
+  }
+  .mt-besttime.mt-dnf, .mt-besttime.mt-dns{
+    color:var(--bad);
+    font-size:1em;
+    text-transform:uppercase;
+  }
+
+  .mt-chevron{
+    flex:0 0 auto;
+    color:#98a2ad;
+    transition:transform .15s ease;
+  }
+  .mt-entry[open] .mt-chevron{ transform:rotate(180deg); }
+
+  .mt-details{
+    padding:0 12px 12px;
+    border-top:1px solid var(--border);
+  }
+  .mt-details-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:6px 14px;
+    margin-top:10px;
+    font-size:0.9em;
+    color:#5b6470;
+  }
+  .mt-details-grid b{ color:var(--ink); }
+
+  .mt-runs{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:10px;
+  }
+  .mt-run-chip{
+    background:var(--row-alt);
+    border-radius:6px;
+    padding:6px 10px;
+    font-size:0.9em;
+    min-width:4.5em;
+    text-align:center;
+  }
+  .mt-run-chip .mt-run-label{
+    display:block;
+    font-size:0.75em;
+    color:#5b6470;
+  }
+  .mt-run-chip.mt-run-best{
+    background:#e5f4e9;
+    color:var(--good);
+    font-weight:bold;
   }
 </style>
 
@@ -2972,11 +3064,28 @@ a.Button {
     return best;
   }
 
+  // Parses a "Best" or "Run" cell's text into a sortable number.
+  // Valid times look like "81.307" or "80.692+1"; non-finishes are
+  // "dnf" / "dns" with no leading number.
+  function parseTimeSeconds(text){
+    var m = (text || "").trim().match(/^(\d+(?:\.\d+)?)/);
+    return m ? parseFloat(m[1]) : null;
+  }
+
+  function statusFor(text){
+    var t = (text || "").trim().toLowerCase();
+    if (parseTimeSeconds(t) !== null) return "ok";
+    if (t.indexOf("dnf") !== -1) return "dnf";
+    if (t.indexOf("dns") !== -1) return "dns";
+    return t ? "other" : "none";
+  }
+
   function tagResultsTable(table){
     if (!table) return { classes: [] };
     table.classList.add("mt-results");
     var rows = table.querySelectorAll("tr");
     var currentCode = null;
+    var currentGroup = null;
     var classes = [];
     var order = 0;
 
@@ -2992,20 +3101,127 @@ a.Button {
         currentCode = code;
         row.classList.add("classhead");
         row.setAttribute("data-class", code);
-        classes.push({ code: code, name: name, entries: entries, order: order++ });
+        currentGroup = { code: code, name: name, entries: entries, order: order++, headRow: row, drivers: [] };
+        classes.push(currentGroup);
         return;
       }
       var tds = row.querySelectorAll("td");
-      if (tds.length === 12 && currentCode){
+      if (tds.length === 12 && currentCode && currentGroup){
         row.classList.add("entry-row");
         row.setAttribute("data-class", currentCode);
         tds.forEach(function(td, idx){
           td.setAttribute("data-label", LABELS[idx] || "");
         });
+
+        var cellText = function(i){ return tds[i].textContent.replace(/\s+/g, " ").trim(); };
+        var runs = [6, 7, 8, 9].map(function(i){
+          var raw = cellText(i);
+          return {
+            text: raw,
+            isBest: !!tds[i].querySelector(".bestt"),
+            status: statusFor(raw)
+          };
+        }).filter(function(r){ return r.text !== ""; });
+
+        var bestText = cellText(10);
+        currentGroup.drivers.push({
+          pos: cellText(0),
+          carNumber: cellText(2),
+          driver: cellText(3),
+          car: cellText(4),
+          color: cellText(5),
+          runs: runs,
+          best: bestText,
+          bestSeconds: parseTimeSeconds(bestText),
+          bestStatus: statusFor(bestText),
+          diff: cellText(11)
+        });
       }
     });
 
+    // Fastest-to-slowest within each class; anyone without a valid
+    // time (dnf/dns) drops to the bottom, keeping their relative order.
+    classes.forEach(function(group){
+      group.drivers.forEach(function(d, i){ d._i = i; });
+      group.drivers.sort(function(a, b){
+        var aHas = a.bestSeconds !== null, bHas = b.bestSeconds !== null;
+        if (aHas && bHas) return a.bestSeconds - b.bestSeconds;
+        if (aHas !== bHas) return aHas ? -1 : 1;
+        return a._i - b._i;
+      });
+    });
+
     return { classes: classes };
+  }
+
+  function el(tag, className, text){
+    var e = document.createElement(tag);
+    if (className) e.className = className;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+
+  function buildBoard(group){
+    var wrapTr = document.createElement("tr");
+    wrapTr.className = "mt-board-row";
+    wrapTr.setAttribute("data-class", group.code);
+    var wrapTd = document.createElement("td");
+    wrapTd.colSpan = 12;
+    wrapTr.appendChild(wrapTd);
+
+    var board = el("div", "mt-board");
+    wrapTd.appendChild(board);
+
+    group.drivers.forEach(function(d, idx){
+      var entry = document.createElement("details");
+      entry.className = "mt-entry";
+
+      var summary = document.createElement("summary");
+
+      var rank = el("div", "mt-rank", String(idx + 1));
+      summary.appendChild(rank);
+
+      var who = el("div", "mt-who");
+      who.appendChild(el("div", "mt-name", d.driver || "\u2014"));
+      who.appendChild(el("div", "mt-car", d.car || ""));
+      summary.appendChild(who);
+
+      var bestClass = "mt-besttime" + (d.bestStatus !== "ok" ? " mt-" + d.bestStatus : "");
+      summary.appendChild(el("div", bestClass, d.best || "\u2014"));
+      summary.appendChild(el("div", "mt-chevron", "\u25be"));
+
+      entry.appendChild(summary);
+
+      var details = el("div", "mt-details");
+      var grid = el("div", "mt-details-grid");
+      var addFact = function(label, value){
+        var line = document.createElement("div");
+        var b = el("b", null, label + ": ");
+        line.appendChild(b);
+        line.appendChild(document.createTextNode(value || "\u2014"));
+        grid.appendChild(line);
+      };
+      addFact("Car #", d.carNumber);
+      addFact("Color", d.color);
+      addFact("Diff", d.diff);
+      details.appendChild(grid);
+
+      if (d.runs.length){
+        var runsWrap = el("div", "mt-runs");
+        d.runs.forEach(function(r, i){
+          var chip = el("div", "mt-run-chip" + (r.isBest ? " mt-run-best" : ""));
+          chip.appendChild(el("span", "mt-run-label", "Run " + (i + 1)));
+          chip.appendChild(document.createTextNode(r.text));
+          runsWrap.appendChild(chip);
+        });
+        details.appendChild(runsWrap);
+      }
+
+      entry.appendChild(details);
+      board.appendChild(entry);
+    });
+
+    group.headRow.parentNode.insertBefore(wrapTr, group.headRow.nextSibling);
   }
 
   function buildBar(classes){
@@ -3063,7 +3279,7 @@ a.Button {
       ui.focusLabel.textContent = "Showing " + code.toUpperCase() + " \u2014 " + info.name + " only";
     }
 
-    var rows = resultsTable.querySelectorAll("tr.classhead, tr.entry-row");
+    var rows = resultsTable.querySelectorAll("tr.classhead, tr.entry-row, tr.mt-board-row");
     rows.forEach(function(row){
       if (!isFocused){
         row.style.display = "";
@@ -3080,6 +3296,8 @@ a.Button {
     tagInfo.classes.forEach(function(c){ classesByCode[c.code] = c; });
 
     if (!resultsTable || tagInfo.classes.length === 0) return;
+
+    tagInfo.classes.forEach(buildBoard);
 
     markHideables(resultsTable);
     var ui = buildBar(tagInfo.classes);
