@@ -3067,8 +3067,8 @@ a.Button {
     width:2em;
     height:2em;
     border-radius:0;
-    background:var(--row-alt);
-    color:var(--accent-dark);
+    background:transparent;
+    color:#5b6470;
     font-weight:bold;
     display:flex;
     align-items:center;
@@ -3093,17 +3093,29 @@ a.Button {
     text-overflow:ellipsis;
   }
 
-  .mt-besttime{
+  .mt-best-wrap{
     flex:0 0 auto;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+  }
+  .mt-besttime{
     text-align:right;
     font-size:1.25em;
     font-weight:bold;
-    color:var(--good);
+    color:var(--ink);
   }
+  .mt-entry:first-of-type .mt-besttime{ color:var(--good); }
   .mt-besttime.mt-dnf, .mt-besttime.mt-dns{
-    color:var(--bad);
+    color:var(--bad) !important;
     font-size:1em;
     text-transform:uppercase;
+  }
+  .mt-diff{
+    font-size:0.75em;
+    color:#5b6470;
+    margin-top:2px;
+    white-space:nowrap;
   }
 
   .mt-chevron{
@@ -3114,7 +3126,7 @@ a.Button {
   .mt-entry[open] .mt-chevron{ transform:rotate(180deg); }
 
   .mt-details{
-    padding:0 12px 12px;
+    padding:0 0 12px;
     border-top:1px solid var(--border);
   }
   .mt-details-grid{
@@ -3122,29 +3134,32 @@ a.Button {
     grid-template-columns:1fr 1fr;
     gap:6px 14px;
     margin-top:10px;
+    padding:0 12px;
     font-size:0.9em;
     color:#5b6470;
   }
   .mt-details-grid b{ color:var(--ink); }
 
   .mt-runs{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
+    display:grid;
+    grid-template-columns:repeat(5, 1fr);
     margin-top:10px;
+    border-top:1px solid var(--border);
   }
   .mt-run-chip{
     background:var(--row-alt);
-    border-radius:0;
-    padding:6px 10px;
-    font-size:0.9em;
-    min-width:4.5em;
+    padding:14px 6px;
+    font-size:1.05em;
     text-align:center;
+    border-right:1px solid var(--border);
+    border-bottom:1px solid var(--border);
   }
+  .mt-run-chip:nth-child(5n){ border-right:0; }
   .mt-run-chip .mt-run-label{
     display:block;
-    font-size:0.75em;
+    font-size:0.7em;
     color:#5b6470;
+    margin-bottom:2px;
   }
   .mt-run-chip.mt-run-best{
     background:#e5f4e9;
@@ -3171,7 +3186,18 @@ a.Button {
     meta.setAttribute("content", "width=device-width, initial-scale=1, maximum-scale=1");
   })();
 
-  var LABELS = ["Pos","Class","Car #","Driver","Car","Color","Run 1","Run 2","Run 3","Run 4","Best","Diff"];
+  // Fixed leading/trailing columns in every AXWare class-board row;
+  // everything between them is the run columns, and the run count
+  // varies by event (autocross typically has 4, rallycross can have
+  // more) -- so we read it from each row instead of hardcoding it.
+  var FIXED_LABELS_HEAD = ["Pos","Class","Car #","Driver","Car","Color"];
+  var FIXED_LABELS_TAIL = ["Best","Diff"];
+
+  function labelsForRunCount(runCount){
+    var labels = FIXED_LABELS_HEAD.slice();
+    for (var i = 0; i < runCount; i++) labels.push("Run " + (i + 1));
+    return labels.concat(FIXED_LABELS_TAIL);
+  }
 
   function findResultsTable(){
     var tables = document.querySelectorAll("table.live");
@@ -3236,15 +3262,22 @@ a.Button {
         return;
       }
       var tds = row.querySelectorAll("td");
-      if (tds.length === 12 && currentCode && currentGroup){
+      // Every class-board row is Pos, Class, Car#, Driver, Car, Color,
+      // then N run columns, then Best, Diff -- N varies by event type
+      // (autocross vs. rallycross), so derive it from the row itself.
+      var runCount = tds.length - 8;
+      if (tds.length >= 9 && currentCode && currentGroup){
         row.classList.add("entry-row");
         row.setAttribute("data-class", currentCode);
+        var labels = labelsForRunCount(runCount);
         tds.forEach(function(td, idx){
-          td.setAttribute("data-label", LABELS[idx] || "");
+          td.setAttribute("data-label", labels[idx] || "");
         });
 
         var cellText = function(i){ return tds[i].textContent.replace(/\s+/g, " ").trim(); };
-        var runs = [6, 7, 8, 9].map(function(i){
+        var runIdxs = [];
+        for (var ri = 0; ri < runCount; ri++) runIdxs.push(6 + ri);
+        var runs = runIdxs.map(function(i){
           var raw = cellText(i);
           return {
             text: raw,
@@ -3253,7 +3286,7 @@ a.Button {
           };
         }).filter(function(r){ return r.text !== ""; });
 
-        var bestText = cellText(10);
+        var bestText = cellText(tds.length - 2);
         currentGroup.drivers.push({
           pos: cellText(0),
           carNumber: cellText(2),
@@ -3264,7 +3297,7 @@ a.Button {
           best: bestText,
           bestSeconds: parseTimeSeconds(bestText),
           bestStatus: statusFor(bestText),
-          diff: cellText(11)
+          diff: cellText(tds.length - 1)
         });
       }
     });
@@ -3331,7 +3364,10 @@ a.Button {
       summary.appendChild(who);
 
       var bestClass = "mt-besttime" + (d.bestStatus !== "ok" ? " mt-" + d.bestStatus : "");
-      summary.appendChild(el("div", bestClass, d.best || "\u2014"));
+      var bestWrap = el("div", "mt-best-wrap");
+      bestWrap.appendChild(el("div", bestClass, d.best || "\u2014"));
+      if (d.diff) bestWrap.appendChild(el("div", "mt-diff", d.diff));
+      summary.appendChild(bestWrap);
       summary.appendChild(el("div", "mt-chevron", "\u25be"));
 
       entry.appendChild(summary);
@@ -3347,7 +3383,6 @@ a.Button {
       };
       addFact("Car #", d.carNumber);
       addFact("Color", d.color);
-      addFact("Diff", d.diff);
       details.appendChild(grid);
 
       if (d.runs.length){
