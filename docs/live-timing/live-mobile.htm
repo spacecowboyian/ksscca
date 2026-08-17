@@ -3399,7 +3399,14 @@ a.Button {
         d.runs.forEach(function(r, i){
           var chip = el("div", "mt-run-chip" + (r.isBest ? " mt-run-best" : ""));
           chip.appendChild(el("span", "mt-run-label", "Run " + (i + 1)));
-          chip.appendChild(document.createTextNode(r.text));
+          var plusIdx = r.text.indexOf("+");
+          if (plusIdx > -1){
+            chip.appendChild(document.createTextNode(r.text.slice(0, plusIdx)));
+            chip.appendChild(document.createElement("br"));
+            chip.appendChild(document.createTextNode(r.text.slice(plusIdx)));
+          } else {
+            chip.appendChild(document.createTextNode(r.text));
+          }
           runsWrap.appendChild(chip);
         });
         details.appendChild(runsWrap);
