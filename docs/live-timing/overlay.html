@@ -256,7 +256,12 @@
   }
   .mt-entry.mt-alt{ background:var(--row-alt); }
   .mt-entry[open]{ box-shadow:inset 0 1px 0 rgba(0,0,0,.06); }
-  .mt-entry.mt-trophy{ border-left:4px solid #c9a227; }
+  .mt-entry.mt-trophy{
+    border-left:4px solid #c9a227;
+    border-right:4px solid #c9a227;
+  }
+  .mt-entry.mt-trophy-first{ border-top:2px solid #c9a227; }
+  .mt-entry.mt-trophy-last{ border-bottom:2px solid #c9a227; }
 
   .mt-entry summary{
     list-style:none;
@@ -581,10 +586,21 @@
     var board = el("div", "mt-board");
     wrapTd.appendChild(board);
 
+    var trophyFlags = group.drivers.map(function(d){
+      return /t$/i.test((d.pos || "").trim());
+    });
+    var lastTrophyIdx = trophyFlags.lastIndexOf(true);
+
     group.drivers.forEach(function(d, idx){
       var entry = document.createElement("details");
-      var isTrophy = /t$/i.test((d.pos || "").trim());
-      entry.className = "mt-entry" + (idx % 2 === 1 ? " mt-alt" : "") + (isTrophy ? " mt-trophy" : "");
+      var isTrophy = trophyFlags[idx];
+      var trophyClass = "";
+      if (isTrophy) {
+        trophyClass = " mt-trophy";
+        if (idx === 0) trophyClass += " mt-trophy-first";
+        if (idx === lastTrophyIdx) trophyClass += " mt-trophy-last";
+      }
+      entry.className = "mt-entry" + (idx % 2 === 1 ? " mt-alt" : "") + trophyClass;
       entry.id = driverAnchorId(group.code, d.carNumber, idx);
       entry.setAttribute("data-driver-id", entry.id);
 
