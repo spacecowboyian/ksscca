@@ -77,23 +77,26 @@ EOF
    where it's a useful section divider.
 8. **Redesigned landing view.** When no class/driver is focused, the
    page no longer shows the original messy header, bookmark grid, heat
-   tables, or the full 46-class results listing. Instead it shows:
+   tables, or the full 46-class results listing. Order, top to bottom:
    - A clean single-card header (event name, generated timestamp,
      "Unofficial" badge) instead of the original stack of black
-     `<th>` blocks.
-   - A "Classes — tap to jump" list: every class code/name with an
-     entry count, tapping one jumps straight into that class's
-     leaderboard (same as the original bookmark links, just easier to
-     read/tap).
+     `<th>` blocks. No rounded corners anywhere in the overlay.
    - A reformatted "Last 10 Runs" feed: driver name/car, most recent
      run time (black, or green if that run is their personal best so
      far), and a "Best: X • Run N" line underneath. Each entry links to
      that driver's anchor (`#driver-<classcode>-<carNumber>`), same as
      the class leaderboard entries.
-   - The original "Top Times Of Day" (raw + pax + per-category leaders)
-     table, restyled to match (navy header instead of black) but
-     otherwise untouched — kept because it's genuinely useful at a
-     glance.
+   - A "Classes — tap to jump" list: every class code/name with an
+     entry count, tapping one jumps straight into that class's
+     leaderboard (same as the original bookmark links, just easier to
+     read/tap).
+   - "Top Times Of Day" (raw + pax + per-category leaders), rebuilt
+     using the same name/car/time card layout as the leaderboard and
+     Last-10-Runs feed instead of the original raw table — category
+     (e.g. "Raw time", "Pax", "Xtreme Street") is the bold heading,
+     driver name/class/car underneath, time on the right. Links to the
+     driver's anchor when the category's class code is one we know
+     about.
    - The full by-class results table is no longer rendered on the
      landing view at all — it only appears once a class or driver is
      focused via the dropdown, a class-code link, or a `#driver-...`
@@ -105,11 +108,11 @@ EOF
 
 ## Known gaps / next steps
 
-- The original bookmark grid, heat tables (Heat #1/#2), and the
-  original Last-10-Runs table are now hidden entirely (`.mt-removed`)
-  rather than just restyled, since they're superseded by the new class
-  list and feed. They're still present in the DOM for
-  debugging/view-source purposes.
+- The original bookmark grid, heat tables (Heat #1/#2), the original
+  Last-10-Runs table, and the original Top Times Of Day table are now
+  all hidden entirely (`.mt-removed`) rather than just restyled, since
+  they're superseded by the new class list and feed-style cards.
+  They're still present in the DOM for debugging/view-source purposes.
 - Column labels (`Pos`, `Car #`, etc.) are inferred from column order,
   not sourced from real headers — confirm this holds if AXWare ever
   changes the export's column count.

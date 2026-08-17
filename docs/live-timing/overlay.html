@@ -42,16 +42,7 @@
   }
 
   table.live:not(.mt-results){
-    border-radius:10px;
     overflow:hidden;
-  }
-
-  /* Tables re-homed inside a .mt-card (currently just Top Times) get
-     their rounding/shadow from the card instead, so they don't double up. */
-  .mt-card table.live{
-    border-radius:0;
-    box-shadow:none;
-    max-width:none;
   }
 
   th, td{
@@ -91,7 +82,7 @@
     background:var(--paper);
     max-width:900px;
     margin:14px auto;
-    border-radius:10px;
+    border-radius:0;
     overflow:hidden;
     box-shadow:0 1px 3px rgba(0,0,0,.12);
   }
@@ -115,7 +106,7 @@
     letter-spacing:.02em;
     color:var(--bad);
     background:#fde8e8;
-    border-radius:4px;
+    border-radius:0;
     padding:2px 8px;
   }
 
@@ -231,7 +222,7 @@
     min-width:0;
     max-width:100%;
     padding:8px 6px;
-    border-radius:6px;
+    border-radius:0;
     border:1px solid rgba(255,255,255,.5);
     background:#fff;
     color:var(--ink);
@@ -242,7 +233,7 @@
     color:#fff;
     background:rgba(255,255,255,.15);
     border:1px solid rgba(255,255,255,.5);
-    border-radius:6px;
+    border-radius:0;
     padding:8px 10px;
     font-weight:bold;
     text-decoration:none;
@@ -291,7 +282,7 @@
     flex:0 0 auto;
     width:2em;
     height:2em;
-    border-radius:50%;
+    border-radius:0;
     background:var(--row-alt);
     color:var(--accent-dark);
     font-weight:bold;
@@ -360,7 +351,7 @@
   }
   .mt-run-chip{
     background:var(--row-alt);
-    border-radius:6px;
+    border-radius:0;
     padding:6px 10px;
     font-size:0.9em;
     min-width:4.5em;
@@ -688,6 +679,57 @@
     return card;
   }
 
+  // Parses the "Top Times Of Day" table (category / time / class / car# /
+  // driver) into the same shape buildTopTimesFeed renders from.
+  function parseTopTimes(table){
+    if (!table) return [];
+    var rows = table.querySelectorAll("tr");
+    var out = [];
+    for (var i = 0; i < rows.length; i++){
+      var tds = rows[i].querySelectorAll("td");
+      if (tds.length < 5) continue;
+      out.push({
+        category: tds[0].textContent.replace(/\s+/g, " ").trim(),
+        timeText: tds[1].textContent.replace(/\s+/g, " ").trim(),
+        classCode: tds[2].textContent.replace(/\s+/g, " ").trim(),
+        carNumber: tds[3].textContent.replace(/\s+/g, " ").trim(),
+        driver: tds[4].textContent.replace(/\s+/g, " ").trim()
+      });
+    }
+    return out;
+  }
+
+  // Renders Top Times Of Day using the same name/car/time card layout as
+  // the leaderboard and Last-10-Runs feed, instead of the original table.
+  function buildTopTimesFeed(table, classesByCode){
+    var entries = parseTopTimes(table);
+    if (!entries.length) return null;
+
+    table.classList.add("mt-removed");
+
+    var card = el("div", "mt-card mt-feed mt-hide-when-focused");
+    card.appendChild(el("div", "mt-section-title", "Top Times Of Day"));
+
+    entries.forEach(function(r){
+      var known = classesByCode[r.classCode];
+      var entry = document.createElement(known ? "a" : "div");
+      entry.className = "mt-feed-entry";
+      if (known) entry.href = "#" + driverAnchorId(r.classCode, r.carNumber, 0);
+
+      var row = el("div", "mt-feed-row");
+      row.appendChild(el("div", "mt-feed-name", r.category || "\u2014"));
+      row.appendChild(el("div", "mt-feed-time", r.timeText || "\u2014"));
+      entry.appendChild(row);
+
+      var carLine = (r.driver || "\u2014") + " \u2014 " + r.classCode.toUpperCase() + " #" + r.carNumber;
+      entry.appendChild(el("div", "mt-feed-car", carLine));
+
+      card.appendChild(entry);
+    });
+
+    return card;
+  }
+
   function buildBar(classes){
     var bar = document.createElement("div");
     bar.id = "mtBar";
@@ -784,27 +826,22 @@
     var ui = buildBar(tagInfo.classes);
 
     // Landing widgets, inserted right after the sticky bar, in order:
-    // header, class list, recent runs feed, then the original raw/pax
-    // "Top Times" table (moved here rather than left at the bottom).
+    // header, Last 10 Runs feed, class list, then Top Times Of Day
+    // (rendered with the same name/car/time card layout as everywhere
+    // else, instead of the original raw table).
     var last10Table = findTableByText(/Last 10 Runs/i);
     var topTimesTable = findTableByText(/Top Times Of Day/i);
     var heatTable = findTableByText(/Heat #1/i);
 
     var header = buildHeader();
-    var classList = buildClassList(tagInfo.classes);
     var feed = buildFeed(last10Table);
+    var classList = buildClassList(tagInfo.classes);
+    var topTimesFeed = topTimesTable ? buildTopTimesFeed(topTimesTable, classesByCode) : null;
 
     var anchor = ui.bar;
-    [header, classList, feed].forEach(function(widget){
+    [header, feed, classList, topTimesFeed].forEach(function(widget){
       if (widget){ anchor.parentNode.insertBefore(widget, anchor.nextSibling); anchor = widget; }
     });
-    if (topTimesTable){
-      topTimesTable.classList.add("mt-hide-when-focused");
-      var topTimesCard = el("div", "mt-card");
-      topTimesTable.parentNode.insertBefore(topTimesCard, topTimesTable);
-      topTimesCard.appendChild(topTimesTable);
-      anchor.parentNode.insertBefore(topTimesCard, anchor.nextSibling);
-    }
 
     if (last10Table) last10Table.classList.add("mt-removed");
     if (heatTable) heatTable.classList.add("mt-removed");
@@ -815,7 +852,7 @@
       if (t !== resultsTable && t.querySelector("a.bkmark")) t.classList.add("mt-removed");
     });
 
-    markHideables(resultsTable, [topTimesTable].filter(Boolean));
+    markHideables(resultsTable, []);
 
     function currentHash(){
       return decodeURIComponent((window.location.hash || "").replace(/^#/, ""));
