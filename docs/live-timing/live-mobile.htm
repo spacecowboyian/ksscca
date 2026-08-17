@@ -3432,6 +3432,16 @@ a.Button {
       }
 
       entry.appendChild(details);
+      entry.addEventListener("toggle", function(){
+        var hashNow = decodeURIComponent((window.location.hash || "").replace(/^#/, ""));
+        if (entry.open){
+          if (hashNow !== entry.id) history.replaceState(null, "", "#" + entry.id);
+        } else if (hashNow === entry.id){
+          // Collapsing the entry that's reflected in the URL falls back
+          // to the class hash instead of leaving a stale driver anchor.
+          history.replaceState(null, "", "#" + group.code);
+        }
+      });
       board.appendChild(entry);
     });
 
