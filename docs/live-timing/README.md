@@ -85,11 +85,8 @@ EOF
      run time (black, or green if that run is their personal best so
      far), and a "Best: X • Run N" line underneath. Each entry links to
      that driver's anchor (`#driver-<classcode>-<carNumber>`), same as
-     the class leaderboard entries.
-   - A "Classes — tap to jump" list: every class code/name with an
-     entry count, tapping one jumps straight into that class's
-     leaderboard (same as the original bookmark links, just easier to
-     read/tap).
+     the class leaderboard entries. The page loads scrolled straight to
+     this feed instead of the very top.
    - "Top Times Of Day" (raw + pax + per-category leaders), rebuilt
      using the same name/car/time card layout as the leaderboard and
      Last-10-Runs feed instead of the original raw table — category
@@ -99,12 +96,11 @@ EOF
      about.
    - The full by-class results table is no longer rendered on the
      landing view at all — it only appears once a class or driver is
-     focused via the dropdown, a class-code link, or a `#driver-...`
-     deep link. This trims the landing page from a multi-thousand-row
-     scroll down to a few screens.
-   All-around, the goal is that "Back to overview" (the old "Show all
-   classes…" option) gets you this curated landing view, not a firehose
-   of every class stacked on one page.
+     focused via the sticky dropdown ("Choose class …"), a class-code
+     link, or a `#driver-...` deep link. This trims the landing page
+     from a multi-thousand-row scroll down to a few screens.
+   There is no standalone "jump to class" list anymore — the sticky
+   dropdown is the only way to browse by class from the landing view.
 
 ## Known gaps / next steps
 

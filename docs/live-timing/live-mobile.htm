@@ -2913,30 +2913,7 @@ a.Button {
     padding:8px 12px;
   }
 
-  .mt-class-list, .mt-feed{ padding:0; }
-
-  .mt-class-row{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding:10px 12px;
-    border-bottom:1px solid var(--border);
-    color:inherit;
-    text-decoration:none;
-  }
-  .mt-class-row:last-child{ border-bottom:0; }
-  .mt-class-code{
-    flex:0 0 auto;
-    font-weight:bold;
-    color:var(--accent-dark);
-    min-width:3.5em;
-  }
-  .mt-class-name{ flex:1 1 auto; min-width:0; }
-  .mt-class-count{
-    flex:0 0 auto;
-    color:#5b6470;
-    font-size:0.9em;
-  }
+  .mt-feed{ padding:0; }
 
   .mt-feed-entry{
     padding:10px 12px;
@@ -3386,25 +3363,6 @@ a.Button {
     return card;
   }
 
-  function buildClassList(classes){
-    var card = el("div", "mt-card mt-class-list mt-hide-when-focused");
-    card.appendChild(el("div", "mt-section-title", "Classes \u2014 tap to jump"));
-
-    classes.forEach(function(c){
-      var row = document.createElement("a");
-      row.className = "mt-class-row";
-      row.href = "#" + c.code;
-      row.appendChild(el("div", "mt-class-code", c.code.toUpperCase()));
-      row.appendChild(el("div", "mt-class-name", c.name));
-      if (c.entries){
-        row.appendChild(el("div", "mt-class-count", c.entries + (c.entries === "1" ? " entry" : " entries")));
-      }
-      card.appendChild(row);
-    });
-
-    return card;
-  }
-
   function parseLast10(table){
     if (!table) return [];
     var rows = table.querySelectorAll("tr");
@@ -3533,7 +3491,7 @@ a.Button {
     select.id = "mtSelect";
     var opt0 = document.createElement("option");
     opt0.value = "";
-    opt0.textContent = "\u2190 Back to overview";
+    opt0.textContent = "Choose class \u2026";
     select.appendChild(opt0);
     classes.sort(function(a,b){ return a.order - b.order; });
     classes.forEach(function(c){
@@ -3621,28 +3579,28 @@ a.Button {
     var ui = buildBar(tagInfo.classes);
 
     // Landing widgets, inserted right after the sticky bar, in order:
-    // header, Last 10 Runs feed, class list, then Top Times Of Day
-    // (rendered with the same name/car/time card layout as everywhere
-    // else, instead of the original raw table).
+    // header, Last 10 Runs feed, then Top Times Of Day (rendered with
+    // the same name/car/time card layout as everywhere else, instead
+    // of the original raw table).
     var last10Table = findTableByText(/Last 10 Runs/i);
     var topTimesTable = findTableByText(/Top Times Of Day/i);
     var heatTable = findTableByText(/Heat #1/i);
 
     var header = buildHeader();
     var feed = buildFeed(last10Table);
-    var classList = buildClassList(tagInfo.classes);
     var topTimesFeed = topTimesTable ? buildTopTimesFeed(topTimesTable, classesByCode) : null;
 
     var anchor = ui.bar;
-    [header, feed, classList, topTimesFeed].forEach(function(widget){
+    [header, feed, topTimesFeed].forEach(function(widget){
       if (widget){ anchor.parentNode.insertBefore(widget, anchor.nextSibling); anchor = widget; }
     });
 
     if (last10Table) last10Table.classList.add("mt-removed");
     if (heatTable) heatTable.classList.add("mt-removed");
 
-    // The bookmark grid (class shortcut links) is now fully replaced
-    // by the class list above -- find it by its distinctive links.
+    // The bookmark grid (class shortcut links) is no longer shown --
+    // classes are reached via the dropdown only. Find it by its
+    // distinctive links.
     document.querySelectorAll("table.live").forEach(function(t){
       if (t !== resultsTable && t.querySelector("a.bkmark")) t.classList.add("mt-removed");
     });
@@ -3668,6 +3626,12 @@ a.Button {
             entry.scrollIntoView({ block: "start" });
           });
         }
+      } else if (!target.code && feed){
+        // Landing view (no class/driver in the hash) opens scrolled to
+        // the Last 10 Runs feed instead of the very top of the page.
+        window.requestAnimationFrame(function(){
+          feed.scrollIntoView({ block: "start" });
+        });
       }
     }
 
