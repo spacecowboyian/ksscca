@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# wp-cli wrapper for this project.
+#
+# Two things this works around:
+#   1. The `php` first on PATH is a broken php@5.6 from the shivammathur tap
+#      (missing libicui18n/libaspell dylibs), so the wp phar's `#!/usr/bin/env php`
+#      shebang picks the wrong interpreter. We pin Homebrew's PHP 8.5 instead.
+#   2. PHP 8.5 emits deprecation noise from a wp-cli vendor dependency.
+#
+# Usage is otherwise identical to wp-cli:
+#   bin/wp --info
+#   bin/wp @ksscca post list --post_type=page
+set -euo pipefail
+
+PHP_BIN="${WP_CLI_PHP:-/opt/homebrew/opt/php/bin/php}"
+WP_PHAR="${WP_CLI_PHAR:-/opt/homebrew/bin/wp}"
+
+if [[ ! -x "$PHP_BIN" ]]; then
+  echo "error: PHP not found at $PHP_BIN" >&2
+  echo "       install it with: brew install php" >&2
+  echo "       or set WP_CLI_PHP to a working PHP 7.4+ binary" >&2
+  exit 1
+fi
+
+if [[ ! -f "$WP_PHAR" ]]; then
+  echo "error: wp-cli not found at $WP_PHAR" >&2
+  echo "       install it with: brew install wp-cli" >&2
+  echo "       or set WP_CLI_PHAR to the wp-cli phar path" >&2
+  exit 1
+fi
+
+exec "$PHP_BIN" -d error_reporting='E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED' \
+  "$WP_PHAR" "$@"
