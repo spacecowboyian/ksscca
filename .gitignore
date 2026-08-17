@@ -1,0 +1,16 @@
+# Secrets — never commit. env.org holds the live WordPress password.
+env.org
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# Scratch / working files
+scratch/
+tmp/
+*.log
+
+# OS cruft
+.DS_Store
+Thumbs.db
