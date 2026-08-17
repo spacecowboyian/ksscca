@@ -2926,26 +2926,29 @@ a.Button {
   body.mt-focused .mt-hide-when-focused{ display:none !important; }
 
   table.live.mt-results tr.classhead{
-    margin:14px 10px 0 10px;
-    border-radius:8px;
+    margin:0;
+    border-radius:0;
   }
+
+  td.mt-board-cell{ padding:0 !important; }
 
   /* The raw per-entry <tr> data is replaced by the .mt-board list below;
      keep it in the DOM (for view-source / fallback) but never show it. */
   table.live.mt-results tr.entry-row{ display:none !important; }
 
   /* ---------- Leaderboard list: name + car, best time, tap to expand ---------- */
-  .mt-board{ padding:6px 10px 14px; }
+  .mt-board{ padding:0; }
 
   .mt-entry{
     background:var(--paper);
-    border:1px solid var(--border);
-    border-radius:10px;
-    margin-top:8px;
+    border:0;
+    border-bottom:1px solid var(--border);
+    border-radius:0;
+    margin:0;
     overflow:hidden;
   }
-  .mt-entry[open]{ box-shadow:0 2px 6px rgba(0,0,0,.12); }
-  .mt-entry:first-of-type{ border-color:#c9a227; border-width:2px; }
+  .mt-entry[open]{ box-shadow:inset 0 1px 0 rgba(0,0,0,.06); }
+  .mt-entry:first-of-type{ border-left:4px solid #c9a227; }
 
   .mt-entry summary{
     list-style:none;
@@ -3167,6 +3170,7 @@ a.Button {
     wrapTr.setAttribute("data-class", group.code);
     var wrapTd = document.createElement("td");
     wrapTd.colSpan = 12;
+    wrapTd.className = "mt-board-cell";
     wrapTr.appendChild(wrapTd);
 
     var board = el("div", "mt-board");
