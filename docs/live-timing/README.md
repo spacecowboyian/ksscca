@@ -1,0 +1,73 @@
+# Live Timing — mobile layout prototype
+
+The Live Timing WP page (ID 918) just meta-refresh-redirects to a raw
+AXWare export at `http://www.acecomputersks.com/live.htm`. That export is
+one long page: a bookmark grid of class codes, a couple of heat tables, a
+"Last 10 Runs" feed, then **one single `<table>` containing all ~46
+class result groups back to back**, followed by a class-winners summary.
+On a phone the embedded styles set the results table to `font-size: 2vw`,
+so everything is tiny and you have to scroll past every other class to
+find your own — and a manual refresh doesn't reliably return you to
+where you were.
+
+This folder is a sandbox for redesigning the *presentation* without
+touching the real site.
+
+## Files
+
+- `live-original.htm` — untouched snapshot of the current export, kept as
+  a baseline for diffing against future downloads.
+- `overlay.html` — the CSS + vanilla JS layer we're iterating on. It is
+  designed to be pasted onto the end of any fresh export, right before
+  `</BODY>`, without editing anything above it.
+- `live-mobile.htm` — `live-original.htm` + `overlay.html` appended. This
+  is the file to open in a browser to see the prototype.
+
+To pull a new export and rebuild the prototype:
+
+```bash
+curl -sL http://www.acecomputersks.com/live.htm -o docs/live-timing/live-original.htm
+python3 - <<'EOF'
+p = "docs/live-timing/live-mobile.htm"
+base = open("docs/live-timing/live-original.htm", encoding="utf-8").read()
+overlay = open("docs/live-timing/overlay.html", encoding="utf-8").read()
+i = base.rfind("</BODY>")
+open(p, "w", encoding="utf-8").write(base[:i] + overlay + "\n" + base[i:])
+EOF
+```
+
+## What the overlay does
+
+1. **Bigger, real font sizes.** Replaces the `2vw` sizing with a
+   `clamp()` so text stays readable instead of shrinking to fit a fixed
+   viewport-width formula.
+2. **Card layout on phones.** The overlay JS walks the one big results
+   table, tags each class-header row (`.classhead`) and each 12-column
+   entry row (`.entry-row`, always Pos / Class / Car # / Driver / Car /
+   Color / Run 1–4 / Best / Diff for this export format), and adds a
+   `data-label` to every cell. Under 640px, CSS turns each entry row into
+   a labeled card instead of a squeezed table row.
+3. **Class focus via the existing bookmark links.** The original
+   `#code` bookmark links still work. The overlay listens for
+   `hashchange` and, when the hash matches a known class code, hides
+   every other table (bookmark grid, heat tables, Last-10-Runs, summary)
+   and every other class's rows, leaving just that driver's class on
+   screen. A sticky bar at the top shows a "which class am I looking at"
+   dropdown as an alternate way to jump, plus a refresh button.
+4. **Reload-safe.** Because the filter is driven purely by
+   `location.hash`, hitting refresh (or the page's own Refresh button)
+   keeps you on your class — no more losing your place.
+
+## Known gaps / next steps
+
+- The bookmark grid, heat tables, and Last-10-Runs feed are only
+  lightly touched (wrapped instead of stacked as cards) since the main
+  complaint was the by-class results table. Worth a pass of its own.
+- Column labels (`Pos`, `Car #`, etc.) are inferred from column order,
+  not sourced from real headers — confirm this holds if AXWare ever
+  changes the export's column count.
+- Eventually we may want to strip the embedded `<STYLE>` block entirely
+  rather than layering on top of it, once we're happy with the design
+  here — that's explicitly out of scope for this pass.
+- This is a static prototype only; nothing here is wired into WordPress
+  or the real `acecomputersks.com` export yet.

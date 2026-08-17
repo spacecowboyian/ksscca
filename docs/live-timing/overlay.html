@@ -1,0 +1,322 @@
+<!-- ===================================================================
+     MOBILE OVERLAY (spacecowboyian prototype)
+     Everything below is appended on top of the original AXWare export.
+     Nothing above this comment was touched, so a fresh export can be
+     re-pasted at the top of this file at any time and this block just
+     re-attaches to it.
+==================================================================== -->
+<style>
+  :root{
+    --ink:#14181c;
+    --paper:#ffffff;
+    --row-alt:#eef2f7;
+    --accent:#0b3d91;
+    --accent-dark:#082a66;
+    --border:#ccd3da;
+    --good:#0a7d2c;
+    --bad:#b30000;
+    --bar-h:52px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body{
+    width:100% !important;
+    max-width:100% !important;
+    background:#f4f6f8;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);
+    -webkit-text-size-adjust:100%;
+  }
+
+  /* Kill the tiny viewport-relative font sizing from the original export */
+  table.live{
+    font-size: clamp(14px, 3.4vw, 17px) !important;
+    width:100% !important;
+    max-width:900px;
+    margin-left:auto !important;
+    margin-right:auto !important;
+    background:var(--paper);
+    border-radius:10px;
+    overflow:hidden;
+  }
+
+  th, td{
+    padding:8px 10px !important;
+    line-height:1.4;
+    white-space:normal !important;
+    word-break:break-word;
+  }
+
+  /* The bookmark/class-shortcut grid near the top: let it wrap into
+     chips instead of forcing a wide, mostly-empty table */
+  table.live:not(.mt-results) tr{
+    display:flex;
+    flex-wrap:wrap;
+  }
+  table.live:not(.mt-results) tr td,
+  table.live:not(.mt-results) tr th{
+    flex:1 1 auto;
+    min-width:0;
+  }
+
+  /* Class-group heading rows inside the big results table */
+  table.live tr.classhead th{
+    background:var(--accent) !important;
+    color:#fff !important;
+    text-align:left;
+    font-size:1.05em;
+    border-top:3px solid var(--accent-dark);
+    scroll-margin-top: calc(var(--bar-h) + 10px);
+  }
+
+  .rowhigh{ background:var(--row-alt) !important; }
+  .rowlow{ background:var(--paper) !important; }
+
+  .bestt{ color:var(--good); }
+
+  a.Button, a.bkmark, a.ttl{ -webkit-tap-highlight-color: rgba(0,0,0,.15); }
+
+  /* ---------- Sticky control bar injected by JS ---------- */
+  #mtBar{
+    position:sticky;
+    top:0;
+    z-index:100;
+    height:var(--bar-h);
+    background:var(--accent-dark);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:0 10px;
+    font-size:15px;
+    box-shadow:0 2px 6px rgba(0,0,0,.25);
+  }
+  #mtBar select{
+    flex:1 1 auto;
+    min-width:0;
+    max-width:100%;
+    padding:8px 6px;
+    border-radius:6px;
+    border:1px solid rgba(255,255,255,.5);
+    background:#fff;
+    color:var(--ink);
+    font-size:15px;
+  }
+  #mtBar button, #mtBar a{
+    flex:0 0 auto;
+    color:#fff;
+    background:rgba(255,255,255,.15);
+    border:1px solid rgba(255,255,255,.5);
+    border-radius:6px;
+    padding:8px 10px;
+    font-weight:bold;
+    text-decoration:none;
+    font-size:14px;
+    font-family:inherit;
+  }
+  #mtFocusLabel{
+    text-align:center;
+    font-weight:bold;
+    color:var(--accent-dark);
+    background:#e7edf9;
+    border-bottom:1px solid var(--border);
+    padding:8px 10px;
+    display:none;
+  }
+  body.mt-focused #mtFocusLabel{ display:block; }
+
+  /* Hide the noisy stuff that isn't useful once a driver is focused
+     on their own class */
+  body.mt-focused .mt-hide-when-focused{ display:none !important; }
+
+  /* ---------- Stacked "card" layout for the results table on phones ---------- */
+  @media (max-width: 640px){
+    table.live.mt-results tr.entry-row{
+      display:block;
+      margin:10px;
+      border:1px solid var(--border);
+      border-radius:8px;
+      overflow:hidden;
+    }
+    table.live.mt-results tr.entry-row td{
+      display:flex;
+      justify-content:space-between;
+      align-items:baseline;
+      gap:10px;
+      border-bottom:1px dotted var(--border);
+      padding:6px 12px !important;
+    }
+    table.live.mt-results tr.entry-row td:last-child{ border-bottom:none; }
+    table.live.mt-results tr.entry-row td::before{
+      content: attr(data-label);
+      font-weight:bold;
+      color:#5b6470;
+      flex-shrink:0;
+    }
+    table.live.mt-results tr.classhead{
+      margin:14px 10px 0 10px;
+      border-radius:8px;
+    }
+  }
+</style>
+
+<script>
+(function(){
+  "use strict";
+
+  var LABELS = ["Pos","Class","Car #","Driver","Car","Color","Run 1","Run 2","Run 3","Run 4","Best","Diff"];
+
+  function findResultsTable(){
+    var tables = document.querySelectorAll("table.live");
+    var best = null, bestCount = 0;
+    for (var i = 0; i < tables.length; i++){
+      var count = tables[i].querySelectorAll("a[name]").length;
+      if (count > bestCount){ bestCount = count; best = tables[i]; }
+    }
+    return best;
+  }
+
+  function tagResultsTable(table){
+    if (!table) return { classes: [] };
+    table.classList.add("mt-results");
+    var rows = table.querySelectorAll("tr");
+    var currentCode = null;
+    var classes = [];
+    var order = 0;
+
+    rows.forEach(function(row){
+      var headThA = row.querySelector("th[colspan] a[name]");
+      if (headThA){
+        var text = row.querySelector("th[colspan]").textContent.trim();
+        // format: "code - 'Full Name' Total Entries: N"
+        var m = text.match(/^(\S+)\s*-\s*'([^']*)'\s*Total Entries:\s*(\d+)/);
+        var code = m ? m[1] : (headThA.getAttribute("name") || "").replace(/^#/, "");
+        var name = m ? m[2] : code;
+        var entries = m ? m[3] : "";
+        currentCode = code;
+        row.classList.add("classhead");
+        row.setAttribute("data-class", code);
+        classes.push({ code: code, name: name, entries: entries, order: order++ });
+        return;
+      }
+      var tds = row.querySelectorAll("td");
+      if (tds.length === 12 && currentCode){
+        row.classList.add("entry-row");
+        row.setAttribute("data-class", currentCode);
+        tds.forEach(function(td, idx){
+          td.setAttribute("data-label", LABELS[idx] || "");
+        });
+      }
+    });
+
+    return { classes: classes };
+  }
+
+  function buildBar(classes){
+    var bar = document.createElement("div");
+    bar.id = "mtBar";
+
+    var select = document.createElement("select");
+    select.id = "mtSelect";
+    var opt0 = document.createElement("option");
+    opt0.value = "";
+    opt0.textContent = "Show all classes\u2026";
+    select.appendChild(opt0);
+    classes.sort(function(a,b){ return a.order - b.order; });
+    classes.forEach(function(c){
+      var opt = document.createElement("option");
+      opt.value = c.code;
+      opt.textContent = c.code.toUpperCase() + " \u2014 " + c.name + (c.entries ? " (" + c.entries + ")" : "");
+      select.appendChild(opt);
+    });
+
+    var refreshBtn = document.createElement("button");
+    refreshBtn.type = "button";
+    refreshBtn.textContent = "\u21bb";
+    refreshBtn.title = "Refresh";
+    refreshBtn.addEventListener("click", function(){ window.location.reload(); });
+
+    bar.appendChild(select);
+    bar.appendChild(refreshBtn);
+    document.body.insertBefore(bar, document.body.firstChild);
+
+    var focusLabel = document.createElement("div");
+    focusLabel.id = "mtFocusLabel";
+    document.body.insertBefore(focusLabel, bar.nextSibling);
+
+    return { bar: bar, select: select, focusLabel: focusLabel };
+  }
+
+  function markHideables(resultsTable){
+    // Everything on the page that isn't the results table gets hidden
+    // while a single class is focused: bookmark grid, heat tables,
+    // "Last 10 Runs" table, and the final class-winners summary table.
+    var tables = document.querySelectorAll("table.live");
+    tables.forEach(function(t){
+      if (t !== resultsTable) t.classList.add("mt-hide-when-focused");
+    });
+  }
+
+  function applyFilter(code, ui, resultsTable, classesByCode){
+    var isFocused = !!code && classesByCode[code];
+    document.body.classList.toggle("mt-focused", isFocused);
+    ui.select.value = isFocused ? code : "";
+
+    if (isFocused){
+      var info = classesByCode[code];
+      ui.focusLabel.textContent = "Showing " + code.toUpperCase() + " \u2014 " + info.name + " only";
+    }
+
+    var rows = resultsTable.querySelectorAll("tr.classhead, tr.entry-row");
+    rows.forEach(function(row){
+      if (!isFocused){
+        row.style.display = "";
+        return;
+      }
+      row.style.display = (row.getAttribute("data-class") === code) ? "" : "none";
+    });
+  }
+
+  function init(){
+    var resultsTable = findResultsTable();
+    var tagInfo = tagResultsTable(resultsTable);
+    var classesByCode = {};
+    tagInfo.classes.forEach(function(c){ classesByCode[c.code] = c; });
+
+    if (!resultsTable || tagInfo.classes.length === 0) return;
+
+    markHideables(resultsTable);
+    var ui = buildBar(tagInfo.classes);
+
+    function currentHashCode(){
+      return decodeURIComponent((window.location.hash || "").replace(/^#/, ""));
+    }
+
+    function syncFromHash(){
+      applyFilter(currentHashCode(), ui, resultsTable, classesByCode);
+    }
+
+    ui.select.addEventListener("change", function(){
+      var code = ui.select.value;
+      if (code){ window.location.hash = code; }
+      else {
+        history.replaceState(null, "", window.location.pathname + window.location.search);
+        applyFilter("", ui, resultsTable, classesByCode);
+      }
+    });
+
+    window.addEventListener("hashchange", syncFromHash);
+
+    // Respects a hash already present on load (including after the
+    // manual Refresh reload, since the hash is preserved by the browser).
+    syncFromHash();
+  }
+
+  if (document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();
+</script>
