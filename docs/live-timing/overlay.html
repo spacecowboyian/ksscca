@@ -357,26 +357,29 @@
   }
   .mt-runs.mt-runs-5{ grid-template-columns:repeat(5, 1fr); }
   .mt-run-chip{
-    background:var(--row-alt);
+    background:var(--accent-dark);
+    color:#e8edf5;
     padding:14px 6px;
     font-size:1.05em;
+    font-weight:600;
     text-align:center;
-    border-right:1px solid var(--border);
-    border-bottom:1px solid var(--border);
+    border-right:1px solid rgba(255,255,255,0.15);
+    border-bottom:1px solid rgba(255,255,255,0.15);
   }
   .mt-runs:not(.mt-runs-5) .mt-run-chip:nth-child(4n){ border-right:0; }
   .mt-runs.mt-runs-5 .mt-run-chip:nth-child(5n){ border-right:0; }
   .mt-run-chip .mt-run-label{
     display:block;
     font-size:0.7em;
-    color:#5b6470;
+    color:#a9b8cc;
     margin-bottom:2px;
   }
   .mt-run-chip.mt-run-best{
-    background:#e5f4e9;
-    color:var(--good);
+    background:var(--good);
+    color:#fff;
     font-weight:bold;
   }
+  .mt-run-chip.mt-run-best .mt-run-label{ color:#d3f2dc; }
 </style>
 
 <script>
