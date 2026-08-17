@@ -335,7 +335,7 @@
   .mt-entry[open] .mt-chevron{ transform:rotate(180deg); }
 
   .mt-details{
-    padding:0 0 12px;
+    padding:0;
     border-top:1px solid var(--border);
   }
   .mt-details-grid{
@@ -351,10 +351,11 @@
 
   .mt-runs{
     display:grid;
-    grid-template-columns:repeat(5, 1fr);
+    grid-template-columns:repeat(4, 1fr);
     margin-top:10px;
     border-top:1px solid var(--border);
   }
+  .mt-runs.mt-runs-5{ grid-template-columns:repeat(5, 1fr); }
   .mt-run-chip{
     background:var(--row-alt);
     padding:14px 6px;
@@ -363,7 +364,8 @@
     border-right:1px solid var(--border);
     border-bottom:1px solid var(--border);
   }
-  .mt-run-chip:nth-child(5n){ border-right:0; }
+  .mt-runs:not(.mt-runs-5) .mt-run-chip:nth-child(4n){ border-right:0; }
+  .mt-runs.mt-runs-5 .mt-run-chip:nth-child(5n){ border-right:0; }
   .mt-run-chip .mt-run-label{
     display:block;
     font-size:0.7em;
@@ -595,7 +597,7 @@
       details.appendChild(grid);
 
       if (d.runs.length){
-        var runsWrap = el("div", "mt-runs");
+        var runsWrap = el("div", "mt-runs" + (d.runs.length > 4 ? " mt-runs-5" : ""));
         d.runs.forEach(function(r, i){
           var chip = el("div", "mt-run-chip" + (r.isBest ? " mt-run-best" : ""));
           chip.appendChild(el("span", "mt-run-label", "Run " + (i + 1)));
