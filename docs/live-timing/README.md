@@ -75,17 +75,51 @@ EOF
    list with no headers (and no odd rounded-corner artifact) in
    between. The banner still shows in the unfiltered all-classes view,
    where it's a useful section divider.
+8. **Redesigned landing view.** When no class/driver is focused, the
+   page no longer shows the original messy header, bookmark grid, heat
+   tables, or the full 46-class results listing. Instead it shows:
+   - A clean single-card header (event name, generated timestamp,
+     "Unofficial" badge) instead of the original stack of black
+     `<th>` blocks.
+   - A "Classes — tap to jump" list: every class code/name with an
+     entry count, tapping one jumps straight into that class's
+     leaderboard (same as the original bookmark links, just easier to
+     read/tap).
+   - A reformatted "Last 10 Runs" feed: driver name/car, most recent
+     run time (black, or green if that run is their personal best so
+     far), and a "Best: X • Run N" line underneath. Each entry links to
+     that driver's anchor (`#driver-<classcode>-<carNumber>`), same as
+     the class leaderboard entries.
+   - The original "Top Times Of Day" (raw + pax + per-category leaders)
+     table, restyled to match (navy header instead of black) but
+     otherwise untouched — kept because it's genuinely useful at a
+     glance.
+   - The full by-class results table is no longer rendered on the
+     landing view at all — it only appears once a class or driver is
+     focused via the dropdown, a class-code link, or a `#driver-...`
+     deep link. This trims the landing page from a multi-thousand-row
+     scroll down to a few screens.
+   All-around, the goal is that "Back to overview" (the old "Show all
+   classes…" option) gets you this curated landing view, not a firehose
+   of every class stacked on one page.
 
 ## Known gaps / next steps
 
-- The bookmark grid, heat tables, and Last-10-Runs feed are only
-  lightly touched (wrapped instead of stacked as cards) since the main
-  complaint was the by-class results table. Worth a pass of its own.
+- The original bookmark grid, heat tables (Heat #1/#2), and the
+  original Last-10-Runs table are now hidden entirely (`.mt-removed`)
+  rather than just restyled, since they're superseded by the new class
+  list and feed. They're still present in the DOM for
+  debugging/view-source purposes.
 - Column labels (`Pos`, `Car #`, etc.) are inferred from column order,
   not sourced from real headers — confirm this holds if AXWare ever
   changes the export's column count.
+- The Last-10-Runs feed parser (`parseLast10`) walks run-row pairs
+  heuristically (first `<td>` is a bare integer = a run row, the next
+  `<tr>` holds that run's "Best:" value) — revisit if AXWare ever
+  changes that table's row shape.
 - Eventually we may want to strip the embedded `<STYLE>` block entirely
   rather than layering on top of it, once we're happy with the design
   here — that's explicitly out of scope for this pass.
 - This is a static prototype only; nothing here is wired into WordPress
-  or the real `acecomputersks.com` export yet.
+  or the real `acecomputersks.com` export yet. See GitHub issue #18 for
+  the production deployment plan (a WP Engine mu-plugin proxy).

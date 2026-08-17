@@ -2831,6 +2831,8 @@ a.Button {
     max-width:900px;
     margin-left:auto !important;
     margin-right:auto !important;
+    margin-top:0 !important;
+    margin-bottom:0 !important;
     background:var(--paper);
   }
 
@@ -2839,11 +2841,28 @@ a.Button {
     overflow:hidden;
   }
 
+  /* Tables re-homed inside a .mt-card (currently just Top Times) get
+     their rounding/shadow from the card instead, so they don't double up. */
+  .mt-card table.live{
+    border-radius:0;
+    box-shadow:none;
+    max-width:none;
+  }
+
   th, td{
     padding:8px 10px !important;
     line-height:1.4;
     white-space:normal !important;
     word-break:break-word;
+  }
+
+  /* The original export leans on plain black <th> bars for every
+     header (title, bookmarks, heats, top-times...). Give whatever of
+     those survives (currently just the Top Times table) our accent
+     color instead of flat black, so it reads as one design. */
+  th{
+    background:var(--accent) !important;
+    color:#fff !important;
   }
 
   /* The bookmark/class-shortcut grid near the top: let it wrap into
@@ -2856,6 +2875,118 @@ a.Button {
   table.live:not(.mt-results) tr th{
     flex:1 1 auto;
     min-width:0;
+  }
+
+  /* Original title table, bookmark grid, and heat tables are fully
+     replaced by the custom landing widgets below -- never show them. */
+  .mt-removed{ display:none !important; }
+
+  /* ---------- Custom landing view: header, class list, recent runs ---------- */
+  .mt-card{
+    background:var(--paper);
+    max-width:900px;
+    margin:14px auto;
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow:0 1px 3px rgba(0,0,0,.12);
+  }
+
+  .mt-page-header{ padding:14px 14px 12px; }
+  .mt-page-title{
+    font-weight:bold;
+    font-size:1.1em;
+    color:var(--ink);
+  }
+  .mt-page-subtitle{
+    font-size:0.85em;
+    color:#5b6470;
+    margin-top:4px;
+  }
+  .mt-unofficial{
+    display:inline-block;
+    margin-top:8px;
+    font-size:0.75em;
+    font-weight:bold;
+    letter-spacing:.02em;
+    color:var(--bad);
+    background:#fde8e8;
+    border-radius:4px;
+    padding:2px 8px;
+  }
+
+  .mt-section-title{
+    background:var(--accent);
+    color:#fff;
+    font-weight:bold;
+    font-size:0.95em;
+    padding:8px 12px;
+  }
+
+  .mt-class-list, .mt-feed{ padding:0; }
+
+  .mt-class-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 12px;
+    border-bottom:1px solid var(--border);
+    color:inherit;
+    text-decoration:none;
+  }
+  .mt-class-row:last-child{ border-bottom:0; }
+  .mt-class-code{
+    flex:0 0 auto;
+    font-weight:bold;
+    color:var(--accent-dark);
+    min-width:3.5em;
+  }
+  .mt-class-name{ flex:1 1 auto; min-width:0; }
+  .mt-class-count{
+    flex:0 0 auto;
+    color:#5b6470;
+    font-size:0.9em;
+  }
+
+  .mt-feed-entry{
+    padding:10px 12px;
+    border-bottom:1px solid var(--border);
+    text-decoration:none;
+    color:inherit;
+    display:block;
+  }
+  .mt-feed-entry:last-child{ border-bottom:0; }
+  .mt-feed-row{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+  }
+  .mt-feed-name{
+    flex:1 1 auto;
+    min-width:0;
+    font-size:1.05em;
+    font-weight:bold;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .mt-feed-time{
+    flex:0 0 auto;
+    font-size:1.1em;
+    font-weight:bold;
+    color:var(--ink);
+  }
+  .mt-feed-time.mt-run-best{ color:var(--good); }
+  .mt-feed-car{
+    font-size:0.85em;
+    color:#5b6470;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .mt-feed-meta{
+    font-size:0.8em;
+    color:#5b6470;
+    margin-top:2px;
   }
 
   /* Class-group heading rows inside the big results table */
@@ -2913,10 +3044,8 @@ a.Button {
     font-size:14px;
     font-family:inherit;
   }
-  /* Hide the noisy stuff that isn't useful once a driver is focused
-     on their own class. The class-heading banner is redundant with the
-     dropdown once focused, so it goes too -- straight from the bar to
-     the entries. */
+  /* Hide the landing widgets once a class is focused -- the sticky
+     dropdown bar goes straight into that class's entry list. */
   body.mt-focused .mt-hide-when-focused{ display:none !important; }
   body.mt-focused tr.classhead{ display:none !important; }
 
@@ -3058,6 +3187,17 @@ a.Button {
       if (count > bestCount){ bestCount = count; best = tables[i]; }
     }
     return best;
+  }
+
+  // Finds the first table.live whose text matches the given regex,
+  // used to reliably pick out the title/bookmark/heat/last-10/top-times
+  // tables regardless of their exact position in the export.
+  function findTableByText(regex){
+    var tables = document.querySelectorAll("table.live");
+    for (var i = 0; i < tables.length; i++){
+      if (regex.test(tables[i].textContent)) return tables[i];
+    }
+    return null;
   }
 
   // Parses a "Best" or "Run" cell's text into a sortable number.
@@ -3234,6 +3374,115 @@ a.Button {
     group.headRow.parentNode.insertBefore(wrapTr, group.headRow.nextSibling);
   }
 
+  // ---------- Landing view: custom header, class list, recent runs ----------
+
+  function buildHeader(){
+    var titleTable = findTableByText(/Timing By/i);
+    if (!titleTable) return null;
+    var ths = titleTable.querySelectorAll("th");
+    if (ths.length < 4) return null;
+
+    titleTable.classList.add("mt-removed");
+
+    var card = el("div", "mt-card mt-page-header mt-hide-when-focused");
+    card.appendChild(el("div", "mt-page-title", ths[1].textContent.replace(/\s+/g, " ").trim()));
+    card.appendChild(el("div", "mt-page-subtitle", ths[2].textContent.replace(/\s+/g, " ").trim()));
+
+    var unofficial = ths[3].querySelector("i");
+    if (unofficial && unofficial.textContent.trim()){
+      card.appendChild(el("div", "mt-unofficial", unofficial.textContent.trim()));
+    }
+    return card;
+  }
+
+  function buildClassList(classes){
+    var card = el("div", "mt-card mt-class-list mt-hide-when-focused");
+    card.appendChild(el("div", "mt-section-title", "Classes \u2014 tap to jump"));
+
+    classes.forEach(function(c){
+      var row = document.createElement("a");
+      row.className = "mt-class-row";
+      row.href = "#" + c.code;
+      row.appendChild(el("div", "mt-class-code", c.code.toUpperCase()));
+      row.appendChild(el("div", "mt-class-name", c.name));
+      if (c.entries){
+        row.appendChild(el("div", "mt-class-count", c.entries + (c.entries === "1" ? " entry" : " entries")));
+      }
+      card.appendChild(row);
+    });
+
+    return card;
+  }
+
+  function parseLast10(table){
+    if (!table) return [];
+    var rows = table.querySelectorAll("tr");
+    var runs = [];
+
+    for (var i = 0; i < rows.length; i++){
+      var tds = rows[i].querySelectorAll("td");
+      if (tds.length < 5) continue;
+      var runNum = tds[0].textContent.trim();
+      if (!/^\d+$/.test(runNum)) continue; // not a "run" row -- skip header/best rows
+
+      var entryLink = tds[1].querySelector("a");
+      var classCode = entryLink ? (entryLink.getAttribute("href") || "").replace(/^#/, "") : "";
+      var entryParts = tds[1].textContent.replace(/\s+/g, " ").trim().split(" ");
+      var carNumber = entryParts.length > 1 ? entryParts[entryParts.length - 1] : "";
+
+      var bestText = "";
+      var nextTds = rows[i + 1] ? rows[i + 1].querySelectorAll("td") : [];
+      if (nextTds.length >= 2){
+        var m = nextTds[1].textContent.match(/Best:\s*(\S+)/i);
+        bestText = m ? m[1] : "";
+      }
+
+      var timeText = tds[4].textContent.trim();
+      runs.push({
+        runNum: runNum,
+        classCode: classCode,
+        carNumber: carNumber,
+        driver: tds[2].textContent.trim(),
+        car: tds[3].textContent.trim(),
+        timeText: timeText,
+        isBest: parseTimeSeconds(timeText) !== null &&
+          parseTimeSeconds(timeText) === parseTimeSeconds(bestText),
+        bestText: bestText
+      });
+    }
+    return runs;
+  }
+
+  function buildFeed(last10Table){
+    var runs = parseLast10(last10Table);
+    if (!runs.length) return null;
+
+    var card = el("div", "mt-card mt-feed mt-hide-when-focused");
+    card.appendChild(el("div", "mt-section-title", "Last 10 Runs"));
+
+    runs.forEach(function(r){
+      var entry = document.createElement("a");
+      entry.className = "mt-feed-entry";
+      entry.href = "#" + driverAnchorId(r.classCode, r.carNumber, 0);
+
+      var row = el("div", "mt-feed-row");
+      row.appendChild(el("div", "mt-feed-name", r.driver || "\u2014"));
+      row.appendChild(el("div", "mt-feed-time" + (r.isBest ? " mt-run-best" : ""), r.timeText || "\u2014"));
+      entry.appendChild(row);
+
+      var carLine = (r.classCode ? r.classCode.toUpperCase() + " #" + r.carNumber + " \u2014 " : "") + (r.car || "");
+      entry.appendChild(el("div", "mt-feed-car", carLine));
+
+      if (r.bestText){
+        entry.appendChild(el("div", "mt-feed-meta", "Best: " + r.bestText + "  \u2022  Run " + r.runNum));
+      }
+
+      card.appendChild(entry);
+    });
+
+    return card;
+  }
+
   function buildBar(classes){
     var bar = document.createElement("div");
     bar.id = "mtBar";
@@ -3242,7 +3491,7 @@ a.Button {
     select.id = "mtSelect";
     var opt0 = document.createElement("option");
     opt0.value = "";
-    opt0.textContent = "Show all classes\u2026";
+    opt0.textContent = "\u2190 Back to overview";
     select.appendChild(opt0);
     classes.sort(function(a,b){ return a.order - b.order; });
     classes.forEach(function(c){
@@ -3265,13 +3514,15 @@ a.Button {
     return { bar: bar, select: select };
   }
 
-  function markHideables(resultsTable){
-    // Everything on the page that isn't the results table gets hidden
-    // while a single class is focused: bookmark grid, heat tables,
-    // "Last 10 Runs" table, and the final class-winners summary table.
+  function markHideables(resultsTable, extraRemoved){
+    // The Top Times (raw/pax) table is the only original secondary
+    // table kept -- it's folded into the landing view and hidden only
+    // while a class is focused. Everything the custom widgets replace
+    // (title, bookmark grid, heat tables, last-10) is removed outright.
     var tables = document.querySelectorAll("table.live");
     tables.forEach(function(t){
-      if (t !== resultsTable) t.classList.add("mt-hide-when-focused");
+      if (t === resultsTable || extraRemoved.indexOf(t) !== -1) return;
+      t.classList.add("mt-hide-when-focused");
     });
   }
 
@@ -3280,12 +3531,15 @@ a.Button {
     document.body.classList.toggle("mt-focused", isFocused);
     ui.select.value = isFocused ? code : "";
 
+    // Landing view (no class picked) never shows the full 46-class
+    // results table -- the class list + recent-runs feed are the
+    // landing content instead. Only render the results table once a
+    // class is actually focused.
+    resultsTable.style.display = isFocused ? "" : "none";
+    if (!isFocused) return;
+
     var rows = resultsTable.querySelectorAll("tr.classhead, tr.entry-row, tr.mt-board-row");
     rows.forEach(function(row){
-      if (!isFocused){
-        row.style.display = "";
-        return;
-      }
       row.style.display = (row.getAttribute("data-class") === code) ? "" : "none";
     });
   }
@@ -3322,8 +3576,41 @@ a.Button {
 
     tagInfo.classes.forEach(buildBoard);
 
-    markHideables(resultsTable);
     var ui = buildBar(tagInfo.classes);
+
+    // Landing widgets, inserted right after the sticky bar, in order:
+    // header, class list, recent runs feed, then the original raw/pax
+    // "Top Times" table (moved here rather than left at the bottom).
+    var last10Table = findTableByText(/Last 10 Runs/i);
+    var topTimesTable = findTableByText(/Top Times Of Day/i);
+    var heatTable = findTableByText(/Heat #1/i);
+
+    var header = buildHeader();
+    var classList = buildClassList(tagInfo.classes);
+    var feed = buildFeed(last10Table);
+
+    var anchor = ui.bar;
+    [header, classList, feed].forEach(function(widget){
+      if (widget){ anchor.parentNode.insertBefore(widget, anchor.nextSibling); anchor = widget; }
+    });
+    if (topTimesTable){
+      topTimesTable.classList.add("mt-hide-when-focused");
+      var topTimesCard = el("div", "mt-card");
+      topTimesTable.parentNode.insertBefore(topTimesCard, topTimesTable);
+      topTimesCard.appendChild(topTimesTable);
+      anchor.parentNode.insertBefore(topTimesCard, anchor.nextSibling);
+    }
+
+    if (last10Table) last10Table.classList.add("mt-removed");
+    if (heatTable) heatTable.classList.add("mt-removed");
+
+    // The bookmark grid (class shortcut links) is now fully replaced
+    // by the class list above -- find it by its distinctive links.
+    document.querySelectorAll("table.live").forEach(function(t){
+      if (t !== resultsTable && t.querySelector("a.bkmark")) t.classList.add("mt-removed");
+    });
+
+    markHideables(resultsTable, [topTimesTable].filter(Boolean));
 
     function currentHash(){
       return decodeURIComponent((window.location.hash || "").replace(/^#/, ""));
