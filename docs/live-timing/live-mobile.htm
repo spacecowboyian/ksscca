@@ -2832,6 +2832,9 @@ a.Button {
     margin-left:auto !important;
     margin-right:auto !important;
     background:var(--paper);
+  }
+
+  table.live:not(.mt-results){
     border-radius:10px;
     overflow:hidden;
   }
@@ -2910,27 +2913,17 @@ a.Button {
     font-size:14px;
     font-family:inherit;
   }
-  #mtFocusLabel{
-    text-align:center;
-    font-weight:bold;
-    color:var(--accent-dark);
-    background:#e7edf9;
-    border-bottom:1px solid var(--border);
-    padding:8px 10px;
-    display:none;
-  }
-  body.mt-focused #mtFocusLabel{ display:block; }
-
   /* Hide the noisy stuff that isn't useful once a driver is focused
-     on their own class */
+     on their own class. The class-heading banner is redundant with the
+     dropdown once focused, so it goes too -- straight from the bar to
+     the entries. */
   body.mt-focused .mt-hide-when-focused{ display:none !important; }
-
-  table.live.mt-results tr.classhead{
-    margin:0;
-    border-radius:0;
-  }
+  body.mt-focused tr.classhead{ display:none !important; }
 
   td.mt-board-cell{ padding:0 !important; }
+
+  .mt-entry{ scroll-margin-top: calc(var(--bar-h) + 6px); }
+  .mt-entry.mt-highlight{ background:#fff6d9; }
 
   /* The raw per-entry <tr> data is replaced by the .mt-board list below;
      keep it in the DOM (for view-source / fallback) but never show it. */
@@ -3164,6 +3157,17 @@ a.Button {
     return e;
   }
 
+  function slugify(text){
+    return String(text || "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "") || "x";
+  }
+
+  function driverAnchorId(code, carNumber, idx){
+    return "driver-" + slugify(code) + "-" + slugify(carNumber || String(idx));
+  }
+
   function buildBoard(group){
     var wrapTr = document.createElement("tr");
     wrapTr.className = "mt-board-row";
@@ -3179,6 +3183,8 @@ a.Button {
     group.drivers.forEach(function(d, idx){
       var entry = document.createElement("details");
       entry.className = "mt-entry";
+      entry.id = driverAnchorId(group.code, d.carNumber, idx);
+      entry.setAttribute("data-driver-id", entry.id);
 
       var summary = document.createElement("summary");
 
@@ -3256,11 +3262,7 @@ a.Button {
     bar.appendChild(refreshBtn);
     document.body.insertBefore(bar, document.body.firstChild);
 
-    var focusLabel = document.createElement("div");
-    focusLabel.id = "mtFocusLabel";
-    document.body.insertBefore(focusLabel, bar.nextSibling);
-
-    return { bar: bar, select: select, focusLabel: focusLabel };
+    return { bar: bar, select: select };
   }
 
   function markHideables(resultsTable){
@@ -3278,11 +3280,6 @@ a.Button {
     document.body.classList.toggle("mt-focused", isFocused);
     ui.select.value = isFocused ? code : "";
 
-    if (isFocused){
-      var info = classesByCode[code];
-      ui.focusLabel.textContent = "Showing " + code.toUpperCase() + " \u2014 " + info.name + " only";
-    }
-
     var rows = resultsTable.querySelectorAll("tr.classhead, tr.entry-row, tr.mt-board-row");
     rows.forEach(function(row){
       if (!isFocused){
@@ -3291,6 +3288,28 @@ a.Button {
       }
       row.style.display = (row.getAttribute("data-class") === code) ? "" : "none";
     });
+  }
+
+  function clearHighlights(){
+    document.querySelectorAll(".mt-entry.mt-highlight").forEach(function(e){
+      e.classList.remove("mt-highlight");
+    });
+  }
+
+  // A hash is either a class code (e.g. "camc") or a driver anchor
+  // (e.g. "driver-camc-30"). Resolve it, filter to the right class
+  // either way, and for a driver hash also expand + scroll to it.
+  function resolveTarget(hash, classesByCode){
+    if (!hash) return { code: "" };
+    if (classesByCode[hash]) return { code: hash };
+    var m = /^driver-(.+)-([^-]+)$/.exec(hash);
+    if (m){
+      var code = Object.keys(classesByCode).filter(function(c){
+        return slugify(c) === m[1];
+      })[0];
+      if (code) return { code: code, driverId: hash };
+    }
+    return { code: "" };
   }
 
   function init(){
@@ -3306,12 +3325,26 @@ a.Button {
     markHideables(resultsTable);
     var ui = buildBar(tagInfo.classes);
 
-    function currentHashCode(){
+    function currentHash(){
       return decodeURIComponent((window.location.hash || "").replace(/^#/, ""));
     }
 
     function syncFromHash(){
-      applyFilter(currentHashCode(), ui, resultsTable, classesByCode);
+      var target = resolveTarget(currentHash(), classesByCode);
+      applyFilter(target.code, ui, resultsTable, classesByCode);
+      clearHighlights();
+
+      if (target.driverId){
+        var entry = document.getElementById(target.driverId);
+        if (entry){
+          entry.open = true;
+          entry.classList.add("mt-highlight");
+          // Let the filter's display changes settle before scrolling.
+          window.requestAnimationFrame(function(){
+            entry.scrollIntoView({ block: "start" });
+          });
+        }
+      }
     }
 
     ui.select.addEventListener("change", function(){
@@ -3337,6 +3370,5 @@ a.Button {
   }
 })();
 </script>
-
 </BODY>
 </HTML>

@@ -61,6 +61,20 @@ EOF
 4. **Reload-safe.** Because the filter is driven purely by
    `location.hash`, hitting refresh (or the page's own Refresh button)
    keeps you on your class — no more losing your place.
+5. **Edge-to-edge list, no gaps.** Leaderboard entries have no card
+   margins/borders/radius — just a hairline `border-bottom` between
+   rows, so the list uses the full screen width with zero wasted space.
+6. **Per-driver deep links.** Every entry gets a stable id
+   (`driver-<classcode>-<carNumber>`, e.g. `#driver-camc-30`). Linking
+   straight to a driver filters to their class (same as a class-code
+   link), then also expands that driver's card, highlights it briefly,
+   and scrolls it into view.
+7. **Focused view is just the dropdown + the list.** When a class is
+   focused, the "Showing X only" label and the blue class-name banner
+   are hidden — the sticky dropdown bar goes straight into the entry
+   list with no headers (and no odd rounded-corner artifact) in
+   between. The banner still shows in the unfiltered all-classes view,
+   where it's a useful section divider.
 
 ## Known gaps / next steps
 
