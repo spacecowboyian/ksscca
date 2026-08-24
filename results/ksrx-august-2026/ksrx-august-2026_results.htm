@@ -312,30 +312,155 @@ button{font:inherit;color:inherit}
   .entry-body{padding-left:calc(var(--col-rank) + 8px)}
 }
 
+/* Every entry shares one column template, so badges, names and times line
+   up down the page exactly as a table would, while still reflowing. */
+.entry-head{
+  display:grid;
+  grid-template-columns:var(--col-rank) minmax(0,1fr) auto;
+  align-items:baseline;
+  gap:var(--gap) 10px;
+  width:100%;text-align:left;cursor:pointer;
+  background:none;border:0;
+  padding:var(--pad-y) var(--pad-x) var(--pad-y) 0;
+}
+/* The whole entry highlights, header and expanded body together - a row
+   that is open should not have its runs sitting on a different ground
+   from the name above them. */
+.entry:hover{background:var(--hover)}
+.entry.static .entry-head{cursor:default}
+.entry.static:hover{background:none}
+
+/* No box: the number carries the meaning on its own, and dropping the
+   border reclaims the width it was costing. --gold is too light to read as
+   text on white (about 2.3:1), so trophy positions use a darkened gold that
+   clears AA while staying recognisably the same colour. */
+.rank{
+  grid-column:1;grid-row:1;justify-self:stretch;text-align:center;
+  font-size:14px;font-weight:700;color:var(--ink);
+  font-variant-numeric:tabular-nums;
+}
+.rank.trophy{color:var(--gold-text)}
+
+/* These are spans so they can live inside the header button, so they need
+   block display back to stack the way the layout expects. */
+.who{grid-row:1;display:block;min-width:0}
+.name,.car,.total,.gap{display:block}
+.car{display:flex;align-items:center;gap:6px;min-width:0}
+.cartext{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Both controls appear only once a row is open. Hidden they take no space
+   at all rather than sitting at zero opacity, so a collapsed row gives its
+   full width to the car name. */
+.linkbtn,.watchbtn{
+  display:none;flex:none;align-self:center;
+  appearance:none;border:0;background:none;padding:2px;cursor:pointer;
+  line-height:0;color:var(--faint);text-decoration:none;
+}
+.entry.open .linkbtn,
+.entry.open .watchbtn{display:inline-flex}
+/* The glyphs have different viewBoxes, so each gets its own size. */
+.linkbtn svg{width:15px;height:12px;fill:currentColor;display:block}
+.watchbtn svg{width:12px;height:12px;fill:currentColor;display:block}
+.linkbtn:hover,.watchbtn:hover{color:var(--accent)}
+.watchbtn.on{color:var(--good)}
+.linkbtn:focus-visible,.watchbtn:focus-visible{
+  outline:2px solid var(--accent);outline-offset:1px;
+}
+
+.times{grid-row:1;display:block;text-align:right;min-width:96px}
+.total{font-weight:700;font-variant-numeric:tabular-nums;font-size:clamp(15px,3.8vw,17px)}
+.gap{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.gap.lead{color:var(--good);font-weight:600}
+
+/* Body carries the same left edge as the badge above it. */
+.entry-body{padding:0 var(--pad-x) var(--pad-y) calc(var(--col-rank) + 10px)}
+.entry:not(.open) .entry-body{display:none}
+
+/* Run strip: chips carry their own run number, so a wrap never separates a
+   time from the run it belongs to, and the grid keeps R1 under R1 across
+   every driver. No breakpoint is involved. */
+.strip{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(96px,1fr));
+  gap:var(--gap);
+}
+.run{
+  display:flex;align-items:baseline;gap:5px;
+  padding:3px 7px;font-size:13px;font-variant-numeric:tabular-nums;
+  background:var(--row-alt);border:1px solid var(--hair);color:var(--ink);
+}
+.run .n{font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--faint)}
+.run .p{font-size:10px;font-weight:700;color:var(--bad)}
+.run.best{background:#e2f5e8;border-color:#a9dcbb;color:var(--good);font-weight:700}
+.run.best .n{color:#5c9a72}
+.run.pen{background:#fdece1;border-color:#f0c9ae}
+.run.pen .n{color:#a9724a}
+.run.dnf{background:#fde8e8;border-color:#f0b8b8}
+.run.dnf .n{color:#a86060}
+
+.foot-line{
+  margin-top:var(--gap);display:flex;flex-wrap:wrap;align-items:baseline;
+  gap:4px 14px;font-size:12.5px;color:var(--muted);
+  font-variant-numeric:tabular-nums;
+}
+.foot-line b{color:var(--ink);font-weight:600}
+/* Once there is width to spare, the row collapses from two lines to one:
+   the car joins the name, and the gap moves left of the total so the time
+   people look for stays hard against the right edge. .times becomes
+   display:contents so its two children join the row's own grid. */
+@media (min-width:760px){
+  .entry-head{
+    grid-template-columns:var(--col-rank) minmax(0,1fr) var(--col-gap)
+                         var(--col-total);
+    gap:0 10px;
+    padding:7px var(--pad-x) 7px 0;
+  }
+  /* Every item is pinned explicitly: with .times becoming display:contents,
+     leaving any of them to auto-placement puts them in the wrong order. */
+  .rank{grid-row:1;grid-column:1;font-size:13px}
+  .total{min-width:0}
+  .who{grid-row:1;grid-column:2;display:flex;align-items:baseline;gap:10px;min-width:0}
+  .name{flex:0 0 auto}
+  .car{flex:1 1 auto;min-width:0;font-size:12.5px}
+  .times{display:contents}
+  .gap{grid-row:1;grid-column:3;text-align:right;white-space:nowrap;font-size:12.5px}
+  .total{grid-row:1;grid-column:4;text-align:right;min-width:88px;font-size:16px}
+
+  /* The class heading collapses the same way a driver row does: the stats
+     join the class name instead of taking a second line. .cls-title becomes
+     display:contents so its children become flex items of the heading, and
+     every one is given an explicit order. */
+  .cls-head{
+    grid-template-columns:var(--col-rank) minmax(0,1fr) var(--col-gap)
+                         var(--col-total);
+  }
+  .cls-main{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .cls-stats{margin-top:0}
+  .cls-n{grid-column:4}
+}
+
+/* On a phone the first column is pure marker - a class code and a position
+   number - so it gives up the page's left padding and sits against the edge
+   of the screen. The name column starts ~19px earlier as a result, which is
+   width the driver and car names actually use. */
+@media (max-width:759px){
+  /* The sheet's side rules only exist to separate it from the surround on a
+     wide screen; below that the sheet fills the viewport, so they are just a
+     hairline keeping the class chip off the edge. */
+  .wrap{border-left:0;border-right:0}
+  .cls-head,
+  .entry-head{gap:var(--gap) 8px}
+  /* The run strip lines up with the names rather than running to the very
+     edge, so the body still reads as belonging to the row above it. */
+  .entry-body{padding-left:calc(var(--col-rank) + 8px)}
+}
+
 /* ------------------------------------------------------------- watchlist */
-.cmp-table{display:none;overflow-x:auto;padding:0 var(--pad-x) 4px 0}
-.cmp-table table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
-.cmp-table th,.cmp-table td{
-  padding:7px 8px;text-align:right;white-space:nowrap;
-  border-bottom:1px solid var(--hair);font-size:13px;
-}
-.cmp-table th{
-  font-size:11px;letter-spacing:.05em;text-transform:uppercase;
-  color:var(--muted);font-weight:600;
-}
-.cmp-table td.l,.cmp-table th.l{text-align:left;padding-left:0}
-.cmp-name{display:block;font-weight:600;font-size:14px}
-.cmp-car{display:block;font-size:12px;color:var(--muted)}
-.cmp-table td.tot{font-weight:700;font-size:14px}
-.cmp-table td.cmprun .p{color:var(--bad);font-size:10px;font-weight:700}
-/* Gold marks the quickest on that run, and only in this view - green still
-   means a driver's own best, which is a different question. */
-.cmp-table td.cmpwin{color:var(--gold-text);font-weight:700}
 .run.win{background:var(--gold-tint-light);border-color:#dcc68a;
   color:var(--gold-text);font-weight:700}
 .run.win .n{color:#a08340}
 
-.cmp-cards .entry{border-bottom:1px solid var(--hair)}
 .cmp-clear{padding:12px var(--pad-x) 18px 0}
 .cmp-clear-btn{
   appearance:none;border:1px solid var(--border);background:var(--paper);
@@ -343,11 +468,6 @@ button{font:inherit;color:inherit}
   padding:6px 12px;cursor:pointer;
 }
 .cmp-clear-btn:hover{color:var(--bad);border-color:var(--bad)}
-
-@media (min-width:760px){
-  .cmp-table{display:block}
-  .cmp-cards{display:none}
-}
 
 /* ------------------------------------------------------------------ misc */
 .pane[hidden]{display:none}
@@ -545,6 +665,12 @@ function entry(e, ctx){
     if (r.dnf || r.time == null) cls += " dnf";
     else if (r.penalty > 0) cls += " pen";
     else if (best && r === best) cls += " best";
+    /* In the watchlist a run can also be the quickest of the group, which
+       outranks the other states - gold beats green. */
+    if (ctx.winners && ctx.winners[i] != null &&
+        r.time != null && !r.dnf && r.total === ctx.winners[i]){
+      cls = "run win";
+    }
 
     var chip = el("div", cls);
     chip.appendChild(el("span", "n", "R" + (i + 1)));
@@ -749,24 +875,6 @@ function runWinners(entries, i){
 /* Deliberately not ".run": that class carries the chip styling used in the
    run strips, which turns a table cell into a flex box and stacks the
    columns. */
-function runCell(r, best){
-  var td = el("td", "cmprun");
-  if (!r){ return td; }
-  if (r.time == null){
-    td.textContent = (r.status || "\u2014").toUpperCase();
-    return td;
-  }
-  if (best !== null && r.total === best && !r.dnf) td.className = "cmprun cmpwin";
-  td.appendChild(document.createTextNode(r.time.toFixed(3)));
-  var tag = penMark(r);
-  if (tag){
-    td.appendChild(document.createTextNode(" "));
-    td.appendChild(el("span", "p", tag));
-    td.title = penWords(r) + " \u2192 " + r.total.toFixed(3) + " with penalty";
-  }
-  return td;
-}
-
 function renderWatch(){
   var pane = document.getElementById("pane-watch");
   var tab = document.getElementById("tab-watch");
@@ -802,76 +910,25 @@ function renderWatch(){
   head.appendChild(el("span", "cls-n", plural(entries.length, "driver", "drivers")));
   pane.appendChild(head);
 
-  /* ---- desktop: a real matrix, drivers down, runs across */
-  var wrap = el("div", "cmp-table");
-  var t = el("table");
-  var hr = el("tr");
-  hr.appendChild(el("th", "l", "Driver"));
-  for (var i = 0; i < EV.run_count; i++) hr.appendChild(el("th", null, "R" + (i + 1)));
-  hr.appendChild(el("th", null, RALLYX ? "Total" : "Best"));
-  hr.appendChild(el("th", null, "Gap"));
-  var thead = el("thead"); thead.appendChild(hr); t.appendChild(thead);
+  /* The watchlist is the same driver row as everywhere else. A matrix of
+     runs across the page cannot survive a twelve-run event, and a second
+     layout for the same information is one more thing to keep in step. */
+  var winners = [];
+  for (var i = 0; i < EV.run_count; i++) winners.push(runWinners(entries, i));
 
-  var tb = el("tbody");
-  entries.forEach(function(e){
-    var tr = el("tr");
-    var who = el("td", "l");
-    who.appendChild(el("span", "cmp-name", e.driver));
-    who.appendChild(el("span", "cmp-car", e.class + " #" + e.number + " \u00b7 " + e.car));
-    tr.appendChild(who);
-    for (var i = 0; i < EV.run_count; i++){
-      tr.appendChild(runCell(e.runs[i], runWinners(entries, i)));
-    }
-    tr.appendChild(el("td", "tot", fmt(e.printed_total)));
-    tr.appendChild(el("td", null,
-      e.printed_total === leader ? "\u2014" : signed(e.printed_total - leader)));
-    tb.appendChild(tr);
-  });
-  t.appendChild(tb);
-  wrap.appendChild(t);
-  pane.appendChild(wrap);
-
-  /* ---- phone: the matrix will not fit, so each driver keeps their own
-     strip of runs with the winning runs marked the same way */
-  var cards = el("div", "cmp-cards");
-  entries.forEach(function(e){
-    /* Marked open so the run strip shows: the collapsed-body rule is more
-       specific than anything the watchlist could override it with. */
-    var row = el("article", "entry open");
-    var h = el("div", "entry-head");
-    h.appendChild(el("span", "rank", String(entries.indexOf(e) + 1)));
-    var who = el("span", "who");
-    who.appendChild(el("span", "name", e.driver));
-    who.appendChild(el("span", "car", e.class + " #" + e.number + " \u00b7 " + e.car));
-    h.appendChild(who);
-    var times = el("span", "times");
-    times.appendChild(el("span", "total", fmt(e.printed_total)));
-    times.appendChild(el("span", "gap" + (e.printed_total === leader ? " lead" : ""),
-      e.printed_total === leader ? "fastest here" : signed(e.printed_total - leader)));
-    h.appendChild(times);
-    row.appendChild(h);
-
-    var body = el("div", "entry-body");
-    var strip = el("div", "strip");
-    e.runs.forEach(function(r, i){
-      var best = runWinners(entries, i);
-      var cls = "run";
-      if (r.dnf || r.time == null) cls += " dnf";
-      else if (best !== null && r.total === best) cls += " win";
-      else if (r.penalty > 0) cls += " pen";
-      var chip = el("div", cls);
-      chip.appendChild(el("span", "n", "R" + (i + 1)));
-      chip.appendChild(el("span", "v", r.time == null
-        ? (r.status || "\u2014").toUpperCase() : r.time.toFixed(3)));
-      var mark = penMark(r);
-      if (mark) chip.appendChild(el("span", "p", mark));
-      strip.appendChild(chip);
+  entries.forEach(function(e, i){
+    var row = entry(e, {
+      rank: i + 1,
+      idPrefix: "watch-",
+      showClass: true,
+      winners: winners,
+      leadLabel: "fastest here",
+      gap: e.printed_total === leader ? null : e.printed_total - leader
     });
-    body.appendChild(strip);
-    row.appendChild(body);
-    cards.appendChild(row);
+    /* Open on arrival - the runs are the reason to be here. */
+    setEntry(row, true);
+    pane.appendChild(row);
   });
-  pane.appendChild(cards);
 
   var clear = el("div", "cmp-clear");
   var btn = el("button", "cmp-clear-btn", "Clear watchlist");
