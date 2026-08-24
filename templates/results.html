@@ -36,7 +36,6 @@
   --col-rank:24px;
   --col-gap:84px;
   --col-total:92px;
-  --chev-row:14px;
 
   --pad-x:14px;
   --pad-y:12px;
@@ -92,7 +91,7 @@ button{font:inherit;color:inherit}
 }
 .tools input[type=search]{flex:1 1 180px}
 /* The native control draws a small caret hard against the edge; this gives
-   it room to breathe and matches the size of the chevrons used elsewhere. */
+   it room to breathe. */
 .tools select{
   flex:0 1 auto;
   appearance:none;-webkit-appearance:none;
@@ -116,11 +115,7 @@ button{font:inherit;color:inherit}
    class, and carries the class's summary figures. */
 .cls-head{
   display:grid;
-  /* A second row exists only to hold the chevron along the bottom, which
-     frees the right-hand end of the first row for the numbers. The chip
-     spans both rows, so it fills the heading's full height. */
   grid-template-columns:var(--col-rank) minmax(0,1fr) auto;
-  grid-template-rows:auto var(--chev-row);
   align-items:center;
   gap:0 10px;
   width:100%;text-align:left;cursor:pointer;
@@ -143,7 +138,6 @@ button{font:inherit;color:inherit}
 .cls-main{grid-column:2;grid-row:1;min-width:0;padding:9px 0}
 .cls-name{font-weight:600}
 .cls-n{grid-column:3;grid-row:1;color:var(--muted);font-size:13px;text-align:right}
-.cls-head .chev{grid-column:1 / -1;grid-row:2;justify-self:center;align-self:end}
 .cls-stats{
   margin-top:4px;font-size:12.5px;color:var(--muted);
   font-variant-numeric:tabular-nums;
@@ -169,7 +163,6 @@ button{font:inherit;color:inherit}
 .entry:target .foot-line b{color:var(--invert-ink)}
 .entry:target .rank.trophy{color:var(--gold-on-dark)}
 .entry:target .gap.lead{color:var(--good-on-dark)}
-.entry:target .chev,
 .entry:target .linkbtn{color:var(--invert-dim)}
 .entry:target .linkbtn:hover{color:var(--invert-ink)}
 
@@ -177,15 +170,12 @@ button{font:inherit;color:inherit}
    up down the page exactly as a table would, while still reflowing. */
 .entry-head{
   display:grid;
-  /* Same skeleton as a class heading: a second row carries the chevron
-     along the bottom so the first row can run the times to the edge. */
   grid-template-columns:var(--col-rank) minmax(0,1fr) auto;
-  grid-template-rows:auto var(--chev-row);
   align-items:baseline;
   gap:var(--gap) 10px;
   width:100%;text-align:left;cursor:pointer;
   background:none;border:0;
-  padding:var(--pad-y) var(--pad-x) 0 0;
+  padding:var(--pad-y) var(--pad-x) var(--pad-y) 0;
 }
 .entry-head:hover{background:var(--hover)}
 .entry.static .entry-head{cursor:default}
@@ -235,23 +225,6 @@ button{font:inherit;color:inherit}
 .gap{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
 .gap.lead{color:var(--good);font-weight:600}
 
-/* The open/close affordance lives along the bottom of the row rather than
-   in a right-hand column, so the times can run to the edge. On a phone it
-   is just a chevron sitting in the row's own bottom padding; on a desktop
-   it becomes a small grey tab that appears on hover. Clicking it toggles
-   the row because it sits inside the row's own control. */
-.chev{
-  grid-column:1 / -1;grid-row:2;justify-self:center;align-self:end;
-  display:flex;align-items:center;justify-content:center;
-  width:26px;height:var(--chev-row);
-  color:var(--faint);transition:transform .15s ease;
-}
-.chev svg{width:12px;height:12px}
-.chev svg{display:block;fill:currentColor}
-.entry.open .entry-head .chev,
-.cls.open .cls-head .chev{transform:rotate(180deg)}
-.entry.static .chev{visibility:hidden}
-
 /* Body carries the same left edge as the badge above it. */
 .entry-body{padding:0 var(--pad-x) var(--pad-y) calc(var(--col-rank) + 10px)}
 .entry:not(.open) .entry-body{display:none}
@@ -293,11 +266,10 @@ button{font:inherit;color:inherit}
     grid-template-columns:var(--col-rank) minmax(0,1fr) var(--col-gap)
                          var(--col-total);
     gap:0 10px;
-    padding:7px var(--pad-x) 0 0;
+    padding:7px var(--pad-x) 7px 0;
   }
   /* Every item is pinned explicitly: with .times becoming display:contents,
-     leaving any of them to auto-placement pushes the chevron onto a second
-     row. */
+     leaving any of them to auto-placement puts them in the wrong order. */
   .rank{grid-row:1;grid-column:1;font-size:13px}
   .total{min-width:0}
   .who{grid-row:1;grid-column:2;display:flex;align-items:baseline;gap:10px;min-width:0}
@@ -306,18 +278,6 @@ button{font:inherit;color:inherit}
   .times{display:contents}
   .gap{grid-row:1;grid-column:3;text-align:right;white-space:nowrap;font-size:12.5px}
   .total{grid-row:1;grid-column:4;text-align:right;min-width:88px;font-size:16px}
-  .chev svg{width:14px;height:14px}
-
-  /* No chevron until the row is hovered - it would otherwise be permanent
-     furniture on every line for something used occasionally. */
-  .chev{
-    width:38px;background:#dde3ea;color:var(--muted);
-    opacity:0;transition:opacity .12s ease, transform .15s ease;
-  }
-  .entry-head:hover .chev,
-  .cls-head:hover .chev,
-  .entry-head:focus-visible .chev,
-  .cls-head:focus-visible .chev{opacity:1}
 
   /* The class heading collapses the same way a driver row does: the stats
      join the class name instead of taking a second line. .cls-title becomes
@@ -356,7 +316,7 @@ button{font:inherit;color:inherit}
 .foot li{margin-bottom:4px}
 .key{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
 @media (prefers-reduced-motion:reduce){
-  .chev,.linkbtn{transition:none}
+  .linkbtn{transition:none}
 }
 </style>
 </head>
@@ -397,7 +357,6 @@ button{font:inherit;color:inherit}
 var DATA = JSON.parse(document.getElementById("event-data").textContent);
 var EV = DATA.event;
 var RALLYX = EV.scoring === "rallyx_sum";
-var CHEV = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 11L3 5.5 4 4.5 8 8.9l4-4.4 1 1z"/></svg>';
 /* Font Awesome Free 6 "link" (solid), inlined so the page stays
    self-contained. Icons are CC BY 4.0 - fontawesome.com/license/free */
 var LINK_ICON = '<svg viewBox="0 0 640 512" aria-hidden="true">' +
@@ -426,7 +385,6 @@ function clock(t){
   return m + ":" + (s < 10 ? "0" : "") + s.toFixed(3);
 }
 function plural(n, one, many){ return n + " " + (n === 1 ? one : many); }
-function chev(){ var s = el("span", "chev"); s.innerHTML = CHEV; return s; }
 
 function penWords(r){
   var bits = [];
@@ -519,7 +477,6 @@ function entry(e, ctx){
   times.appendChild(el("span", "gap" + (ctx.gap == null ? " lead" : ""),
                        ctx.gap == null ? ctx.leadLabel : signed(ctx.gap)));
   head.appendChild(times);
-  head.appendChild(chev());
   row.appendChild(head);
 
   var body = el("div", "entry-body");
@@ -622,7 +579,6 @@ function classHead(cls){
   h.appendChild(main);
 
   h.appendChild(el("span", "cls-n", plural(cls.entries.length, "entry", "entries")));
-  h.appendChild(chev());
   return h;
 }
 
@@ -691,7 +647,6 @@ if (DATA.ttod && DATA.ttod.length){
       var t = el("span", "times");
       t.appendChild(el("span", "total", x.time.toFixed(3)));
       head.appendChild(t);
-      head.appendChild(chev());
       row.appendChild(head);
       sec.appendChild(row);
     });
