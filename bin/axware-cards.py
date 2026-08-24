@@ -13,13 +13,16 @@ results page and need no design tool in the loop.
 import argparse
 import html
 import json
+import re
 import shutil
 import subprocess
 import sys
 from pathlib import Path
 
-W, H = 1080, 1350
+W = 1080
+MAXH = 2600        # render canvas only - the card is cropped to its content
 SCALE = 2          # render at 2x then downsample, for clean type
+PAD_BOTTOM = 40    # white kept below the footer after cropping
 
 CHROME_CANDIDATES = [
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
@@ -35,7 +38,7 @@ CSS = """
   --muted:#5b6470; --faint:#98a2ad; --hair:#e2e7ed; --row:#eef2f7;
   --good:#0a7d2c; --gold:#c9a227;
 }
-html,body{width:%(W)spx;height:%(H)spx}
+html,body{width:%(W)spx}
 body{
   background:var(--paper); color:var(--ink);
   font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
@@ -58,8 +61,9 @@ body{
 .cname{font-size:40px;font-weight:700}
 .cn{margin-left:auto;font-size:26px;color:#9fbaea}
 
-.body{flex:1;min-height:0;overflow:hidden;padding:34px 64px;
-  display:flex;flex-direction:column;justify-content:flex-start}
+/* Height follows the number of competitors: no fixed card height, so a
+   two-car class is not padded out to the size of a ten-car one. */
+.body{padding:34px 64px;display:flex;flex-direction:column}
 .row{display:flex;align-items:center;gap:24px;padding:22px 0;border-bottom:2px solid var(--hair)}
 .row:last-child{border-bottom:0}
 .rank{
@@ -83,7 +87,7 @@ body{
   display:flex;align-items:baseline;gap:16px;font-size:25px;color:var(--muted);
 }
 .foot .site{margin-left:auto;font-weight:700;color:var(--accent)}
-""" % {"W": W, "H": H}
+""" % {"W": W}
 
 
 def esc(x):
@@ -152,9 +156,7 @@ def class_card(ev, cls, date_label):
     return page(header(ev, date_label) + band + body + footer(note))
 
 
-# Seven is what fits at this size; more would be silently clipped
-# by the overflow guard on .body.
-def ttod_card(ev, data, date_label, top=7):
+def ttod_card(ev, data, date_label, top=10):
     band = ("<div class='band'><span class='code'>TTOD</span>"
             "<span class='cname'>Top Times Of Day</span></div>")
 
@@ -195,17 +197,40 @@ def find_chrome():
 
 
 def shoot(chrome, html_path, png_path):
+    """Render tall, then crop to the content.
+
+    Chrome's --screenshot captures the window, not the document, so the card
+    is rendered onto an oversized canvas and trimmed back. The header is a
+    full-bleed band touching the top and both edges, so the only white margin
+    trim can find is the one below the footer - which is exactly the edge we
+    want to measure.
+    """
     subprocess.run([
         chrome, "--headless=new", "--disable-gpu", "--hide-scrollbars",
         "--force-device-scale-factor=%d" % SCALE,
-        "--window-size=%d,%d" % (W, H),
+        "--window-size=%d,%d" % (W, MAXH),
         "--screenshot=%s" % png_path,
         html_path.resolve().as_uri(),
     ], check=True, capture_output=True)
 
-    if shutil.which("magick"):
-        subprocess.run(["magick", str(png_path), "-resize", "%dx%d" % (W, H),
-                        str(png_path)], check=True, capture_output=True)
+    if not shutil.which("magick"):
+        return None
+
+    box = subprocess.run(["magick", str(png_path), "-format", "%@", "info:"],
+                         check=True, capture_output=True, text=True).stdout.strip()
+    m = re.match(r"(\d+)x(\d+)\+(\d+)\+(\d+)$", box)
+    if not m:
+        raise RuntimeError("could not measure card content: %r" % box)
+    content_h = int(m.group(2)) + int(m.group(4))
+
+    crop_h = content_h + PAD_BOTTOM * SCALE
+    final_h = crop_h // SCALE
+
+    subprocess.run(["magick", str(png_path),
+                    "-crop", "%dx%d+0+0" % (W * SCALE, crop_h), "+repage",
+                    "-resize", "%dx%d!" % (W, final_h),
+                    str(png_path)], check=True, capture_output=True)
+    return final_h
 
 
 def main():
@@ -249,9 +274,9 @@ def main():
         hp.write_text(markup, encoding="utf-8")
         if chrome:
             pp = out / (name + ".png")
-            shoot(chrome, hp, pp)
-            print("wrote %s (%.0f KB)" % (pp, pp.stat().st_size / 1024),
-                  file=sys.stderr)
+            h = shoot(chrome, hp, pp)
+            print("wrote %s (%dx%s, %.0f KB)"
+                  % (pp, W, h or "?", pp.stat().st_size / 1024), file=sys.stderr)
         else:
             print("wrote %s" % hp, file=sys.stderr)
 

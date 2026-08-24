@@ -5,7 +5,7 @@
   --muted:#5b6470; --faint:#98a2ad; --hair:#e2e7ed; --row:#eef2f7;
   --good:#0a7d2c; --gold:#c9a227;
 }
-html,body{width:1080px;height:1350px}
+html,body{width:1080px}
 body{
   background:var(--paper); color:var(--ink);
   font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
@@ -28,8 +28,9 @@ body{
 .cname{font-size:40px;font-weight:700}
 .cn{margin-left:auto;font-size:26px;color:#9fbaea}
 
-.body{flex:1;min-height:0;overflow:hidden;padding:34px 64px;
-  display:flex;flex-direction:column;justify-content:flex-start}
+/* Height follows the number of competitors: no fixed card height, so a
+   two-car class is not padded out to the size of a ten-car one. */
+.body{padding:34px 64px;display:flex;flex-direction:column}
 .row{display:flex;align-items:center;gap:24px;padding:22px 0;border-bottom:2px solid var(--hair)}
 .row:last-child{border-bottom:0}
 .rank{
