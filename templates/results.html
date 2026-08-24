@@ -69,6 +69,23 @@ button{font:inherit;color:inherit}
 }
 .badge.warn{background:#8a6d00;color:#fff8dd}
 
+/* ------------------------------------------------------------- day stats */
+.stats{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(172px,1fr));
+  gap:1px;background:var(--border);
+  border-bottom:1px solid var(--border);
+}
+.stats:empty{display:none;border-bottom:0}
+.stat{background:var(--row-alt);padding:9px var(--pad-x)}
+.stat .k{
+  font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted);font-weight:700;
+}
+.stat .v{margin-top:2px;font-weight:700;font-variant-numeric:tabular-nums}
+/* These read as sentences, so they wrap rather than truncate - a stat
+   whose subject is cut off is worse than a slightly taller card. */
+.stat .s{font-size:12px;color:var(--muted);line-height:1.3}
+
 /* ------------------------------------------------------------------ bars */
 .bar{
   display:flex;
@@ -368,6 +385,8 @@ button{font:inherit;color:inherit}
     <div class="badges" id="ev-badges"></div>
   </header>
 
+  <div class="stats" id="ev-stats"></div>
+
   <div class="bar" role="tablist">
     <button class="tab" id="tab-class" role="tab" aria-selected="true" aria-controls="pane-class">Class</button>
     <button class="tab" id="tab-raw"   role="tab" aria-selected="false" aria-controls="pane-raw">Raw</button>
@@ -488,6 +507,125 @@ var badges = document.getElementById("ev-badges");
 });
 
 /* ----------------------------------------------------------------- entry */
+/* -------------------------------------------------------------- day stats */
+/* Everything here is derived from the runs already in the page. Only stats
+   that celebrate something are included: "widest margin" and "most cones"
+   would both name somebody for having had a bad day. */
+function buildDayStats(){
+  var all = [];
+  DATA.classes.forEach(function(c){
+    c.entries.forEach(function(e){ all.push(e); });
+  });
+  var timed = all.filter(function(e){ return e.printed_total != null; });
+  if (!timed.length) return;
+
+  var out = [];
+  function add(k, v, sub){ out.push({k: k, v: v, s: sub}); }
+
+  var quickest = timed.reduce(function(a, b){
+    return b.printed_total < a.printed_total ? b : a;
+  });
+  add("Fastest overall", fmt(quickest.printed_total),
+      quickest.driver + " \u00b7 " + quickest.class + " #" + quickest.number);
+
+  /* Only worth showing where the total is a sum of runs. Under best-run
+     scoring the quickest single run is the winning time, so it would just
+     repeat the line above. */
+  if (RALLYX){
+    var fr = null;
+    all.forEach(function(e){
+      e.runs.forEach(function(r, i){
+        if (r.time == null || r.dnf) return;
+        if (!fr || r.total < fr.t) fr = {t: r.total, e: e, i: i};
+      });
+    });
+    if (fr) add("Fastest single run", fr.t.toFixed(3),
+                fr.e.driver + " \u00b7 run " + (fr.i + 1));
+  }
+
+  /* Measured on clean times: penalty-adjusted ones would credit a driver
+     for a first-run penalty they simply did not repeat. */
+  var imp = null;
+  all.forEach(function(e){
+    var t = e.runs.filter(function(r){ return r.time != null && !r.dnf; });
+    if (t.length < 2) return;
+    var best = Math.min.apply(null, t.map(function(r){ return r.time; }));
+    var gain = t[0].time - best;
+    if (!imp || gain > imp.gain) imp = {gain: gain, e: e, from: t[0].time, to: best};
+  });
+  if (imp && imp.gain > 0){
+    add("Most improved", "\u2212" + imp.gain.toFixed(3),
+        imp.e.driver + " \u00b7 " + imp.from.toFixed(3) + " to " + imp.to.toFixed(3));
+  }
+
+  var close = null;
+  DATA.classes.forEach(function(c){
+    var t = c.entries.filter(function(e){ return e.printed_total != null; });
+    if (t.length < 2) return;
+    var m = t[1].printed_total - t[0].printed_total;
+    if (!close || m < close.m) close = {m: m, c: c, a: t[0], b: t[1]};
+  });
+  if (close){
+    add("Closest class", close.m.toFixed(3),
+        close.c.name + " \u00b7 " + close.a.driver + " over " + close.b.driver);
+  }
+
+  var runs = [], clean = [];
+  all.forEach(function(e){
+    e.runs.forEach(function(r){
+      if (r.time == null) return;
+      runs.push(r);
+      if (r.penalty === 0 && !r.dnf) clean.push(r);
+    });
+  });
+  if (runs.length){
+    add("Clean runs", clean.length + " of " + runs.length,
+        Math.round(clean.length / runs.length * 100) + "% without a penalty");
+  }
+
+  var cones = 0, gates = 0, dnfs = 0, secs = 0;
+  all.forEach(function(e){
+    secs += e.penalty_total;
+    e.runs.forEach(function(r){
+      cones += r.cones; gates += r.gates; if (r.dnf) dnfs++;
+    });
+  });
+  if (cones || gates || dnfs){
+    var bits = [];
+    if (cones) bits.push(plural(cones, "cone", "cones"));
+    if (gates) bits.push(plural(gates, "gate", "gates"));
+    if (dnfs) bits.push(dnfs + " DNF");
+    add("Penalties", "+" + secs.toFixed(3), bits.join(" \u00b7 "));
+  }
+
+  /* The quickest driver who never took a penalty, rather than a list of
+     everyone who managed it. */
+  var spotless = timed.filter(function(e){
+    var t = e.runs.filter(function(r){ return r.time != null; });
+    return t.length > 0 && t.every(function(r){ return r.penalty === 0 && !r.dnf; });
+  });
+  if (spotless.length){
+    var sb = spotless.reduce(function(a, b){
+      return b.printed_total < a.printed_total ? b : a;
+    });
+    add("Clean all day", fmt(sb.printed_total),
+        sb.driver + " \u00b7 no penalties in " +
+        plural(sb.runs.filter(function(r){ return r.time != null; }).length,
+               "run", "runs"));
+  }
+
+  var host = document.getElementById("ev-stats");
+  if (!host) return;
+  out.forEach(function(o){
+    var d = el("div", "stat");
+    d.appendChild(el("div", "k", o.k));
+    d.appendChild(el("div", "v", o.v));
+    if (o.s) d.appendChild(el("div", "s", o.s));
+    host.appendChild(d);
+  });
+}
+buildDayStats();
+
 function entry(e, ctx){
   var row = el("article", "entry");
   row.id = ctx.idPrefix ? ctx.idPrefix + e.anchor : e.anchor;
