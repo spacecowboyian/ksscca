@@ -10,7 +10,7 @@
   --paper:#ffffff;
   --page:#c5ccd5;
   --row-alt:#eef2f7;
-  --hover:#f6f9fd;
+  --hover:#eef3fa;
   --accent:#0b3d91;
   --accent-dark:#082a66;
   --border:#ccd3da;
@@ -152,7 +152,7 @@ button{font:inherit;color:inherit}
    in the row is restated for the dark ground, including the trophy gold,
    which swaps to the lighter tone that only works on dark. */
 .entry:target{background:var(--invert)}
-.entry:target .entry-head:hover{background:none}
+.entry:target:hover{background:var(--invert)}
 .entry:target .name,
 .entry:target .total,
 .entry:target .rank{color:var(--invert-ink)}
@@ -177,9 +177,12 @@ button{font:inherit;color:inherit}
   background:none;border:0;
   padding:var(--pad-y) var(--pad-x) var(--pad-y) 0;
 }
-.entry-head:hover{background:var(--hover)}
+/* The whole entry highlights, header and expanded body together - a row
+   that is open should not have its runs sitting on a different ground
+   from the name above them. */
+.entry:hover{background:var(--hover)}
 .entry.static .entry-head{cursor:default}
-.entry.static .entry-head:hover{background:none}
+.entry.static:hover{background:none}
 
 /* No box: the number carries the meaning on its own, and dropping the
    border reclaims the width it was costing. --gold is too light to read as
@@ -210,7 +213,7 @@ button{font:inherit;color:inherit}
 /* The glyph is 640x512, so height follows that ratio rather than square. */
 .linkbtn svg{width:15px;height:12px;fill:currentColor;display:block}
 .linkbtn:hover{color:var(--accent)}
-.entry-head:hover .linkbtn{opacity:1}
+.entry:hover .linkbtn{opacity:1}
 .linkbtn:focus-visible{opacity:1;outline:2px solid var(--accent);outline-offset:1px}
 @media (hover:none){
   .linkbtn{opacity:.5}
@@ -631,8 +634,10 @@ var paneRaw = document.getElementById("pane-raw");
 })();
 
 /* ------------------------------------------------------------------ ttod */
+/* Top Times Of Day belongs with the raw order, not the class standings -
+   it is a cross-class figure and only muddled the class pane. */
 if (DATA.ttod && DATA.ttod.length){
-  [paneClass, paneRaw].forEach(function(pane){
+  [paneRaw].forEach(function(pane){
     var sec = el("section", "cls");
     sec.appendChild(plainHead("TTOD", "Top Times Of Day", null));
     DATA.ttod.forEach(function(x){
@@ -784,6 +789,38 @@ if (WIDE.addEventListener) WIDE.addEventListener("change", applyForWidth);
 else if (WIDE.addListener) WIDE.addListener(applyForWidth);
 
 applyForWidth();
+
+/* The first column has to hold the widest class chip, and what that is
+   differs by pane: two characters among the class codes here, four in the
+   raw pane ("TTOD"). The two panes are never on screen together, so each
+   sizes its own column rather than the widest chip anywhere setting the
+   width for everything. Codes are measured in the font they are drawn in
+   rather than guessed at. */
+function sizeFirstColumn(){
+  var sample = document.querySelector(".cls-code");
+  if (!sample) return;
+  var cs = getComputedStyle(sample);
+
+  var probe = document.createElement("span");
+  probe.style.cssText = "position:absolute;left:-9999px;top:0;white-space:pre;" +
+    "font:" + cs.font + ";letter-spacing:" + cs.letterSpacing +
+    ";text-transform:" + cs.textTransform;
+  document.body.appendChild(probe);
+
+  [paneClass, paneRaw].forEach(function(pane){
+    var widest = 0;
+    pane.querySelectorAll(".cls-code").forEach(function(n){
+      probe.textContent = n.textContent;
+      widest = Math.max(widest, probe.getBoundingClientRect().width);
+    });
+    /* Position numbers share the column, so never go below what they need. */
+    pane.style.setProperty("--col-rank",
+      Math.max(24, Math.ceil(widest) + 12) + "px");
+  });
+
+  document.body.removeChild(probe);
+}
+sizeFirstColumn();
 
 /* --------------------------------------------------------------- filters */
 var q = document.getElementById("q");
