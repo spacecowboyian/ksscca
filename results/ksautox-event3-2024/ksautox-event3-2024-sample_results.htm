@@ -35,7 +35,7 @@
      column in one has no idea how wide the same column is in the other.
      Fixing every column but the name keeps them on the same vertical lines. */
   --col-rank:24px;
-  --col-gap:84px;
+  --col-gap:132px;
   --col-total:92px;
 
   --pad-x:14px;
@@ -131,18 +131,22 @@ button{font:inherit;color:inherit}
   font-weight:600;color:var(--muted);
   height:var(--bar-h);border-bottom:3px solid transparent;
 }
-.tab[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+.tab[aria-selected="true"]{
+  background:var(--accent);color:#fff;border-bottom-color:var(--accent);
+}
 
 /* One flush row: the search runs edge to edge and full height on the left,
    with the class filter and the runs switch as fixed cells beside it. No
    padding on the container - the controls supply their own. */
+/* Wrapping matters: without it the filter panel's flex-basis of 100% just
+   competes for space in the same row and crushes the search field. */
 .tools{
-  display:flex;align-items:stretch;
+  display:flex;flex-wrap:wrap;align-items:stretch;
   background:var(--paper);border-bottom:1px solid var(--border);
 }
 .tools input[type=search]{
   flex:1 1 auto;min-width:0;
-  height:52px;padding:0 12px 0 var(--pad-x);
+  height:52px;align-self:flex-start;padding:0 12px 0 var(--pad-x);
   border:0;border-right:1px solid var(--border);
   background:var(--paper);color:var(--ink);font:inherit;
 }
@@ -150,7 +154,8 @@ button{font:inherit;color:inherit}
 .tools input[type=search]:focus{outline:2px solid var(--accent);outline-offset:-2px}
 
 .iconbtn{
-  flex:0 0 auto;width:52px;padding:0;cursor:pointer;line-height:0;
+  flex:0 0 auto;width:52px;height:52px;align-self:flex-start;
+  padding:0;cursor:pointer;line-height:0;
   border:0;border-right:1px solid var(--border);
   background:var(--paper);color:var(--muted);
   display:flex;align-items:center;justify-content:center;
@@ -162,7 +167,8 @@ button{font:inherit;color:inherit}
 /* A vertical switch: the knob sits at the bottom when the runs are folded
    away and rises when they are shown. */
 .runswitch{
-  flex:0 0 auto;display:flex;align-items:center;gap:7px;
+  flex:0 0 auto;height:52px;align-self:flex-start;
+  display:flex;align-items:center;gap:7px;
   padding:0 var(--pad-x) 0 12px;cursor:pointer;user-select:none;
 }
 .runswitch input{position:absolute;opacity:0;width:0;height:0}
@@ -181,9 +187,11 @@ button{font:inherit;color:inherit}
 .runswitch input:checked ~ .lbl{color:var(--accent)}
 
 .tools-more{
-  flex:1 1 100%;display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+  flex:1 1 100%;width:100%;
+  display:flex;flex-wrap:wrap;align-items:center;gap:8px;
   padding:8px var(--pad-x);border-top:1px solid var(--border);
 }
+.tools-more select{flex:1 1 100%;width:100%}
 .tools-more[hidden]{display:none}
 .tools-more select{
   padding:8px 38px 8px 10px;border:1px solid var(--border);
@@ -213,6 +221,10 @@ button{font:inherit;color:inherit}
   .runswitch .knob{height:12px}
   .runswitch input:checked + .track .knob{transform:translateY(-12px)}
   .tools-more{flex:0 1 auto;padding:0;border-top:0;width:auto}
+  .tools-more select{flex:0 1 auto;width:auto}
+  .tools input[type=search],.iconbtn,.runswitch{align-self:center}
+  .iconbtn{height:38px}
+  .runswitch{height:auto}
 }
 
 /* --------------------------------------------------------------- classes */
@@ -348,6 +360,9 @@ button{font:inherit;color:inherit}
 .eq-op{margin:0 3px;color:var(--faint)}
 .total{font-weight:700;font-variant-numeric:tabular-nums;font-size:clamp(15px,3.8vw,17px)}
 .gap{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+/* Distinguished by hue rather than lightness, so both stay legible: the
+   total gap muted, the interval to the car ahead in accent. */
+.gap .to-prev{margin-left:7px;color:var(--accent)}
 .gap.lead{color:var(--good);font-weight:600}
 .gap.nostart{color:var(--faint);font-weight:600;letter-spacing:.04em}
 
@@ -873,9 +888,22 @@ function entry(e, ctx){
   if (shown == null){
     times.appendChild(el("span", "gap nostart",
       (e.printed_total_raw || "no time").toUpperCase()));
+  } else if (ctx.gap == null){
+    times.appendChild(el("span", "gap lead", ctx.leadLabel));
   } else {
-    times.appendChild(el("span", "gap" + (ctx.gap == null ? " lead" : ""),
-                         ctx.gap == null ? ctx.leadLabel : signed(ctx.gap)));
+    /* Two gaps, one line: the total back to the leader, then the interval
+       to whoever is immediately ahead. The arrow is what separates them -
+       it points at the car in front. */
+    var g = el("span", "gap");
+    var toLead = el("span", "to-lead", signed(ctx.gap));
+    toLead.title = "Behind the leader";
+    g.appendChild(toLead);
+    if (ctx.interval != null){
+      var iv = el("span", "to-prev", "\u2191" + ctx.interval.toFixed(3));
+      iv.title = "Behind the driver immediately ahead";
+      g.appendChild(iv);
+    }
+    times.appendChild(g);
   }
   head.appendChild(times);
   row.appendChild(head);
@@ -1028,11 +1056,13 @@ DATA.classes.forEach(function(cls){
   var timed = cls.entries.filter(function(e){ return e.printed_total != null; });
   var leader = timed.length ? timed[0].printed_total : null;
   cls.entries.forEach(function(e){
+    var at = timed.indexOf(e);
     sec.appendChild(entry(e, {
       rank: e.position,
       leadLabel: timed.length > 1 ? "class winner" : "only time",
       gap: (e.printed_total == null || leader == null || e.printed_total === leader)
-             ? null : e.printed_total - leader
+             ? null : e.printed_total - leader,
+      interval: at > 0 ? e.printed_total - timed[at - 1].printed_total : null
     }));
   });
   paneClass.appendChild(sec);
@@ -1045,13 +1075,16 @@ var paneRaw = document.getElementById("pane-raw");
   sec.appendChild(plainHead("Raw", "Every entry, fastest first", DATA.raw.length));
   var leader = DATA.raw.length ? DATA.raw[0].printed_total : null;
   DATA.raw.forEach(function(e, i){
+    var prev = i > 0 ? DATA.raw[i - 1] : null;
     sec.appendChild(entry(e, {
       rank: i + 1,
       idPrefix: "raw-",
       showClass: true,
       leadLabel: "fastest of the day",
       gap: (i === 0 || e.printed_total == null || leader == null)
-             ? null : e.printed_total - leader
+             ? null : e.printed_total - leader,
+      interval: (prev && prev.printed_total != null && e.printed_total != null)
+             ? e.printed_total - prev.printed_total : null
     }));
   });
   paneRaw.appendChild(sec);
@@ -1161,7 +1194,10 @@ function renderCompare(){
       showClass: true,
       winners: winners.length ? winners : null,
       leadLabel: entries.length > 1 ? "fastest here" : "pinned",
-      gap: (i === 0 || e.printed_total == null) ? null : e.printed_total - leader
+      gap: (i === 0 || e.printed_total == null) ? null : e.printed_total - leader,
+      interval: (i > 0 && e.printed_total != null &&
+                 entries[i - 1].printed_total != null)
+             ? e.printed_total - entries[i - 1].printed_total : null
     });
     setEntry(row, true);
     host.appendChild(row);
@@ -1476,6 +1512,9 @@ var ul = el("ul");
     plural(EV.penalties.dnf_cones, "cone", "cones") + ", or " +
     EV.penalties.dnf_seconds.toFixed(0) + " seconds.",
   "A gold position number marks a trophy position.",
+  "Each row carries two gaps: the plain figure is how far back they are " +
+    "from the leader, and the one after the arrow is how far back they are " +
+    "from the driver immediately ahead of them.",
   (DATA.pax && DATA.pax.length)
     ? "The PAX tab ranks everyone on index: each class's raw time multiplied " +
       "by its factor, which is how classes are compared to one another."
