@@ -59,10 +59,23 @@ body{
 button{font:inherit;color:inherit}
 
 /* ---------------------------------------------------------------- header */
-.head{background:var(--accent);color:#fff;padding:18px var(--pad-x) 16px}
+.head{position:relative;background:var(--accent);color:#fff;
+  padding:18px 46px 16px var(--pad-x)}
 .head h1{margin:0;font-size:clamp(19px,4.8vw,26px);line-height:1.2;letter-spacing:-.01em}
 .head .sub{margin-top:5px;font-size:clamp(13px,3.4vw,15px);color:#c3d3f0}
+/* Hidden by default: entry and class counts are reference, not news, and
+   they cost 54px above the first result on a phone. The author display
+   rule would otherwise beat the browser's own [hidden] handling. */
 .badges{margin-top:11px;display:flex;flex-wrap:wrap;gap:6px}
+.badges[hidden]{display:none}
+/* Sits on the title's line, hard right. */
+.infobtn{
+  position:absolute;top:19px;right:var(--pad-x);
+  width:22px;height:22px;padding:0;cursor:pointer;line-height:0;
+  border:0;background:none;color:#9fbaea;
+}
+.infobtn svg{display:block;width:22px;height:22px;fill:currentColor}
+.infobtn:hover,.infobtn[aria-expanded="true"]{color:#fff}
 .badge{
   font-size:12px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;
   padding:4px 8px;background:var(--accent-dark);color:#dce6f8;
@@ -76,6 +89,23 @@ button{font:inherit;color:inherit}
   border-bottom:1px solid var(--border);
 }
 .stats:empty{display:none;border-bottom:0}
+.stats[hidden]{display:none}
+.pinned{border-bottom:1px solid var(--border)}
+.pinned[hidden]{display:none}
+
+/* On a phone the strip would stack six cards into a third of the screen
+   before a single result, so it becomes one card wide and scrolls. A sliver
+   of the next card shows there is more, and it advances on its own. */
+@media (max-width:759px){
+  .stats{
+    display:flex;overflow-x:auto;
+    scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .stats::-webkit-scrollbar{display:none}
+  .stat{flex:0 0 86%;scroll-snap-align:start}
+  .stat .s{white-space:normal}
+}
 .stat{background:var(--row-alt);padding:9px var(--pad-x)}
 .stat .k{
   font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
@@ -124,6 +154,17 @@ button{font:inherit;color:inherit}
   font-size:13px;color:var(--muted);white-space:nowrap;user-select:none;
 }
 .count{font-size:13px;color:var(--muted);white-space:nowrap;margin-left:auto}
+/* The class filter and the runs switch are used once, if at all, so they
+   fold away rather than holding a second row above every result. */
+.morebtn{
+  flex:0 0 auto;padding:8px 12px;cursor:pointer;
+  border:1px solid var(--border);background:var(--paper);
+  color:var(--muted);font-size:13px;font-weight:600;
+}
+.morebtn:hover{color:var(--ink)}
+.morebtn[aria-expanded="true"]{background:var(--row-alt);color:var(--ink)}
+.tools-more{flex:1 1 100%;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.tools-more[hidden]{display:none}
 
 /* --------------------------------------------------------------- classes */
 .cls{border-bottom:1px solid var(--border)}
@@ -356,13 +397,6 @@ button{font:inherit;color:inherit}
 .run.win .n{color:#a08340}
 
 .pane-note{padding:12px var(--pad-x) 18px 0;font-size:12.5px;color:var(--muted)}
-.cmp-clear{padding:12px var(--pad-x) 18px 0}
-.cmp-clear-btn{
-  appearance:none;border:1px solid var(--border);background:var(--paper);
-  color:var(--muted);font-size:12.5px;font-weight:600;
-  padding:6px 12px;cursor:pointer;
-}
-.cmp-clear-btn:hover{color:var(--bad);border-color:var(--bad)}
 
 /* ------------------------------------------------------------------ misc */
 .pane[hidden]{display:none}
@@ -382,30 +416,36 @@ button{font:inherit;color:inherit}
   <header class="head">
     <h1 id="ev-title"></h1>
     <div class="sub" id="ev-sub"></div>
-    <div class="badges" id="ev-badges"></div>
+    <button class="infobtn" id="ev-info" type="button"
+            aria-expanded="false" aria-controls="ev-badges"
+            aria-label="Event details" title="Event details"></button>
+    <div class="badges" id="ev-badges" hidden></div>
   </header>
 
   <div class="stats" id="ev-stats"></div>
+  <section class="pinned" id="pinned" hidden></section>
 
   <div class="bar" role="tablist">
     <button class="tab" id="tab-class" role="tab" aria-selected="true" aria-controls="pane-class">Class</button>
     <button class="tab" id="tab-raw"   role="tab" aria-selected="false" aria-controls="pane-raw">Raw</button>
     <button class="tab" id="tab-pax" role="tab" aria-selected="false" aria-controls="pane-pax" hidden>PAX</button>
-    <button class="tab" id="tab-compare" role="tab" aria-selected="false" aria-controls="pane-compare" hidden>VS</button>
   </div>
 
   <div class="tools">
     <input id="q" type="search" placeholder="Search driver, car or number" autocomplete="off" aria-label="Search">
-    <select id="clsfilter" aria-label="Filter by class"></select>
-    <label class="toggle"><input type="checkbox" id="showruns"> Runs</label>
+    <button class="morebtn" id="more" type="button"
+            aria-expanded="false" aria-controls="tools-more">Filters</button>
     <span class="count" id="count"></span>
+    <div class="tools-more" id="tools-more" hidden>
+      <select id="clsfilter" aria-label="Filter by class"></select>
+      <label class="toggle"><input type="checkbox" id="showruns"> Runs</label>
+    </div>
   </div>
 
   <main>
     <section class="pane" id="pane-class" role="tabpanel" aria-labelledby="tab-class"></section>
     <section class="pane" id="pane-raw" role="tabpanel" aria-labelledby="tab-raw" hidden></section>
     <section class="pane" id="pane-pax" role="tabpanel" aria-labelledby="tab-pax" hidden></section>
-    <section class="pane" id="pane-compare" role="tabpanel" aria-labelledby="tab-compare" hidden></section>
   </main>
 
   <footer class="foot" id="foot"></footer>
@@ -428,6 +468,13 @@ var PLUS_ICON = '<svg viewBox="0 0 448 512" aria-hidden="true"><path d="M256 80'
 var CHECK_ICON = '<svg viewBox="0 0 448 512" aria-hidden="true"><path d="M438.6 105.4' +
   'c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5' +
   '-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/></svg>';
+/* Font Awesome Free 6 "circle-info" (solid) - CC BY 4.0,
+   fontawesome.com/license/free */
+var INFO_ICON = '<svg viewBox="0 0 512 512" aria-hidden="true"><path d="M256 512' +
+  'A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM216 336l24 0 0-64-24 0c-13.3 0-24-10.7' +
+  '-24-24s10.7-24 24-24l48 0c13.3 0 24 10.7 24 24l0 88 8 0c13.3 0 24 10.7 24 24s-10.7' +
+  ' 24-24 24l-80 0c-13.3 0-24-10.7-24-24s10.7-24 24-24zm40-208a32 32 0 1 1 0 64 32 32' +
+  ' 0 1 1 0-64z"/></svg>';
 var LINK_ICON = '<svg viewBox="0 0 640 512" aria-hidden="true">' +
   '<path d="M579.8 267.7c56.5-56.5 56.5-148 0-204.5c-50-50-128.8-56.5-186.3-15.4' +
   'l-1.6 1.1c-14.4 10.3-17.7 30.3-7.4 44.6s30.3 17.7 44.6 7.4l1.6-1.1c32.1-22.9 ' +
@@ -570,19 +617,6 @@ function buildDayStats(){
         close.c.name + " \u00b7 " + close.a.driver + " over " + close.b.driver);
   }
 
-  var runs = [], clean = [];
-  all.forEach(function(e){
-    e.runs.forEach(function(r){
-      if (r.time == null) return;
-      runs.push(r);
-      if (r.penalty === 0 && !r.dnf) clean.push(r);
-    });
-  });
-  if (runs.length){
-    add("Clean runs", clean.length + " of " + runs.length,
-        Math.round(clean.length / runs.length * 100) + "% without a penalty");
-  }
-
   var cones = 0, gates = 0, dnfs = 0, secs = 0;
   all.forEach(function(e){
     secs += e.penalty_total;
@@ -590,7 +624,10 @@ function buildDayStats(){
       cones += r.cones; gates += r.gates; if (r.dnf) dnfs++;
     });
   });
-  if (cones || gates || dnfs){
+  /* Six either way: RallyX spends its sixth slot on the quickest single
+     run, which best-run scoring cannot show, so autocross spends it on the
+     penalty totals instead. */
+  if (!RALLYX && (cones || gates || dnfs)){
     var bits = [];
     if (cones) bits.push(plural(cones, "cone", "cones"));
     if (gates) bits.push(plural(gates, "gate", "gates"));
@@ -598,20 +635,49 @@ function buildDayStats(){
     add("Penalties", "+" + secs.toFixed(3), bits.join(" \u00b7 "));
   }
 
-  /* The quickest driver who never took a penalty, rather than a list of
-     everyone who managed it. */
+  function conesOf(e){
+    return e.runs.reduce(function(n, r){ return n + r.cones; }, 0);
+  }
+  function ran(e){
+    return e.runs.some(function(r){ return r.time != null; });
+  }
+
+  /* The quickest driver who stayed clean, rather than a list of everyone
+     who managed it. What counts as clean differs: RallyX has gates and DNF
+     adjustments to avoid as well, autocross only has cones. */
   var spotless = timed.filter(function(e){
-    var t = e.runs.filter(function(r){ return r.time != null; });
-    return t.length > 0 && t.every(function(r){ return r.penalty === 0 && !r.dnf; });
+    if (!ran(e)) return false;
+    if (!RALLYX) return conesOf(e) === 0;
+    return e.runs.every(function(r){
+      return r.time == null || (r.penalty === 0 && !r.dnf);
+    });
   });
   if (spotless.length){
     var sb = spotless.reduce(function(a, b){
       return b.printed_total < a.printed_total ? b : a;
     });
-    add("Clean all day", fmt(sb.printed_total),
-        sb.driver + " \u00b7 no penalties in " +
-        plural(sb.runs.filter(function(r){ return r.time != null; }).length,
-               "run", "runs"));
+    add(RALLYX ? "Fastest clean all day" : "Fastest with no cones",
+        fmt(sb.printed_total),
+        sb.driver + " \u00b7 " + (RALLYX
+          ? "no penalties in " + plural(sb.runs.filter(function(r){
+              return r.time != null; }).length, "run", "runs")
+          : "not a cone all day"));
+  }
+
+  /* Most cones, with the fastest of any tied drivers taking it - otherwise
+     the order would come down to whatever the export listed first. */
+  var worst = 0;
+  all.forEach(function(e){ worst = Math.max(worst, conesOf(e)); });
+  if (worst > 0){
+    var tied = all.filter(function(e){ return conesOf(e) === worst; });
+    var cone = tied.reduce(function(a, b){
+      var at = a.printed_total == null ? Infinity : a.printed_total;
+      var bt = b.printed_total == null ? Infinity : b.printed_total;
+      return bt < at ? b : a;
+    });
+    add("Most cones", plural(worst, "cone", "cones"),
+        cone.driver + (tied.length > 1
+          ? " \u00b7 fastest of " + tied.length + " tied" : ""));
   }
 
   var host = document.getElementById("ev-stats");
@@ -623,6 +689,45 @@ function buildDayStats(){
     if (o.s) d.appendChild(el("div", "s", o.s));
     host.appendChild(d);
   });
+  cycleStats(host);
+}
+
+/* Advances the phone strip on its own so all six get seen without anyone
+   having to discover the swipe. Native scrolling does the animating, so a
+   swipe and an automatic step look identical. Touching it stops the
+   rotation for a while - a strip that moves under your finger is worse
+   than one that never moved. */
+function cycleStats(strip){
+  if (strip.children.length < 2) return;
+
+  var narrow = window.matchMedia("(max-width: 759px)");
+  var still = window.matchMedia("(prefers-reduced-motion: reduce)");
+  var heldUntil = 0;
+
+  /* Track the card index rather than adding a width to the current scroll
+     position: a smooth scroll still in flight would otherwise be measured
+     mid-animation and the offset would drift a little further every step,
+     leaving cards permanently half-shown. */
+  var idx = 0;
+  function stride(){
+    return strip.firstElementChild.getBoundingClientRect().width + 1;
+  }
+  function hold(){
+    heldUntil = Date.now() + 15000;
+    idx = Math.round(strip.scrollLeft / stride());
+  }
+  ["pointerdown", "touchstart", "wheel", "keydown"].forEach(function(ev){
+    strip.addEventListener(ev, hold, {passive: true});
+  });
+
+  setInterval(function(){
+    if (!narrow.matches || still.matches) return;
+    if (Date.now() < heldUntil) return;
+    if (document.hidden) return;
+
+    idx = (idx + 1) % strip.children.length;
+    strip.scrollTo({left: Math.round(idx * stride()), behavior: "smooth"});
+  }, 5000);
 }
 buildDayStats();
 
@@ -945,128 +1050,64 @@ function runWinners(entries, i){
 /* Deliberately not ".run": that class carries the chip styling used in the
    run strips, which turns a table cell into a flex box and stacks the
    columns. */
+/* Pinned drivers sit directly under the header, in place of the day-stats
+   carousel. During a live event the people you care about stay on screen
+   while the tabs below carry on doing whatever you want with them - which
+   a separate tab could never do. */
 function renderCompare(){
-  var pane = document.getElementById("pane-compare");
-  var tab = document.getElementById("tab-compare");
-  pane.textContent = "";
+  var host = document.getElementById("pinned");
+  var stats = document.getElementById("ev-stats");
+  host.textContent = "";
 
-  tab.hidden = compareList.length === 0;
-  tab.textContent = "VS" + (compareList.length ? " (" + compareList.length + ")" : "");
   if (!compareList.length){
-    if (!document.getElementById("pane-compare").hidden) show("class");
+    host.hidden = true;
+    if (stats) stats.hidden = false;
     paintCompareButtons();
     return;
   }
+  if (stats) stats.hidden = true;
+  host.hidden = false;
 
   var entries = compareList.map(function(a){ return BY_ANCHOR[a]; })
-                         .filter(Boolean)
-                         .sort(function(a, b){ return a.printed_total - b.printed_total; });
+                           .filter(Boolean)
+                           .sort(function(a, b){ return a.printed_total - b.printed_total; });
+  if (!entries.length){
+    host.hidden = true;
+    if (stats) stats.hidden = false;
+    paintCompareButtons();
+    return;
+  }
   var leader = entries[0].printed_total;
 
-  var head = el("div", "cls-head");
-  head.appendChild(el("span", "cls-code", "VS"));
-  var main = el("span", "cls-main");
-  main.appendChild(el("span", "cls-name", "Compare"));
-  var stats = el("span", "cls-stats");
-  var sp = el("span");
-  sp.appendChild(document.createTextNode("Spread "));
-  sp.appendChild(el("b", null,
-    (entries[entries.length - 1].printed_total - leader).toFixed(3)));
-  stats.appendChild(sp);
-  var lg = el("span");
-  lg.appendChild(document.createTextNode(
-    "Green is a driver's own best run, gold the quickest of the group on that run"));
-  stats.appendChild(lg);
-  main.appendChild(stats);
-  head.appendChild(main);
-  head.appendChild(el("span", "cls-n", plural(entries.length, "driver", "drivers")));
-  pane.appendChild(head);
-
-  /* The comparison is the same driver row as everywhere else. A matrix of
-     runs across the page cannot survive a twelve-run event, and a second
-     layout for the same information is one more thing to keep in step. */
+  /* Per-run winners are only meaningful once there is someone to beat. */
   var winners = [];
-  for (var i = 0; i < EV.run_count; i++) winners.push(runWinners(entries, i));
+  if (entries.length > 1){
+    for (var i = 0; i < EV.run_count; i++) winners.push(runWinners(entries, i));
+  }
 
   entries.forEach(function(e, i){
     var row = entry(e, {
       rank: i + 1,
-      idPrefix: "compare-",
+      idPrefix: "pin-",
       showClass: true,
-      winners: winners,
-      leadLabel: "fastest here",
-      gap: e.printed_total === leader ? null : e.printed_total - leader
+      winners: winners.length ? winners : null,
+      leadLabel: entries.length > 1 ? "fastest here" : "pinned",
+      gap: (i === 0 || e.printed_total == null) ? null : e.printed_total - leader
     });
-    /* Open on arrival - the runs are the reason to be here. */
     setEntry(row, true);
-    pane.appendChild(row);
+    host.appendChild(row);
   });
 
-  /* Paint after building, never before: rows created by this pass have
-     empty controls until they are painted, which is what left the compare
-     pane with blank buttons and no way to remove anyone from it. */
   paintCompareButtons();
   sizeFirstColumn();
-
-  var clear = el("div", "cmp-clear");
-  var btn = el("button", "cmp-clear-btn", "Clear comparison");
-  btn.type = "button";
-  btn.id = "clear-compare";
-  clear.appendChild(btn);
-  pane.appendChild(clear);
 }
-
-/* ------------------------------------------------------------------ pax */
-/* Autocross only: RallyCross has no index. The PAX export carries no run
-   data, so entries are matched back to the class results by anchor and the
-   ordinary row is reused with the indexed time as its headline figure. */
-(function(){
-  var pax = (DATA.pax || []).filter(function(p){
-    /* A factor of zero means the class is not indexed - Novice, usually -
-       so those rows carry no meaningful PAX time. */
-    return p.factor > 0 && p.pax_time > 0;
-  });
-  if (!pax.length) return;
-
-  var pane = document.getElementById("pane-pax");
-  var tab = document.getElementById("tab-pax");
-  tab.hidden = false;
-
-  var head = plainHead("PAX", "Every entry on index, fastest first", pax.length);
-  pane.appendChild(head);
-
-  var lead = pax[0].pax_time;
-  pax.forEach(function(p, i){
-    var e = BY_ANCHOR[p.anchor];
-    if (!e) return;
-    pane.appendChild(entry(e, {
-      rank: p.pax_position,
-      idPrefix: "pax-",
-      showClass: true,
-      total: p.pax_time,
-      leadLabel: "fastest on index",
-      gap: i === 0 ? null : p.pax_time - lead,
-      equation: {raw: p.total, factor: p.factor}
-    }));
-  });
-
-  var skipped = (DATA.pax || []).length - pax.length;
-  if (skipped){
-    var n = el("div", "pane-note",
-      plural(skipped, "entry", "entries") + " in unindexed classes are not " +
-      "listed here - they appear in the class results.");
-    pane.appendChild(n);
-  }
-})();
 
 /* ----------------------------------------------------------------- tabs */
 var tabs = {
   "class": {btn: document.getElementById("tab-class"), pane: paneClass},
   "raw":   {btn: document.getElementById("tab-raw"),   pane: paneRaw},
   "pax":   {btn: document.getElementById("tab-pax"),
-            pane: document.getElementById("pane-pax")},
-  "compare": {btn: document.getElementById("tab-compare"),
-            pane: document.getElementById("pane-compare")}
+            pane: document.getElementById("pane-pax")}
 };
 function show(which){
   Object.keys(tabs).forEach(function(k){
@@ -1078,7 +1119,6 @@ function show(which){
 tabs["class"].btn.addEventListener("click", function(){ show("class"); });
 tabs["raw"].btn.addEventListener("click", function(){ show("raw"); });
 tabs["pax"].btn.addEventListener("click", function(){ show("pax"); });
-tabs["compare"].btn.addEventListener("click", function(){ show("compare"); });
 
 /* ------------------------------------------------------------- expanding */
 var runsBox = document.getElementById("showruns");
@@ -1131,14 +1171,6 @@ document.addEventListener("click", function(ev){
     ev.preventDefault();
     ev.stopPropagation();
     toggleCompare(cmp.dataset.anchor);
-    return;
-  }
-
-  if (ev.target.closest && ev.target.closest("#clear-compare")){
-    compareList = [];
-    renderCompare();
-    syncCompareHash();
-    show("class");
     return;
   }
 
@@ -1230,7 +1262,7 @@ function sizeFirstColumn(){
   document.body.appendChild(probe);
 
   [paneClass, paneRaw, document.getElementById("pane-pax"),
-   document.getElementById("pane-compare")].forEach(function(pane){
+   document.getElementById("pinned")].forEach(function(pane){
     if (!pane) return;
     var widest = 0;
     pane.querySelectorAll(".cls-code").forEach(function(n){
@@ -1245,6 +1277,38 @@ function sizeFirstColumn(){
   document.body.removeChild(probe);
 }
 sizeFirstColumn();
+
+/* ------------------------------------------------------- disclosure bits */
+(function(){
+  var info = document.getElementById("ev-info");
+  var badges = document.getElementById("ev-badges");
+  if (info && badges){
+    info.innerHTML = INFO_ICON;
+    info.addEventListener("click", function(){
+      var open = badges.hidden;
+      badges.hidden = !open;
+      info.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+  }
+
+  var more = document.getElementById("more");
+  var extra = document.getElementById("tools-more");
+  if (!more || !extra) return;
+
+  function setMore(open){
+    extra.hidden = !open;
+    more.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+  more.addEventListener("click", function(){ setMore(extra.hidden); });
+
+  /* Open where there is room for it, folded where every row above the
+     results costs a chunk of the screen. */
+  var wide = window.matchMedia("(min-width: 760px)");
+  setMore(wide.matches);
+  if (wide.addEventListener) wide.addEventListener("change", function(e){
+    setMore(e.matches);
+  });
+})();
 
 /* --------------------------------------------------------------- filters */
 var q = document.getElementById("q");
@@ -1294,7 +1358,7 @@ function openHash(){
   var h = location.hash.slice(1);
   if (!h) return;
   if (h.indexOf("compare=") === 0){
-    if (readCompareHash()){ renderCompare(); show("compare"); }
+    if (readCompareHash()) renderCompare();
     return;
   }
   if (h === "raw"){ show("raw"); return; }
@@ -1347,9 +1411,9 @@ var ul = el("ul");
       "by its factor, which is how classes are compared to one another."
     : null,
   "Open a driver to reveal two controls beside their car: a link to their " +
-    "result, and a plus that adds them to the comparison. Compare puts any " +
-    "drivers you pick side by side run by run, across classes, and its own " +
-    "address can be shared.",
+    "result, and a plus that pins them below the header. Pinned drivers stay " +
+    "on screen while you move between the tabs, are compared run by run when " +
+    "there is more than one, and their addresses can be shared.",
   "The link icon after a driver's car jumps to their result and puts its " +
     "address in the address bar, ready to copy and share."
 ].filter(Boolean).forEach(function(t){ ul.appendChild(el("li", null, t)); });
