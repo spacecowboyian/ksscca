@@ -77,3 +77,26 @@ http://www.ksscca.org/wp-content/uploads/2025/12/ksrx-december-2025_fin.htm
 
 Upload the built `.htm`, then link it from the RallyCross Results page
 (ID 996). URLs are `http://` only until the site's certificate is fixed.
+
+## Publishing: what is and is not automatable
+
+Uploading still has to be done by hand through wp-admin. All three write
+paths were tested on 23 August 2026 and all three are closed:
+
+| Path | Result |
+|---|---|
+| WP REST API | `"authentication": []` — Application Passwords stay gated behind `is_ssl()`, and the site has no valid certificate |
+| WP-CLI over the WP Engine SSH gateway | `Permission denied (publickey)` — this machine's key is not authorised on the `kansasregion` install |
+| `easy-mcp-ai/v1/mcp` | `401`, `WWW-Authenticate: Bearer` — needs an OAuth token issued from wp-admin |
+
+The third is the promising one and is not mentioned elsewhere in this repo:
+an MCP endpoint is already installed and serving. Authorising a client for
+it would make uploads scriptable without waiting on the certificate fix.
+Adding this machine's public key in the WP Engine dashboard would do the
+same for WP-CLI, which would also unlock `wp media import`.
+
+Until one of those is set up:
+
+1. wp-admin → Media → Add New → upload `<event>_results.htm`
+2. The URL follows the upload date: `/wp-content/uploads/YYYY/MM/<filename>`
+3. Edit the RallyCross Results page (ID 996) and link it
