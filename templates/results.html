@@ -828,7 +828,6 @@ function isCompared(a){ return compareList.indexOf(a) !== -1; }
 function toggleCompare(a){
   var i = compareList.indexOf(a);
   if (i === -1) compareList.push(a); else compareList.splice(i, 1);
-  paintCompareButtons();
   renderCompare();
   syncCompareHash();
 }
@@ -884,6 +883,7 @@ function renderCompare(){
   tab.textContent = "Compare" + (compareList.length ? " (" + compareList.length + ")" : "");
   if (!compareList.length){
     if (!document.getElementById("pane-compare").hidden) show("class");
+    paintCompareButtons();
     return;
   }
 
@@ -929,6 +929,11 @@ function renderCompare(){
     setEntry(row, true);
     pane.appendChild(row);
   });
+
+  /* Paint after building, never before: rows created by this pass have
+     empty controls until they are painted, which is what left the compare
+     pane with blank buttons and no way to remove anyone from it. */
+  paintCompareButtons();
 
   var clear = el("div", "cmp-clear");
   var btn = el("button", "cmp-clear-btn", "Clear comparison");
@@ -1012,7 +1017,6 @@ document.addEventListener("click", function(ev){
 
   if (ev.target.closest && ev.target.closest("#clear-compare")){
     compareList = [];
-    paintCompareButtons();
     renderCompare();
     syncCompareHash();
     show("class");
@@ -1156,7 +1160,7 @@ function openHash(){
   var h = location.hash.slice(1);
   if (!h) return;
   if (h.indexOf("compare=") === 0){
-    if (readCompareHash()){ paintCompareButtons(); renderCompare(); show("compare"); }
+    if (readCompareHash()){ renderCompare(); show("compare"); }
     return;
   }
   if (h === "raw"){ show("raw"); return; }
@@ -1217,7 +1221,6 @@ if (EV.note) foot.appendChild(el("div", null, "Timing note: " + EV.note));
 foot.appendChild(el("div", null, "Timing by AXWare Systems. Page generated __GENERATED__."));
 
 renderCompare();
-paintCompareButtons();
 
 show("class");
 openHash();
