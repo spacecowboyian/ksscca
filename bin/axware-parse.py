@@ -174,10 +174,16 @@ def parse_results(table, cone, gate, dnf_cones, mode):
                 trailing = len(labels) - run_cols[-1] - 1
             continue
 
-        if len(c) < 9 or not c[1] or not c[2].strip().isdigit():
+        if len(c) < 9 or not c[2].strip().isdigit():
             continue
         if current is None:
             raise ParseError("entry row appeared before any class header")
+
+        # AXWare leaves the class cell blank on some rows - every Novice
+        # entry in the June 2024 autocross, for one - so requiring it here
+        # silently dropped a whole class. Fall back to the class heading
+        # the row sits under.
+        row_class = c[1].strip() or current["code"]
 
         n = runs_n if runs_n is not None else len(c) - FIXED - trailing
         run_cells = c[FIXED:FIXED + n]
@@ -212,7 +218,7 @@ def parse_results(table, cone, gate, dnf_cones, mode):
         current["entries"].append({
             "position": int(re.sub(r"\D", "", c[0].strip()) or 0),
             "trophy": c[0].strip().upper().endswith("T"),
-            "class": c[1].strip(),
+            "class": row_class,
             "number": c[2].strip(),
             "driver": c[3].strip(),
             "car": c[4].strip(),
@@ -224,7 +230,7 @@ def parse_results(table, cone, gate, dnf_cones, mode):
             "printed_total": printed_total,
             "printed_total_raw": printed,
             "diff": c[-1].strip() if trailing > 1 else None,
-            "anchor": f"driver-{c[1].strip().lower()}-{c[2].strip()}",
+            "anchor": f"driver-{row_class.lower()}-{c[2].strip()}",
         })
 
     return classes
@@ -288,6 +294,13 @@ def parse(source, cone, gate, dnf_cones):
     if m:
         date = f"{m.group(3)}-{m.group(1)}-{m.group(2)}"
 
+    declared = None
+    m = re.search(r"Total Registered:\s*(\d+)", text(tables[0]), re.I)
+    if not m:
+        m = re.search(r"Timed Entries:\s*(\d+)", text(tables[0]), re.I)
+    if m:
+        declared = int(m.group(1))
+
     footnote = FOOTNOTE.search(text(src))
     note = footnote.group(1).strip().rstrip(",") if footnote else None
 
@@ -336,6 +349,7 @@ def parse(source, cone, gate, dnf_cones):
                 "dnf_cones": dnf_cones,
                 "dnf_seconds": round(dnf_cones * cone, 3),
             },
+            "declared_entries": declared,
             "run_count": max((len(e["runs"]) for e in entries), default=0),
             "entry_count": len(entries),
             "class_count": len(classes),
@@ -356,6 +370,51 @@ def reconcile(data, tolerance=0.0015):
             if abs(e["total"] - e["printed_total"]) > tolerance:
                 bad.append(e)
     return bad
+
+
+def parse_pax(source):
+    """Read an AXWare ``_pax`` export.
+
+    Its own table, eleven columns wide:
+      Pax Pos | Pos | Class | # | Driver | Car Model | Total | Factor |
+      Pax Time | Diff. | From 1st
+
+    Only autocross produces one - RallyCross has no index - and it carries
+    no run data, so entries are keyed by anchor and matched back to the
+    class results for their runs.
+    """
+    src = re.sub(r"(?is)<(style|script).*?</\1>", "", source)
+    for table in TABLE.findall(src):
+        rows = [cells(r) for r in ROW.findall(table)]
+        header = next((r for r in rows if r and r[0].lower().startswith("pax pos")), None)
+        if not header:
+            continue
+
+        out = []
+        for c in rows:
+            if len(c) < 9 or not c[0].strip().isdigit():
+                continue
+            try:
+                total = float(c[6])
+                factor = float(c[7].lstrip("*"))
+                pax_time = float(c[8])
+            except ValueError:
+                continue
+            out.append({
+                "pax_position": int(c[0]),
+                "class_position": int(re.sub(r"\D", "", c[1]) or 0),
+                "class": c[2].strip(),
+                "number": c[3].strip(),
+                "driver": c[4].strip(),
+                "car": c[5].strip(),
+                "total": round(total, 3),
+                "factor": factor,
+                "pax_time": round(pax_time, 3),
+                "anchor": f"driver-{c[2].strip().lower()}-{c[3].strip()}",
+            })
+        if out:
+            return out
+    return []
 
 
 def read_source(path):
@@ -390,6 +449,8 @@ def main():
                          "'KSRXAugust23'")
     ap.add_argument("--venue", help="venue and location, e.g. \"McCain's "
                                     "Offroad Park - Ridgeway, KS\"")
+    ap.add_argument("--pax", help="matching AXWare _pax export, if the event "
+                                  "has one (autocross only)")
     args = ap.parse_args()
 
     source = read_source(Path(args.source))
@@ -400,8 +461,32 @@ def main():
     if args.venue:
         data["event"]["venue"] = args.venue
 
-    bad = reconcile(data)
+    if args.pax:
+        pax = parse_pax(read_source(Path(args.pax)))
+        if not pax:
+            print("no PAX table found in %s" % args.pax, file=sys.stderr)
+            return 1
+        known = {e["anchor"] for c in data["classes"] for e in c["entries"]}
+        missing = [p["driver"] for p in pax if p["anchor"] not in known]
+        if missing:
+            print("PAX entries with no matching class result: %s"
+                  % ", ".join(missing), file=sys.stderr)
+        data["pax"] = pax
+        print("pax: %d indexed entries" % len(pax), file=sys.stderr)
+
+    # The export states its own entry count; comparing against it catches
+    # rows the parser skipped, which reconciliation never can - it only
+    # checks the entries it managed to read.
+    declared = data["event"].get("declared_entries")
     n = data["event"]["entry_count"]
+    if declared is not None and declared != n:
+        print(f"entry count: export declares {declared}, parsed {n}",
+              file=sys.stderr)
+        if not args.force:
+            print("refusing to emit; rows are being skipped", file=sys.stderr)
+            return 1
+
+    bad = reconcile(data)
     if bad:
         print(f"reconcile: {len(bad)}/{n} entries do NOT match printed totals",
               file=sys.stderr)

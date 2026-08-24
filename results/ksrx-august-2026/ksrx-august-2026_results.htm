@@ -458,11 +458,56 @@ button{font:inherit;color:inherit}
   .entry-body{padding-left:calc(var(--col-rank) + 8px)}
 }
 
+/* ------------------------------------------------------------------ pax */
+/* Autocross only: RallyCross has no index. The PAX export carries no run
+   data, so entries are matched back to the class results by anchor and the
+   ordinary row is reused with the indexed time as its headline figure. */
+(function(){
+  var pax = (DATA.pax || []).filter(function(p){
+    /* A factor of zero means the class is not indexed - Novice, usually -
+       so those rows carry no meaningful PAX time. */
+    return p.factor > 0 && p.pax_time > 0;
+  });
+  if (!pax.length) return;
+
+  var pane = document.getElementById("pane-pax");
+  var tab = document.getElementById("tab-pax");
+  tab.hidden = false;
+
+  var head = plainHead("PAX", "Every entry on index, fastest first", pax.length);
+  pane.appendChild(head);
+
+  var lead = pax[0].pax_time;
+  pax.forEach(function(p, i){
+    var e = BY_ANCHOR[p.anchor];
+    if (!e) return;
+    pane.appendChild(entry(e, {
+      rank: p.pax_position,
+      idPrefix: "pax-",
+      showClass: true,
+      total: p.pax_time,
+      leadLabel: "fastest on index",
+      gap: i === 0 ? null : p.pax_time - lead,
+      note: "Raw <b>" + p.total.toFixed(3) + "</b> \u00d7 <b>" +
+            p.factor.toFixed(3) + "</b> index"
+    }));
+  });
+
+  var skipped = (DATA.pax || []).length - pax.length;
+  if (skipped){
+    var n = el("div", "pane-note",
+      plural(skipped, "entry", "entries") + " in unindexed classes are not " +
+      "listed here - they appear in the class results.");
+    pane.appendChild(n);
+  }
+})();
+
 /* -------------------------------------------------------------- compare */
 .run.win{background:var(--gold-tint-light);border-color:#dcc68a;
   color:var(--gold-text);font-weight:700}
 .run.win .n{color:#a08340}
 
+.pane-note{padding:12px var(--pad-x) 18px 0;font-size:12.5px;color:var(--muted)}
 .cmp-clear{padding:12px var(--pad-x) 18px 0}
 .cmp-clear-btn{
   appearance:none;border:1px solid var(--border);background:var(--paper);
@@ -495,6 +540,7 @@ button{font:inherit;color:inherit}
   <div class="bar" role="tablist">
     <button class="tab" id="tab-class" role="tab" aria-selected="true" aria-controls="pane-class">Class Results</button>
     <button class="tab" id="tab-raw"   role="tab" aria-selected="false" aria-controls="pane-raw">Raw Times</button>
+    <button class="tab" id="tab-pax" role="tab" aria-selected="false" aria-controls="pane-pax" hidden>PAX</button>
     <button class="tab" id="tab-compare" role="tab" aria-selected="false" aria-controls="pane-compare" hidden>Compare</button>
   </div>
 
@@ -508,6 +554,7 @@ button{font:inherit;color:inherit}
   <main>
     <section class="pane" id="pane-class" role="tabpanel" aria-labelledby="tab-class"></section>
     <section class="pane" id="pane-raw" role="tabpanel" aria-labelledby="tab-raw" hidden></section>
+    <section class="pane" id="pane-pax" role="tabpanel" aria-labelledby="tab-pax" hidden></section>
     <section class="pane" id="pane-compare" role="tabpanel" aria-labelledby="tab-compare" hidden></section>
   </main>
 
@@ -653,13 +700,17 @@ function entry(e, ctx){
   who.appendChild(car);
   head.appendChild(who);
 
+  /* PAX shows an indexed time in place of the raw total, so the headline
+     figure is an option rather than always e.printed_total. */
+  var shown = ctx.total != null ? ctx.total : e.printed_total;
+
   var times = el("span", "times");
-  var tot = el("span", "total", fmt(e.printed_total));
-  if (clock(e.printed_total)) tot.title = clock(e.printed_total);
+  var tot = el("span", "total", fmt(shown));
+  if (clock(shown)) tot.title = clock(shown);
   times.appendChild(tot);
   /* A registered driver who never ran has no total, so they are neither a
      leader nor a gap - say what actually happened instead. */
-  if (e.printed_total == null){
+  if (shown == null){
     times.appendChild(el("span", "gap nostart",
       (e.printed_total_raw || "no time").toUpperCase()));
   } else {
@@ -708,6 +759,11 @@ function entry(e, ctx){
   body.appendChild(strip);
 
   var line = el("div", "foot-line");
+  if (ctx.note){
+    var nt = el("span");
+    nt.innerHTML = ctx.note;
+    line.appendChild(nt);
+  }
   if (best){
     var f = el("span");
     f.appendChild(document.createTextNode("Best run "));
@@ -977,6 +1033,8 @@ function renderCompare(){
 var tabs = {
   "class": {btn: document.getElementById("tab-class"), pane: paneClass},
   "raw":   {btn: document.getElementById("tab-raw"),   pane: paneRaw},
+  "pax":   {btn: document.getElementById("tab-pax"),
+            pane: document.getElementById("pane-pax")},
   "compare": {btn: document.getElementById("tab-compare"),
             pane: document.getElementById("pane-compare")}
 };
@@ -989,6 +1047,7 @@ function show(which){
 }
 tabs["class"].btn.addEventListener("click", function(){ show("class"); });
 tabs["raw"].btn.addEventListener("click", function(){ show("raw"); });
+tabs["pax"].btn.addEventListener("click", function(){ show("pax"); });
 tabs["compare"].btn.addEventListener("click", function(){ show("compare"); });
 
 /* ------------------------------------------------------------- expanding */
@@ -1238,13 +1297,17 @@ var ul = el("ul");
     plural(EV.penalties.dnf_cones, "cone", "cones") + ", or " +
     EV.penalties.dnf_seconds.toFixed(0) + " seconds.",
   "A gold position number marks a trophy position.",
+  (DATA.pax && DATA.pax.length)
+    ? "The PAX tab ranks everyone on index: each class's raw time multiplied " +
+      "by its factor, which is how classes are compared to one another."
+    : null,
   "Open a driver to reveal two controls beside their car: a link to their " +
     "result, and a plus that adds them to the comparison. Compare puts any " +
     "drivers you pick side by side run by run, across classes, and its own " +
     "address can be shared.",
   "The link icon after a driver's car jumps to their result and puts its " +
     "address in the address bar, ready to copy and share."
-].forEach(function(t){ ul.appendChild(el("li", null, t)); });
+].filter(Boolean).forEach(function(t){ ul.appendChild(el("li", null, t)); });
 foot.appendChild(ul);
 
 if (EV.note) foot.appendChild(el("div", null, "Timing note: " + EV.note));

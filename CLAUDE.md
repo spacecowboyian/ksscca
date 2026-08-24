@@ -35,6 +35,15 @@ Before adding a layout, ask:
 - **`str.replace` fails silently.** Patch scripts that miss their target
   print success and change nothing. Assert the target exists first, and
   assert slice bounds are ordered before cutting.
+- **Section-comment anchors are not unique.** The CSS and the JS carry the
+  same banner comments, so a `replace(anchor, block, 1)` can drop a script
+  into the middle of the stylesheet, where it fails silently and renders
+  nothing. Assert the count, or anchor on something that exists once.
+- **AXWare omits the class code on some rows.** Every Novice entry in the
+  June 2024 autocross has a blank class cell. Requiring it silently dropped
+  a whole class, and reconciliation could not catch it because it only
+  checks rows the parser managed to read. Compare the parsed count against
+  the export's own declared total.
 - **`position:sticky` needs an unclipped scrolling ancestor.** An
   `overflow-x:auto` wrapper captures it, and the element pins inside that
   wrapper instead of the viewport.
