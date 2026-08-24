@@ -29,7 +29,6 @@
   --gap:6px;
 
   --bar-h:52px;
-  --tools-h:49px;
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
@@ -58,7 +57,7 @@ button{font:inherit;color:inherit}
 
 /* ------------------------------------------------------------------ bars */
 .bar{
-  position:sticky;top:0;z-index:20;display:flex;
+  display:flex;
   background:var(--paper);border-bottom:1px solid var(--border);
 }
 .tab{
@@ -69,7 +68,6 @@ button{font:inherit;color:inherit}
 .tab[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
 
 .tools{
-  position:sticky;top:var(--bar-h);z-index:19;
   display:flex;flex-wrap:wrap;align-items:center;gap:8px;
   padding:8px var(--pad-x);
   background:var(--paper);border-bottom:1px solid var(--border);
@@ -107,7 +105,7 @@ button{font:inherit;color:inherit}
   border:0;border-bottom:1px solid var(--border);
   background:var(--row-alt);
   padding:10px var(--pad-x);
-  position:sticky;top:calc(var(--bar-h) + var(--tools-h));z-index:10;
+  position:sticky;top:0;z-index:10;
 }
 .cls-head:hover{background:#e6ecf4}
 .cls-title{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
@@ -714,16 +712,6 @@ function openHash(){
   setTimeout(function(){ node.scrollIntoView({block:"center"}); }, 0);
 }
 window.addEventListener("hashchange", openHash);
-
-/* --------------------------------------------------- sticky bar geometry */
-function measure(){
-  var bar = document.querySelector(".bar");
-  var tools = document.querySelector(".tools");
-  document.documentElement.style.setProperty("--bar-h", bar.offsetHeight + "px");
-  document.documentElement.style.setProperty("--tools-h", tools.offsetHeight + "px");
-}
-measure();
-window.addEventListener("resize", measure);
 
 /* ----------------------------------------------------------------- foot */
 var foot = document.getElementById("foot");
