@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__TITLE__</title>
+<style>
+:root{
+  --ink:#14181c;
+  --paper:#ffffff;
+  --page:#f4f6f8;
+  --row-alt:#eef2f7;
+  --hover:#f6f9fd;
+  --accent:#0b3d91;
+  --accent-dark:#082a66;
+  --border:#ccd3da;
+  --hair:#e2e7ed;
+  --muted:#5b6470;
+  --faint:#98a2ad;
+  --good:#0a7d2c;
+  --bad:#b30000;
+  --gold:#c9a227;
+
+  /* One padding value governs an entry: the run strip and the penalty line
+     begin at the same left edge as the position badge, and the gap between
+     wrapped chip rows matches the gap between chips. */
+  --pad-x:14px;
+  --pad-y:12px;
+  --gap:6px;
+
+  --bar-h:52px;
+  --tools-h:49px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--page);
+  color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:clamp(15px,3.6vw,16px);
+  line-height:1.35;
+}
+.wrap{max-width:1080px;margin:0 auto;background:var(--paper);min-height:100vh}
+button{font:inherit;color:inherit}
+
+/* ---------------------------------------------------------------- header */
+.head{background:var(--accent);color:#fff;padding:18px var(--pad-x) 16px}
+.head h1{margin:0;font-size:clamp(19px,4.8vw,26px);line-height:1.2;letter-spacing:-.01em}
+.head .sub{margin-top:5px;font-size:clamp(13px,3.4vw,15px);color:#c3d3f0}
+.badges{margin-top:11px;display:flex;flex-wrap:wrap;gap:6px}
+.badge{
+  font-size:12px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;
+  padding:4px 8px;background:var(--accent-dark);color:#dce6f8;
+}
+.badge.warn{background:#8a6d00;color:#fff8dd}
+
+/* ------------------------------------------------------------------ bars */
+.bar{
+  position:sticky;top:0;z-index:20;display:flex;
+  background:var(--paper);border-bottom:1px solid var(--border);
+}
+.tab{
+  flex:1;appearance:none;border:0;background:transparent;cursor:pointer;
+  font-weight:600;color:var(--muted);
+  height:var(--bar-h);border-bottom:3px solid transparent;
+}
+.tab[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+
+.tools{
+  position:sticky;top:var(--bar-h);z-index:19;
+  display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+  padding:8px var(--pad-x);
+  background:var(--paper);border-bottom:1px solid var(--border);
+}
+.tools input[type=search],.tools select{
+  padding:8px 10px;border:1px solid var(--border);
+  background:var(--paper);color:var(--ink);min-width:0;
+}
+.tools input[type=search]{flex:1 1 180px}
+/* The native control draws a small caret hard against the edge; this gives
+   it room to breathe and matches the size of the chevrons used elsewhere. */
+.tools select{
+  flex:0 1 auto;
+  appearance:none;-webkit-appearance:none;
+  padding-right:38px;
+  background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%235b6470'%3E%3Cpath d='M8 11.5L2.5 5.6 3.9 4.3 8 8.7l4.1-4.4 1.4 1.3z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 12px center;
+  background-size:14px 14px;
+}
+.toggle{
+  display:inline-flex;align-items:center;gap:6px;cursor:pointer;
+  font-size:13px;color:var(--muted);white-space:nowrap;user-select:none;
+}
+.count{font-size:13px;color:var(--muted);white-space:nowrap;margin-left:auto}
+
+/* --------------------------------------------------------------- classes */
+.cls{border-bottom:1px solid var(--border)}
+.cls:last-child{border-bottom:0}
+
+/* The class header doubles as the control that opens every driver in the
+   class, and carries the class's summary figures. */
+.cls-head{
+  display:block;width:100%;text-align:left;cursor:pointer;
+  border:0;border-bottom:1px solid var(--border);
+  background:var(--row-alt);
+  padding:10px var(--pad-x);
+  position:sticky;top:calc(var(--bar-h) + var(--tools-h));z-index:10;
+}
+.cls-head:hover{background:#e6ecf4}
+.cls-title{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.cls-code{
+  font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;
+  color:#fff;background:var(--accent);padding:3px 7px;
+}
+.cls-name{font-weight:600}
+.cls-n{color:var(--muted);font-size:13px;margin-left:auto}
+.cls-stats{
+  margin-top:5px;font-size:12.5px;color:var(--muted);
+  font-variant-numeric:tabular-nums;
+  display:flex;flex-wrap:wrap;gap:3px 14px;
+}
+.cls-stats b{color:var(--ink);font-weight:600}
+.cls-head .chev{margin-left:6px}
+
+/* ----------------------------------------------------------------- entry */
+.entry{border-bottom:1px solid var(--hair)}
+.entry:last-child{border-bottom:0}
+.entry:target{background:#fff6d9}
+
+/* Every entry shares one column template, so badges, names and times line
+   up down the page exactly as a table would, while still reflowing. */
+.entry-head{
+  display:grid;
+  grid-template-columns:28px minmax(0,1fr) auto 16px;
+  align-items:center;
+  gap:var(--gap) 10px;
+  width:100%;text-align:left;cursor:pointer;
+  background:none;border:0;
+  padding:var(--pad-y) var(--pad-x);
+}
+.entry-head:hover{background:var(--hover)}
+.entry.static .entry-head{cursor:default}
+.entry.static .entry-head:hover{background:none}
+
+.rank{
+  width:28px;height:28px;display:grid;place-items:center;
+  font-size:13px;font-weight:700;color:var(--muted);
+  border:1px solid var(--border);background:var(--paper);
+}
+.rank.trophy{background:var(--gold);border-color:var(--gold);color:#241d00}
+
+/* These are spans so they can live inside the header button, so they need
+   block display back to stack the way the layout expects. */
+.who{display:block;min-width:0}
+.name,.car,.total,.gap{display:block}
+.name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.car{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.times{display:block;text-align:right;min-width:96px}
+.total{font-weight:700;font-variant-numeric:tabular-nums;font-size:clamp(15px,3.8vw,17px)}
+.gap{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.gap.lead{color:var(--good);font-weight:600}
+
+.chev{width:16px;height:16px;color:var(--faint);transition:transform .15s ease}
+.chev svg{display:block;width:16px;height:16px;fill:currentColor}
+.entry.open .entry-head .chev,
+.cls.open .cls-head .chev{transform:rotate(180deg)}
+.entry.static .chev{visibility:hidden}
+
+/* Body carries the same left edge as the badge above it. */
+.entry-body{padding:0 var(--pad-x) var(--pad-y)}
+.entry:not(.open) .entry-body{display:none}
+
+/* Run strip: chips carry their own run number, so a wrap never separates a
+   time from the run it belongs to, and the grid keeps R1 under R1 across
+   every driver. No breakpoint is involved. */
+.strip{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(96px,1fr));
+  gap:var(--gap);
+}
+.run{
+  display:flex;align-items:baseline;gap:5px;
+  padding:3px 7px;font-size:13px;font-variant-numeric:tabular-nums;
+  background:var(--row-alt);border:1px solid var(--hair);color:var(--ink);
+}
+.run .n{font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--faint)}
+.run .p{font-size:10px;font-weight:700;color:var(--bad)}
+.run.best{background:#e2f5e8;border-color:#a9dcbb;color:var(--good);font-weight:700}
+.run.best .n{color:#5c9a72}
+.run.pen{background:#fdece1;border-color:#f0c9ae}
+.run.pen .n{color:#a9724a}
+.run.dnf{background:#fde8e8;border-color:#f0b8b8}
+.run.dnf .n{color:#a86060}
+
+.foot-line{
+  margin-top:var(--gap);display:flex;flex-wrap:wrap;align-items:baseline;
+  gap:4px 14px;font-size:12.5px;color:var(--muted);
+  font-variant-numeric:tabular-nums;
+}
+.foot-line b{color:var(--ink);font-weight:600}
+.copy{
+  appearance:none;border:0;background:none;cursor:pointer;padding:0;
+  font-size:12.5px;font-weight:600;color:var(--accent);
+  border-bottom:1px solid var(--hair);margin-left:auto;
+}
+
+/* ------------------------------------------------------------------ misc */
+.pane[hidden]{display:none}
+.foot{padding:16px var(--pad-x) 26px;font-size:13px;color:var(--muted);border-top:1px solid var(--border)}
+.foot h2{font-size:12px;text-transform:uppercase;letter-spacing:.05em;margin:0 0 8px;color:var(--ink)}
+.foot ul{margin:0 0 14px;padding-left:18px}
+.foot li{margin-bottom:4px}
+.key{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.toast{
+  position:fixed;left:50%;bottom:24px;transform:translateX(-50%);
+  background:var(--ink);color:#fff;font-size:13px;padding:9px 14px;
+  opacity:0;pointer-events:none;transition:opacity .18s;z-index:60;
+}
+.toast.on{opacity:1}
+@media (prefers-reduced-motion:reduce){
+  .chev,.toast{transition:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="head">
+    <h1 id="ev-title"></h1>
+    <div class="sub" id="ev-sub"></div>
+    <div class="badges" id="ev-badges"></div>
+  </header>
+
+  <div class="bar" role="tablist">
+    <button class="tab" id="tab-class" role="tab" aria-selected="true" aria-controls="pane-class">Class Results</button>
+    <button class="tab" id="tab-raw"   role="tab" aria-selected="false" aria-controls="pane-raw">Raw Times</button>
+  </div>
+
+  <div class="tools">
+    <input id="q" type="search" placeholder="Search driver, car or number" autocomplete="off" aria-label="Search">
+    <select id="clsfilter" aria-label="Filter by class"></select>
+    <label class="toggle"><input type="checkbox" id="showruns"> Runs</label>
+    <span class="count" id="count"></span>
+  </div>
+
+  <main>
+    <section class="pane" id="pane-class" role="tabpanel" aria-labelledby="tab-class"></section>
+    <section class="pane" id="pane-raw" role="tabpanel" aria-labelledby="tab-raw" hidden></section>
+  </main>
+
+  <footer class="foot" id="foot"></footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script type="application/json" id="event-data">__EVENT_JSON__</script>
+<script>
+(function(){
+"use strict";
+
+var DATA = JSON.parse(document.getElementById("event-data").textContent);
+var EV = DATA.event;
+var RALLYX = EV.scoring === "rallyx_sum";
+var CHEV = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 11L3 5.5 4 4.5 8 8.9l4-4.4 1 1z"/></svg>';
+
+function el(tag, cls, txt){
+  var n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (txt != null) n.textContent = txt;
+  return n;
+}
+function fmt(t){ return t == null ? "—" : t.toFixed(3); }
+function signed(t){ return (t > 0 ? "+" : "") + t.toFixed(3); }
+function clock(t){
+  if (t == null || t < 60) return "";
+  var m = Math.floor(t / 60), s = t - m * 60;
+  return m + ":" + (s < 10 ? "0" : "") + s.toFixed(3);
+}
+function plural(n, one, many){ return n + " " + (n === 1 ? one : many); }
+function chev(){ var s = el("span", "chev"); s.innerHTML = CHEV; return s; }
+
+function penWords(r){
+  var bits = [];
+  if (r.cones) bits.push(plural(r.cones, "cone", "cones"));
+  if (r.gates) bits.push(plural(r.gates, "missed gate", "missed gates"));
+  if (r.dnf) bits.push("DNF");
+  if (r.status && r.status !== "dnf") bits.push(r.status.toUpperCase());
+  return bits.join(" + ");
+}
+function penMark(r){
+  if (r.dnf) return "DNF";
+  var n = r.cones + r.gates;
+  return n ? "+" + n : "";
+}
+/* A driver's quickest run, penalties included, ignoring any run they did
+   not finish. */
+function bestRun(e){
+  var t = e.runs.filter(function(r){ return r.time != null && !r.dnf; });
+  if (!t.length) return null;
+  return t.reduce(function(a, b){ return b.total < a.total ? b : a; });
+}
+function penaltyCount(e){
+  return e.runs.reduce(function(n, r){
+    return n + r.cones + r.gates + (r.dnf ? 1 : 0);
+  }, 0);
+}
+
+/* ---------------------------------------------------------------- header */
+document.title = (EV.name ? EV.name + " — " : "") + "Results";
+document.getElementById("ev-title").textContent =
+  [EV.organiser, EV.name].filter(Boolean).join(" · ") || EV.title;
+
+var d = EV.date ? new Date(EV.date + "T12:00:00") : null;
+document.getElementById("ev-sub").textContent = d
+  ? d.toLocaleDateString(undefined, {weekday:"long", year:"numeric", month:"long", day:"numeric"})
+  : "";
+
+var badges = document.getElementById("ev-badges");
+[[plural(EV.entry_count, "entry", "entries"), 0],
+ [plural(EV.class_count, "class", "classes"), 0],
+ [plural(EV.run_count, "run", "runs"), 0],
+ [RALLYX ? "Every run counts" : "Best run scores", 0],
+ EV.runs_vary_by_entry ? ["Run count varies by entry", 1] : null
+].filter(Boolean).forEach(function(b){
+  badges.appendChild(el("span", "badge" + (b[1] ? " warn" : ""), b[0]));
+});
+
+/* ----------------------------------------------------------------- entry */
+function entry(e, ctx){
+  var row = el("article", "entry");
+  row.id = ctx.idPrefix ? ctx.idPrefix + e.anchor : e.anchor;
+  row.dataset.search = (e.driver + " " + e.car + " " + e.number + " " +
+                        e.class + " " + (e.color || "")).toLowerCase();
+  row.dataset.cls = e.class;
+
+  var bodyId = "body-" + row.id;
+
+  var head = el("button", "entry-head");
+  head.type = "button";
+  head.setAttribute("aria-expanded", "false");
+  head.setAttribute("aria-controls", bodyId);
+
+  var rank = el("span", "rank" + (e.trophy ? " trophy" : ""), String(ctx.rank));
+  if (e.trophy) rank.title = "Trophy position";
+  head.appendChild(rank);
+
+  var who = el("span", "who");
+  who.appendChild(el("span", "name", e.driver));
+  who.appendChild(el("span", "car",
+    (ctx.showClass ? e.class + " " : "") + "#" + e.number + " · " + e.car));
+  head.appendChild(who);
+
+  var times = el("span", "times");
+  var tot = el("span", "total", fmt(e.printed_total));
+  if (clock(e.printed_total)) tot.title = clock(e.printed_total);
+  times.appendChild(tot);
+  times.appendChild(el("span", "gap" + (ctx.gap == null ? " lead" : ""),
+                       ctx.gap == null ? ctx.leadLabel : signed(ctx.gap)));
+  head.appendChild(times);
+  head.appendChild(chev());
+  row.appendChild(head);
+
+  var body = el("div", "entry-body");
+  body.id = bodyId;
+
+  var best = bestRun(e);
+  var strip = el("div", "strip");
+  e.runs.forEach(function(r, i){
+    var cls = "run";
+    if (r.dnf || r.time == null) cls += " dnf";
+    else if (r.penalty > 0) cls += " pen";
+    else if (best && r === best) cls += " best";
+
+    var chip = el("div", cls);
+    chip.appendChild(el("span", "n", "R" + (i + 1)));
+    chip.appendChild(el("span", "v", r.time == null
+      ? (r.status || "—").toUpperCase() : r.time.toFixed(3)));
+    var mark = penMark(r);
+    if (mark) chip.appendChild(el("span", "p", mark));
+
+    if (r.penalty > 0 && r.time != null){
+      chip.title = penWords(r) + " · " + r.time.toFixed(3) + " + " +
+                   r.penalty.toFixed(3) + " = " + r.total.toFixed(3);
+    } else if (best && r === best){
+      chip.title = "Their fastest run";
+    }
+    strip.appendChild(chip);
+  });
+  body.appendChild(strip);
+
+  var line = el("div", "foot-line");
+  if (best){
+    var f = el("span");
+    f.appendChild(document.createTextNode("Best run "));
+    f.appendChild(el("b", null, best.total.toFixed(3)));
+    line.appendChild(f);
+  }
+  /* Shown only when the printed total exceeds the runs added up - which is
+     exactly when a reader would otherwise think the maths is wrong. */
+  if (RALLYX && e.penalty_total > 0){
+    var s = el("span");
+    s.appendChild(document.createTextNode("Raw "));
+    s.appendChild(el("b", null, e.raw_total.toFixed(3)));
+    s.appendChild(document.createTextNode(" + "));
+    s.appendChild(el("b", null, e.penalty_total.toFixed(3)));
+    s.appendChild(document.createTextNode(" in penalties = "));
+    s.appendChild(el("b", null, fmt(e.printed_total)));
+    line.appendChild(s);
+  }
+  var copy = el("button", "copy", "Copy link");
+  copy.type = "button";
+  copy.dataset.anchor = e.anchor;
+  line.appendChild(copy);
+  body.appendChild(line);
+
+  row.appendChild(body);
+  return row;
+}
+
+/* ----------------------------------------------------- class roll-up head */
+function classHead(cls){
+  var h = el("button", "cls-head");
+  h.type = "button";
+  h.setAttribute("aria-expanded", "false");
+
+  var title = el("span", "cls-title");
+  title.appendChild(el("span", "cls-code", cls.code));
+  title.appendChild(el("span", "cls-name", cls.name));
+  title.appendChild(el("span", "cls-n", plural(cls.entries.length, "entry", "entries")));
+  title.appendChild(chev());
+  h.appendChild(title);
+
+  var stats = el("span", "cls-stats");
+  function stat(label, value, title){
+    var s = el("span");
+    if (title) s.title = title;
+    s.appendChild(document.createTextNode(label + " "));
+    s.appendChild(el("b", null, value));
+    stats.appendChild(s);
+  }
+
+  var timed = cls.entries.filter(function(e){ return e.printed_total != null; });
+  if (timed.length > 1){
+    var spread = timed[timed.length - 1].printed_total - timed[0].printed_total;
+    stat("Spread", spread.toFixed(3), "First to last in this class");
+  }
+
+  var fastest = null, fastestDriver = null;
+  cls.entries.forEach(function(e){
+    var b = bestRun(e);
+    if (b && (fastest === null || b.total < fastest.total)){
+      fastest = b; fastestDriver = e;
+    }
+  });
+  if (fastest){
+    stat("Fastest run", fastest.total.toFixed(3) + " " + fastestDriver.driver,
+         "Quickest single run in this class");
+  }
+
+  var pens = cls.entries.reduce(function(n, e){ return n + penaltyCount(e); }, 0);
+  var secs = cls.entries.reduce(function(n, e){ return n + e.penalty_total; }, 0);
+  stat("Penalties", pens ? pens + " (+" + secs.toFixed(3) + ")" : "none",
+       "Cones, missed gates and DNFs across the class");
+
+  h.appendChild(stats);
+  return h;
+}
+
+function plainHead(code, name, n){
+  var h = el("div", "cls-head");
+  var title = el("span", "cls-title");
+  title.appendChild(el("span", "cls-code", code));
+  title.appendChild(el("span", "cls-name", name));
+  if (n != null) title.appendChild(el("span", "cls-n", plural(n, "entry", "entries")));
+  h.appendChild(title);
+  return h;
+}
+
+/* ------------------------------------------------------------ class pane */
+var paneClass = document.getElementById("pane-class");
+DATA.classes.forEach(function(cls){
+  var sec = el("section", "cls");
+  sec.dataset.cls = cls.code;
+  sec.appendChild(classHead(cls));
+
+  var leader = cls.entries.length ? cls.entries[0].printed_total : null;
+  cls.entries.forEach(function(e){
+    sec.appendChild(entry(e, {
+      rank: e.position,
+      leadLabel: cls.entries.length > 1 ? "class winner" : "only entry",
+      gap: (e.printed_total == null || leader == null || e.printed_total === leader)
+             ? null : e.printed_total - leader
+    }));
+  });
+  paneClass.appendChild(sec);
+});
+
+/* -------------------------------------------------------------- raw pane */
+var paneRaw = document.getElementById("pane-raw");
+(function(){
+  var sec = el("section", "cls");
+  sec.appendChild(plainHead("Raw", "Every entry, fastest first", DATA.raw.length));
+  var leader = DATA.raw.length ? DATA.raw[0].printed_total : null;
+  DATA.raw.forEach(function(e, i){
+    sec.appendChild(entry(e, {
+      rank: i + 1,
+      idPrefix: "raw-",
+      showClass: true,
+      leadLabel: "fastest of the day",
+      gap: (i === 0 || e.printed_total == null || leader == null)
+             ? null : e.printed_total - leader
+    }));
+  });
+  paneRaw.appendChild(sec);
+})();
+
+/* ------------------------------------------------------------------ ttod */
+if (DATA.ttod && DATA.ttod.length){
+  [paneClass, paneRaw].forEach(function(pane){
+    var sec = el("section", "cls");
+    sec.appendChild(plainHead("TTOD", "Top Times Of Day", null));
+    DATA.ttod.forEach(function(x){
+      var row = el("article", "entry static");
+      var head = el("div", "entry-head");
+      var r = el("span", "rank trophy", "★");
+      head.appendChild(r);
+      var who = el("span", "who");
+      who.appendChild(el("span", "name", x.driver));
+      who.appendChild(el("span", "car", x.label + " · " + x.class + " #" + x.number));
+      head.appendChild(who);
+      var t = el("span", "times");
+      t.appendChild(el("span", "total", x.time.toFixed(3)));
+      head.appendChild(t);
+      head.appendChild(chev());
+      row.appendChild(head);
+      sec.appendChild(row);
+    });
+    pane.appendChild(sec);
+  });
+}
+
+/* ----------------------------------------------------------------- tabs */
+var tabs = {
+  "class": {btn: document.getElementById("tab-class"), pane: paneClass},
+  "raw":   {btn: document.getElementById("tab-raw"),   pane: paneRaw}
+};
+function show(which){
+  Object.keys(tabs).forEach(function(k){
+    var on = k === which;
+    tabs[k].btn.setAttribute("aria-selected", on ? "true" : "false");
+    tabs[k].pane.hidden = !on;
+  });
+}
+tabs["class"].btn.addEventListener("click", function(){ show("class"); });
+tabs["raw"].btn.addEventListener("click", function(){ show("raw"); });
+
+/* ------------------------------------------------------------- expanding */
+var runsBox = document.getElementById("showruns");
+
+function setEntry(row, open){
+  if (row.classList.contains("static")) return;
+  row.classList.toggle("open", open);
+  var head = row.querySelector(".entry-head");
+  if (head) head.setAttribute("aria-expanded", open ? "true" : "false");
+}
+function setClass(sec, open){
+  sec.classList.toggle("open", open);
+  var head = sec.querySelector(".cls-head");
+  if (head.tagName === "BUTTON") head.setAttribute("aria-expanded", open ? "true" : "false");
+  sec.querySelectorAll(".entry").forEach(function(row){ setEntry(row, open); });
+}
+function setAll(open){
+  document.querySelectorAll(".cls").forEach(function(sec){ setClass(sec, open); });
+}
+
+/* Reflect reality on the master switch: mixed state reads as indeterminate
+   rather than lying in either direction. */
+function syncMaster(){
+  var rows = document.querySelectorAll(".entry:not(.static)");
+  var open = document.querySelectorAll(".entry.open:not(.static)").length;
+  runsBox.indeterminate = open > 0 && open < rows.length;
+  runsBox.checked = open === rows.length && rows.length > 0;
+}
+function syncClass(sec){
+  var rows = sec.querySelectorAll(".entry:not(.static)");
+  if (!rows.length) return;
+  var open = sec.querySelectorAll(".entry.open:not(.static)").length;
+  sec.classList.toggle("open", open === rows.length);
+  var head = sec.querySelector(".cls-head");
+  if (head.tagName === "BUTTON"){
+    head.setAttribute("aria-expanded", open === rows.length ? "true" : "false");
+  }
+}
+
+document.addEventListener("click", function(ev){
+  var copy = ev.target.closest && ev.target.closest(".copy");
+  if (copy){
+    var url = location.href.split("#")[0] + "#" + copy.dataset.anchor;
+    history.replaceState(null, "", "#" + copy.dataset.anchor);
+    if (navigator.clipboard){
+      navigator.clipboard.writeText(url).then(function(){ say("Link copied"); },
+                                              function(){ say(url); });
+    } else { say(url); }
+    return;
+  }
+
+  var clsHead = ev.target.closest && ev.target.closest("button.cls-head");
+  if (clsHead){
+    var sec = clsHead.closest(".cls");
+    setClass(sec, !sec.classList.contains("open"));
+    syncMaster();
+    return;
+  }
+
+  var head = ev.target.closest && ev.target.closest("button.entry-head");
+  if (head){
+    var row = head.closest(".entry");
+    setEntry(row, !row.classList.contains("open"));
+    syncClass(row.closest(".cls"));
+    syncMaster();
+  }
+});
+
+/* Runs are open by default where there is room for them and rolled up where
+   there is not, but the control and the behaviour are the same either way.
+
+   The preference is remembered separately for wide and narrow layouts, so a
+   choice made at a desk does not follow the reader onto a phone - and so
+   that crossing the breakpoint, by rotating a tablet or by dragging a window
+   narrow, re-applies the default for the width you have just moved into. */
+var WIDE = window.matchMedia("(min-width: 820px)");
+
+function prefKey(wide){ return wide ? "rx-runs-wide" : "rx-runs-narrow"; }
+
+function defaultFor(wide){
+  try {
+    var saved = localStorage.getItem(prefKey(wide));
+    if (saved !== null) return saved === "1";
+  } catch (err) {}
+  return wide;
+}
+
+function applyForWidth(){
+  setAll(defaultFor(WIDE.matches));
+  syncMaster();
+}
+
+runsBox.addEventListener("change", function(){
+  setAll(runsBox.checked);
+  runsBox.indeterminate = false;
+  try {
+    localStorage.setItem(prefKey(WIDE.matches), runsBox.checked ? "1" : "0");
+  } catch (err) {}
+});
+
+if (WIDE.addEventListener) WIDE.addEventListener("change", applyForWidth);
+else if (WIDE.addListener) WIDE.addListener(applyForWidth);
+
+applyForWidth();
+
+/* --------------------------------------------------------------- filters */
+var q = document.getElementById("q");
+var cf = document.getElementById("clsfilter");
+var countEl = document.getElementById("count");
+
+cf.appendChild(new Option("All classes", ""));
+DATA.classes.forEach(function(c){ cf.appendChild(new Option(c.code + " — " + c.name, c.code)); });
+
+function applyFilter(){
+  var term = q.value.trim().toLowerCase();
+  var cls = cf.value;
+  var shown = 0;
+
+  document.querySelectorAll(".entry[data-search]").forEach(function(n){
+    var ok = (!term || n.dataset.search.indexOf(term) !== -1) &&
+             (!cls || n.dataset.cls === cls);
+    n.hidden = !ok;
+    if (ok) shown++;
+  });
+  document.querySelectorAll(".cls[data-cls]").forEach(function(sec){
+    sec.hidden = !sec.querySelector(".entry:not([hidden])");
+  });
+
+  countEl.textContent = (term || cls)
+    ? (shown ? plural(shown, "result", "results") : "nothing found")
+    : "";
+}
+q.addEventListener("input", applyFilter);
+cf.addEventListener("change", applyFilter);
+
+/* ------------------------------------------------------------ deep links */
+var toast = document.getElementById("toast");
+var toastTimer;
+function say(msg){
+  toast.textContent = msg;
+  toast.classList.add("on");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ toast.classList.remove("on"); }, 1800);
+}
+
+function openHash(){
+  var h = location.hash.slice(1);
+  if (!h) return;
+  if (h === "raw"){ show("raw"); return; }
+  var node = document.getElementById(h) || document.getElementById("raw-" + h);
+  if (!node) return;
+  show(node.closest("#pane-raw") ? "raw" : "class");
+  setEntry(node, true);
+  syncClass(node.closest(".cls"));
+  syncMaster();
+  setTimeout(function(){ node.scrollIntoView({block:"center"}); }, 0);
+}
+window.addEventListener("hashchange", openHash);
+
+/* --------------------------------------------------- sticky bar geometry */
+function measure(){
+  var bar = document.querySelector(".bar");
+  var tools = document.querySelector(".tools");
+  document.documentElement.style.setProperty("--bar-h", bar.offsetHeight + "px");
+  document.documentElement.style.setProperty("--tools-h", tools.offsetHeight + "px");
+}
+measure();
+window.addEventListener("resize", measure);
+
+/* ----------------------------------------------------------------- foot */
+var foot = document.getElementById("foot");
+
+foot.appendChild(el("h2", null, "Reading a run"));
+var key = el("div", "key");
+[["", "R3", "44.244", "", "a clean run"],
+ ["best", "R7", "39.939", "", "their fastest run"],
+ ["pen", "R5", "42.397", "+1", "a run with a penalty"],
+ ["dnf", "R8", "87.714", "DNF", "did not finish"]
+].forEach(function(k){
+  var chip = el("div", "run" + (k[0] ? " " + k[0] : ""));
+  chip.appendChild(el("span", "n", k[1]));
+  chip.appendChild(el("span", "v", k[2]));
+  if (k[3]) chip.appendChild(el("span", "p", k[3]));
+  chip.title = k[4];
+  key.appendChild(chip);
+});
+foot.appendChild(key);
+
+foot.appendChild(el("h2", null, "How the times work"));
+var ul = el("ul");
+[ "Tap a driver to open their runs. Tap a class heading to open every driver in it. " +
+    "The Runs switch above opens or closes the lot.",
+  RALLYX
+    ? "Every run counts. A driver's total is all " + EV.run_count +
+      " runs added together, plus penalties — there are no drop runs."
+    : "The score is the single fastest run of the day, penalties included.",
+  "Run times are printed exactly as the official results show them: the clean time, " +
+    "then its penalty marker. A marker of +2 means two cones, not two seconds.",
+  "A cone costs " + EV.penalties.cone_seconds.toFixed(0) + " seconds. A missed gate costs " +
+    EV.penalties.gate_seconds.toFixed(0) + " seconds. A DNF is scored as " +
+    plural(EV.penalties.dnf_cones, "cone", "cones") + ", or " +
+    EV.penalties.dnf_seconds.toFixed(0) + " seconds.",
+  "A gold position badge marks a trophy position."
+].forEach(function(t){ ul.appendChild(el("li", null, t)); });
+foot.appendChild(ul);
+
+if (EV.note) foot.appendChild(el("div", null, "Timing note: " + EV.note));
+foot.appendChild(el("div", null, "Timing by AXWare Systems. Page generated __GENERATED__."));
+
+show("class");
+openHash();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html><html><head><meta charset='utf-8'><style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#14181c; --paper:#fff; --accent:#0b3d91; --accent-dark:#082a66;
+  --muted:#5b6470; --faint:#98a2ad; --hair:#e2e7ed; --row:#eef2f7;
+  --good:#0a7d2c; --gold:#c9a227;
+}
+html,body{width:1080px;height:1350px}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  display:flex; flex-direction:column;
+}
+.top{background:var(--accent);color:#fff;padding:44px 64px 38px}
+.org{font-size:26px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#9fbaea}
+.evt{margin-top:10px;font-size:44px;font-weight:700;letter-spacing:-.01em;line-height:1.1}
+.date{margin-top:8px;font-size:28px;color:#c3d3f0}
+
+.band{
+  background:var(--accent-dark);color:#fff;padding:26px 64px;
+  display:flex;align-items:center;gap:20px;
+}
+.code{
+  background:#fff;color:var(--accent);font-weight:800;
+  font-size:34px;letter-spacing:.06em;text-transform:uppercase;padding:8px 16px;
+}
+.cname{font-size:40px;font-weight:700}
+.cn{margin-left:auto;font-size:26px;color:#9fbaea}
+
+.body{flex:1;min-height:0;overflow:hidden;padding:34px 64px;
+  display:flex;flex-direction:column;justify-content:center}
+.row{display:flex;align-items:center;gap:24px;padding:22px 0;border-bottom:2px solid var(--hair)}
+.row:last-child{border-bottom:0}
+.rank{
+  flex:none;width:66px;height:66px;display:flex;align-items:center;justify-content:center;
+  font-size:30px;font-weight:800;color:var(--muted);
+  border:3px solid var(--hair);background:var(--paper);
+}
+.rank.trophy{background:var(--gold);border-color:var(--gold);color:#241d00}
+.who{flex:1;min-width:0}
+.name{font-size:42px;font-weight:700;line-height:1.15;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.car{margin-top:4px;font-size:26px;color:var(--muted);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tim{flex:none;text-align:right}
+.tot{font-size:42px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}
+.gap{margin-top:4px;font-size:25px;color:var(--muted);font-variant-numeric:tabular-nums}
+.gap.lead{color:var(--good);font-weight:700}
+
+/* Single-entry classes get a hero treatment rather than a lonely row. */
+.hero{text-align:center;padding:20px 0}
+.hero .badge{
+  display:inline-block;background:var(--gold);color:#241d00;
+  font-size:26px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+  padding:10px 20px;margin-bottom:26px;
+}
+.hero .name{font-size:64px;white-space:normal}
+.hero .car{font-size:32px;margin-top:12px}
+.hero .tot{font-size:96px;margin-top:26px}
+.hero .sub{margin-top:10px;font-size:28px;color:var(--muted)}
+
+.foot{
+  flex:none;padding:28px 64px 40px;border-top:3px solid var(--hair);
+  display:flex;align-items:baseline;gap:16px;font-size:25px;color:var(--muted);
+}
+.foot .site{margin-left:auto;font-weight:700;color:var(--accent)}
+</style></head><body><div class='top'><div class='org'>KS SCCA &middot; RallyCross</div><div class='evt'>KSRXAugust23</div><div class='date'>Sunday 23 August 2026</div></div><div class='band'><span class='code'>mr</span><span class='cname'>Modified Rwd</span><span class='cn'>4 entries</span></div><div class='body'><div class='row'><div class='rank trophy'>1</div><div class='who'><div class='name'>Ryan Redenbaugh</div><div class='car'>#86 &middot; 1973 MG GTS</div></div><div class='tim'><div class='tot'>410.709</div><div class='gap lead'>class winner</div></div></div><div class='row'><div class='rank trophy'>2</div><div class='who'><div class='name'>Brian Strack</div><div class='car'>#186 &middot; 1973 MG GTS</div></div><div class='tim'><div class='tot'>416.500</div><div class='gap'>+5.791</div></div></div><div class='row'><div class='rank trophy'>3</div><div class='who'><div class='name'>Larry g Smith</div><div class='car'>#3 &middot; 1990 Mazda Miata MX5</div></div><div class='tim'><div class='tot'>423.109</div><div class='gap'>+12.400</div></div></div><div class='row'><div class='rank'>4</div><div class='who'><div class='name'>Graham Matlock</div><div class='car'>#513 &middot; 1991 Nissan 240sx</div></div><div class='tim'><div class='tot'>423.255</div><div class='gap'>+12.546</div></div></div></div><div class='foot'><div>Total of all 9 runs, penalties included</div><div class='site'>ksscca.org</div></div></body></html>
