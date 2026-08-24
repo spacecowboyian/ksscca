@@ -362,7 +362,7 @@ button{font:inherit;color:inherit}
 .gap{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
 /* Distinguished by hue rather than lightness, so both stay legible: the
    total gap muted, the interval to the car ahead in accent. */
-.gap .to-prev{margin-left:7px;color:var(--accent)}
+.gap .to-prev{margin-right:7px;color:var(--accent)}
 .gap.lead{color:var(--good);font-weight:600}
 .gap.nostart{color:var(--faint);font-weight:600;letter-spacing:.04em}
 
@@ -891,18 +891,20 @@ function entry(e, ctx){
   } else if (ctx.gap == null){
     times.appendChild(el("span", "gap lead", ctx.leadLabel));
   } else {
-    /* Two gaps, one line: the total back to the leader, then the interval
-       to whoever is immediately ahead. The arrow is what separates them -
-       it points at the car in front. */
+    /* The interval to whoever is immediately ahead comes first - it is the
+       gap you can actually do something about - then the total back to the
+       leader. For second place the two are the same number, so only the
+       total is shown rather than printing it twice. Compared rather than
+       keyed off position, so ties behave. */
     var g = el("span", "gap");
-    var toLead = el("span", "to-lead", signed(ctx.gap));
-    toLead.title = "Behind the leader";
-    g.appendChild(toLead);
-    if (ctx.interval != null){
+    if (ctx.interval != null && Math.abs(ctx.interval - ctx.gap) > 0.0005){
       var iv = el("span", "to-prev", "\u2191" + ctx.interval.toFixed(3));
       iv.title = "Behind the driver immediately ahead";
       g.appendChild(iv);
     }
+    var toLead = el("span", "to-lead", signed(ctx.gap));
+    toLead.title = "Behind the leader";
+    g.appendChild(toLead);
     times.appendChild(g);
   }
   head.appendChild(times);
@@ -1512,9 +1514,10 @@ var ul = el("ul");
     plural(EV.penalties.dnf_cones, "cone", "cones") + ", or " +
     EV.penalties.dnf_seconds.toFixed(0) + " seconds.",
   "A gold position number marks a trophy position.",
-  "Each row carries two gaps: the plain figure is how far back they are " +
-    "from the leader, and the one after the arrow is how far back they are " +
-    "from the driver immediately ahead of them.",
+  "Rows below second carry two gaps: the figure after the arrow is how far " +
+    "back they are from the driver immediately ahead, and the plain figure " +
+    "is the total back to the leader. Second place shows one, because for " +
+    "them the two are the same number.",
   (DATA.pax && DATA.pax.length)
     ? "The PAX tab ranks everyone on index: each class's raw time multiplied " +
       "by its factor, which is how classes are compared to one another."
