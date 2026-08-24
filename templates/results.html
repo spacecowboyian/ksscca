@@ -225,6 +225,13 @@ button{font:inherit;color:inherit}
 }
 
 .times{grid-row:1;display:block;text-align:right;min-width:96px}
+.totline{display:flex;align-items:baseline;justify-content:flex-end;gap:6px}
+/* An equation needs more room than a bare time, and it must not be split
+   across the grid, so these rows keep .times as one right-aligned block. */
+.entry-head.has-eq .times{min-width:152px}
+.eq{color:var(--muted);font-size:12.5px;font-variant-numeric:tabular-nums;
+  white-space:nowrap}
+.eq-op{margin:0 3px;color:var(--faint)}
 .total{font-weight:700;font-variant-numeric:tabular-nums;font-size:clamp(15px,3.8vw,17px)}
 .gap{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
 .gap.lead{color:var(--good);font-weight:600}
@@ -281,6 +288,12 @@ button{font:inherit;color:inherit}
   .name{flex:0 0 auto}
   .car{flex:1 1 auto;min-width:0;font-size:12.5px}
   .times{display:contents}
+  /* ...except where a row ends in an equation, which spans the two
+     right-hand columns as a single cell instead. */
+  .entry-head.has-eq .times{
+    display:block;grid-row:1;grid-column:3 / span 2;
+    text-align:right;min-width:0;
+  }
   .gap{grid-row:1;grid-column:3;text-align:right;white-space:nowrap;font-size:12.5px}
   .total{grid-row:1;grid-column:4;text-align:right;min-width:88px;font-size:16px}
 
@@ -370,6 +383,13 @@ button{font:inherit;color:inherit}
 }
 
 .times{grid-row:1;display:block;text-align:right;min-width:96px}
+.totline{display:flex;align-items:baseline;justify-content:flex-end;gap:6px}
+/* An equation needs more room than a bare time, and it must not be split
+   across the grid, so these rows keep .times as one right-aligned block. */
+.entry-head.has-eq .times{min-width:152px}
+.eq{color:var(--muted);font-size:12.5px;font-variant-numeric:tabular-nums;
+  white-space:nowrap}
+.eq-op{margin:0 3px;color:var(--faint)}
 .total{font-weight:700;font-variant-numeric:tabular-nums;font-size:clamp(15px,3.8vw,17px)}
 .gap{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
 .gap.lead{color:var(--good);font-weight:600}
@@ -426,6 +446,12 @@ button{font:inherit;color:inherit}
   .name{flex:0 0 auto}
   .car{flex:1 1 auto;min-width:0;font-size:12.5px}
   .times{display:contents}
+  /* ...except where a row ends in an equation, which spans the two
+     right-hand columns as a single cell instead. */
+  .entry-head.has-eq .times{
+    display:block;grid-row:1;grid-column:3 / span 2;
+    text-align:right;min-width:0;
+  }
   .gap{grid-row:1;grid-column:3;text-align:right;white-space:nowrap;font-size:12.5px}
   .total{grid-row:1;grid-column:4;text-align:right;min-width:88px;font-size:16px}
 
@@ -663,7 +689,24 @@ function entry(e, ctx){
   var times = el("span", "times");
   var tot = el("span", "total", fmt(shown));
   if (clock(shown)) tot.title = clock(shown);
-  times.appendChild(tot);
+
+  /* On the PAX board the row ends in the sum that produced the figure -
+     raw time, index, result - so the arithmetic is visible rather than
+     something a reader has to be told about. */
+  if (ctx.equation){
+    head.classList.add("has-eq");
+    var eqline = el("span", "totline");
+    var eq = el("span", "eq");
+    eq.appendChild(el("span", "eq-n", ctx.equation.raw.toFixed(3)));
+    eq.appendChild(el("span", "eq-op", "\u00d7"));
+    eq.appendChild(el("span", "eq-n", ctx.equation.factor.toFixed(3)));
+    eq.appendChild(el("span", "eq-op", "="));
+    eqline.appendChild(eq);
+    eqline.appendChild(tot);
+    times.appendChild(eqline);
+  } else {
+    times.appendChild(tot);
+  }
   /* A registered driver who never ran has no total, so they are neither a
      leader nor a gap - say what actually happened instead. */
   if (shown == null){
@@ -976,6 +1019,7 @@ function renderCompare(){
      empty controls until they are painted, which is what left the compare
      pane with blank buttons and no way to remove anyone from it. */
   paintCompareButtons();
+  sizeFirstColumn();
 
   var clear = el("div", "cmp-clear");
   var btn = el("button", "cmp-clear-btn", "Clear comparison");
@@ -1015,8 +1059,7 @@ function renderCompare(){
       total: p.pax_time,
       leadLabel: "fastest on index",
       gap: i === 0 ? null : p.pax_time - lead,
-      note: "Raw <b>" + p.total.toFixed(3) + "</b> \u00d7 <b>" +
-            p.factor.toFixed(3) + "</b> index"
+      equation: {raw: p.total, factor: p.factor}
     }));
   });
 
@@ -1182,12 +1225,12 @@ else if (WIDE.addListener) WIDE.addListener(applyForWidth);
 
 applyForWidth();
 
-/* The first column has to hold the widest class chip, and what that is
-   differs by pane: two characters among the class codes here, four in the
-   raw pane ("TTOD"). The two panes are never on screen together, so each
-   sizes its own column rather than the widest chip anywhere setting the
-   width for everything. Codes are measured in the font they are drawn in
-   rather than guessed at. */
+/* The first column has to hold the widest chip in its own pane, and what
+   that is differs: two characters among the class codes, three for "PAX",
+   two for "VS". Panes are never on screen together, so each sizes its own
+   column rather than the widest chip anywhere setting the width for all of
+   them. Codes are measured in the font they are drawn in, not guessed at,
+   and this runs after every render so a pane built later is sized too. */
 function sizeFirstColumn(){
   var sample = document.querySelector(".cls-code");
   if (!sample) return;
@@ -1199,7 +1242,9 @@ function sizeFirstColumn(){
     ";text-transform:" + cs.textTransform;
   document.body.appendChild(probe);
 
-  [paneClass, paneRaw].forEach(function(pane){
+  [paneClass, paneRaw, document.getElementById("pane-pax"),
+   document.getElementById("pane-compare")].forEach(function(pane){
+    if (!pane) return;
     var widest = 0;
     pane.querySelectorAll(".cls-code").forEach(function(n){
       probe.textContent = n.textContent;
