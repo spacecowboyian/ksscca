@@ -201,7 +201,10 @@ button{font:inherit;color:inherit}
    block display back to stack the way the layout expects. */
 .who{grid-row:1;display:block;min-width:0}
 .name,.car,.total,.gap{display:block}
-.car{display:flex;align-items:center;gap:6px;min-width:0}
+/* Same size as the gap on the right: both are the row's secondary line
+   and should read as one tier. */
+.car{display:flex;align-items:center;gap:6px;min-width:0;font-size:12px;
+  color:var(--muted)}
 .cartext{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
@@ -224,7 +227,18 @@ button{font:inherit;color:inherit}
   outline:2px solid var(--accent);outline-offset:1px;
 }
 
-.times{grid-row:1;display:block;text-align:right;min-width:96px}
+/* No fixed reservation: the cell is sized by its own content, so a row
+   with a short gap gives the width back to the car text instead of
+   truncating it against a column that was mostly empty. Totals still line
+   up because they are right-aligned to a common edge. */
+.times{grid-row:1;display:block;text-align:right;min-width:0}
+.totline{display:flex;align-items:baseline;justify-content:flex-end;gap:6px}
+/* An equation must not be split across the grid, so these rows keep
+   .times as one right-aligned block; its width follows the sum. */
+.entry-head.has-eq .times{white-space:nowrap}
+.eq{color:var(--muted);font-size:12.5px;font-variant-numeric:tabular-nums;
+  white-space:nowrap}
+.eq-op{margin:0 3px;color:var(--faint)}
 .total{font-weight:700;font-variant-numeric:tabular-nums;font-size:clamp(15px,3.8vw,17px)}
 .gap{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
 .gap.lead{color:var(--good);font-weight:600}
@@ -281,6 +295,12 @@ button{font:inherit;color:inherit}
   .name{flex:0 0 auto}
   .car{flex:1 1 auto;min-width:0;font-size:12.5px}
   .times{display:contents}
+  /* ...except where a row ends in an equation, which spans the two
+     right-hand columns as a single cell instead. */
+  .entry-head.has-eq .times{
+    display:block;grid-row:1;grid-column:3 / span 2;
+    text-align:right;min-width:0;
+  }
   .gap{grid-row:1;grid-column:3;text-align:right;white-space:nowrap;font-size:12.5px}
   .total{grid-row:1;grid-column:4;text-align:right;min-width:88px;font-size:16px}
 
@@ -312,195 +332,6 @@ button{font:inherit;color:inherit}
      edge, so the body still reads as belonging to the row above it. */
   .entry-body{padding-left:calc(var(--col-rank) + 8px)}
 }
-
-/* Every entry shares one column template, so badges, names and times line
-   up down the page exactly as a table would, while still reflowing. */
-.entry-head{
-  display:grid;
-  grid-template-columns:var(--col-rank) minmax(0,1fr) auto;
-  align-items:baseline;
-  gap:var(--gap) 10px;
-  width:100%;text-align:left;cursor:pointer;
-  background:none;border:0;
-  padding:var(--pad-y) var(--pad-x) var(--pad-y) 0;
-}
-/* The whole entry highlights, header and expanded body together - a row
-   that is open should not have its runs sitting on a different ground
-   from the name above them. */
-.entry:hover{background:var(--hover)}
-.entry.static .entry-head{cursor:default}
-.entry.static:hover{background:none}
-
-/* No box: the number carries the meaning on its own, and dropping the
-   border reclaims the width it was costing. --gold is too light to read as
-   text on white (about 2.3:1), so trophy positions use a darkened gold that
-   clears AA while staying recognisably the same colour. */
-.rank{
-  grid-column:1;grid-row:1;justify-self:stretch;text-align:center;
-  font-size:14px;font-weight:700;color:var(--ink);
-  font-variant-numeric:tabular-nums;
-}
-.rank.trophy{color:var(--gold-text)}
-
-/* These are spans so they can live inside the header button, so they need
-   block display back to stack the way the layout expects. */
-.who{grid-row:1;display:block;min-width:0}
-.name,.car,.total,.gap{display:block}
-.car{display:flex;align-items:center;gap:6px;min-width:0}
-.cartext{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
-/* Both controls appear only once a row is open. Hidden they take no space
-   at all rather than sitting at zero opacity, so a collapsed row gives its
-   full width to the car name. */
-.linkbtn,.cmpbtn{
-  display:none;flex:none;align-self:center;
-  appearance:none;border:0;background:none;padding:2px;cursor:pointer;
-  line-height:0;color:var(--faint);text-decoration:none;
-}
-.entry.open .linkbtn,
-.entry.open .cmpbtn{display:inline-flex}
-/* The glyphs have different viewBoxes, so each gets its own size. */
-.linkbtn svg{width:15px;height:12px;fill:currentColor;display:block}
-.cmpbtn svg{width:12px;height:12px;fill:currentColor;display:block}
-.linkbtn:hover,.cmpbtn:hover{color:var(--accent)}
-.cmpbtn.on{color:var(--good)}
-.linkbtn:focus-visible,.cmpbtn:focus-visible{
-  outline:2px solid var(--accent);outline-offset:1px;
-}
-
-.times{grid-row:1;display:block;text-align:right;min-width:96px}
-.total{font-weight:700;font-variant-numeric:tabular-nums;font-size:clamp(15px,3.8vw,17px)}
-.gap{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
-.gap.lead{color:var(--good);font-weight:600}
-.gap.nostart{color:var(--faint);font-weight:600;letter-spacing:.04em}
-
-/* Body carries the same left edge as the badge above it. */
-.entry-body{padding:0 var(--pad-x) var(--pad-y) calc(var(--col-rank) + 10px)}
-.entry:not(.open) .entry-body{display:none}
-
-/* Run strip: chips carry their own run number, so a wrap never separates a
-   time from the run it belongs to, and the grid keeps R1 under R1 across
-   every driver. No breakpoint is involved. */
-.strip{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(96px,1fr));
-  gap:var(--gap);
-}
-.run{
-  display:flex;align-items:baseline;gap:5px;
-  padding:3px 7px;font-size:13px;font-variant-numeric:tabular-nums;
-  background:var(--row-alt);border:1px solid var(--hair);color:var(--ink);
-}
-.run .n{font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--faint)}
-.run .p{font-size:10px;font-weight:700;color:var(--bad)}
-.run.best{background:#e2f5e8;border-color:#a9dcbb;color:var(--good);font-weight:700}
-.run.best .n{color:#5c9a72}
-.run.pen{background:#fdece1;border-color:#f0c9ae}
-.run.pen .n{color:#a9724a}
-.run.dnf{background:#fde8e8;border-color:#f0b8b8}
-.run.dnf .n{color:#a86060}
-
-.foot-line{
-  margin-top:var(--gap);display:flex;flex-wrap:wrap;align-items:baseline;
-  gap:4px 14px;font-size:12.5px;color:var(--muted);
-  font-variant-numeric:tabular-nums;
-}
-.foot-line b{color:var(--ink);font-weight:600}
-/* Once there is width to spare, the row collapses from two lines to one:
-   the car joins the name, and the gap moves left of the total so the time
-   people look for stays hard against the right edge. .times becomes
-   display:contents so its two children join the row's own grid. */
-@media (min-width:760px){
-  .entry-head{
-    grid-template-columns:var(--col-rank) minmax(0,1fr) var(--col-gap)
-                         var(--col-total);
-    gap:0 10px;
-    padding:7px var(--pad-x) 7px 0;
-  }
-  /* Every item is pinned explicitly: with .times becoming display:contents,
-     leaving any of them to auto-placement puts them in the wrong order. */
-  .rank{grid-row:1;grid-column:1;font-size:13px}
-  .total{min-width:0}
-  .who{grid-row:1;grid-column:2;display:flex;align-items:baseline;gap:10px;min-width:0}
-  .name{flex:0 0 auto}
-  .car{flex:1 1 auto;min-width:0;font-size:12.5px}
-  .times{display:contents}
-  .gap{grid-row:1;grid-column:3;text-align:right;white-space:nowrap;font-size:12.5px}
-  .total{grid-row:1;grid-column:4;text-align:right;min-width:88px;font-size:16px}
-
-  /* The class heading collapses the same way a driver row does: the stats
-     join the class name instead of taking a second line. .cls-title becomes
-     display:contents so its children become flex items of the heading, and
-     every one is given an explicit order. */
-  .cls-head{
-    grid-template-columns:var(--col-rank) minmax(0,1fr) var(--col-gap)
-                         var(--col-total);
-  }
-  .cls-main{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-  .cls-stats{margin-top:0}
-  .cls-n{grid-column:4}
-}
-
-/* On a phone the first column is pure marker - a class code and a position
-   number - so it gives up the page's left padding and sits against the edge
-   of the screen. The name column starts ~19px earlier as a result, which is
-   width the driver and car names actually use. */
-@media (max-width:759px){
-  /* The sheet's side rules only exist to separate it from the surround on a
-     wide screen; below that the sheet fills the viewport, so they are just a
-     hairline keeping the class chip off the edge. */
-  .wrap{border-left:0;border-right:0}
-  .cls-head,
-  .entry-head{gap:var(--gap) 8px}
-  /* The run strip lines up with the names rather than running to the very
-     edge, so the body still reads as belonging to the row above it. */
-  .entry-body{padding-left:calc(var(--col-rank) + 8px)}
-}
-
-/* ------------------------------------------------------------------ pax */
-/* Autocross only: RallyCross has no index. The PAX export carries no run
-   data, so entries are matched back to the class results by anchor and the
-   ordinary row is reused with the indexed time as its headline figure. */
-(function(){
-  var pax = (DATA.pax || []).filter(function(p){
-    /* A factor of zero means the class is not indexed - Novice, usually -
-       so those rows carry no meaningful PAX time. */
-    return p.factor > 0 && p.pax_time > 0;
-  });
-  if (!pax.length) return;
-
-  var pane = document.getElementById("pane-pax");
-  var tab = document.getElementById("tab-pax");
-  tab.hidden = false;
-
-  var head = plainHead("PAX", "Every entry on index, fastest first", pax.length);
-  pane.appendChild(head);
-
-  var lead = pax[0].pax_time;
-  pax.forEach(function(p, i){
-    var e = BY_ANCHOR[p.anchor];
-    if (!e) return;
-    pane.appendChild(entry(e, {
-      rank: p.pax_position,
-      idPrefix: "pax-",
-      showClass: true,
-      total: p.pax_time,
-      leadLabel: "fastest on index",
-      gap: i === 0 ? null : p.pax_time - lead,
-      note: "Raw <b>" + p.total.toFixed(3) + "</b> \u00d7 <b>" +
-            p.factor.toFixed(3) + "</b> index"
-    }));
-  });
-
-  var skipped = (DATA.pax || []).length - pax.length;
-  if (skipped){
-    var n = el("div", "pane-note",
-      plural(skipped, "entry", "entries") + " in unindexed classes are not " +
-      "listed here - they appear in the class results.");
-    pane.appendChild(n);
-  }
-})();
 
 /* -------------------------------------------------------------- compare */
 .run.win{background:var(--gold-tint-light);border-color:#dcc68a;
@@ -707,7 +538,24 @@ function entry(e, ctx){
   var times = el("span", "times");
   var tot = el("span", "total", fmt(shown));
   if (clock(shown)) tot.title = clock(shown);
-  times.appendChild(tot);
+
+  /* On the PAX board the row ends in the sum that produced the figure -
+     raw time, index, result - so the arithmetic is visible rather than
+     something a reader has to be told about. */
+  if (ctx.equation){
+    head.classList.add("has-eq");
+    var eqline = el("span", "totline");
+    var eq = el("span", "eq");
+    eq.appendChild(el("span", "eq-n", ctx.equation.raw.toFixed(3)));
+    eq.appendChild(el("span", "eq-op", "\u00d7"));
+    eq.appendChild(el("span", "eq-n", ctx.equation.factor.toFixed(3)));
+    eq.appendChild(el("span", "eq-op", "="));
+    eqline.appendChild(eq);
+    eqline.appendChild(tot);
+    times.appendChild(eqline);
+  } else {
+    times.appendChild(tot);
+  }
   /* A registered driver who never ran has no total, so they are neither a
      leader nor a gap - say what actually happened instead. */
   if (shown == null){
@@ -1020,6 +868,7 @@ function renderCompare(){
      empty controls until they are painted, which is what left the compare
      pane with blank buttons and no way to remove anyone from it. */
   paintCompareButtons();
+  sizeFirstColumn();
 
   var clear = el("div", "cmp-clear");
   var btn = el("button", "cmp-clear-btn", "Clear comparison");
@@ -1028,6 +877,49 @@ function renderCompare(){
   clear.appendChild(btn);
   pane.appendChild(clear);
 }
+
+/* ------------------------------------------------------------------ pax */
+/* Autocross only: RallyCross has no index. The PAX export carries no run
+   data, so entries are matched back to the class results by anchor and the
+   ordinary row is reused with the indexed time as its headline figure. */
+(function(){
+  var pax = (DATA.pax || []).filter(function(p){
+    /* A factor of zero means the class is not indexed - Novice, usually -
+       so those rows carry no meaningful PAX time. */
+    return p.factor > 0 && p.pax_time > 0;
+  });
+  if (!pax.length) return;
+
+  var pane = document.getElementById("pane-pax");
+  var tab = document.getElementById("tab-pax");
+  tab.hidden = false;
+
+  var head = plainHead("PAX", "Every entry on index, fastest first", pax.length);
+  pane.appendChild(head);
+
+  var lead = pax[0].pax_time;
+  pax.forEach(function(p, i){
+    var e = BY_ANCHOR[p.anchor];
+    if (!e) return;
+    pane.appendChild(entry(e, {
+      rank: p.pax_position,
+      idPrefix: "pax-",
+      showClass: true,
+      total: p.pax_time,
+      leadLabel: "fastest on index",
+      gap: i === 0 ? null : p.pax_time - lead,
+      equation: {raw: p.total, factor: p.factor}
+    }));
+  });
+
+  var skipped = (DATA.pax || []).length - pax.length;
+  if (skipped){
+    var n = el("div", "pane-note",
+      plural(skipped, "entry", "entries") + " in unindexed classes are not " +
+      "listed here - they appear in the class results.");
+    pane.appendChild(n);
+  }
+})();
 
 /* ----------------------------------------------------------------- tabs */
 var tabs = {
@@ -1182,12 +1074,12 @@ else if (WIDE.addListener) WIDE.addListener(applyForWidth);
 
 applyForWidth();
 
-/* The first column has to hold the widest class chip, and what that is
-   differs by pane: two characters among the class codes here, four in the
-   raw pane ("TTOD"). The two panes are never on screen together, so each
-   sizes its own column rather than the widest chip anywhere setting the
-   width for everything. Codes are measured in the font they are drawn in
-   rather than guessed at. */
+/* The first column has to hold the widest chip in its own pane, and what
+   that is differs: two characters among the class codes, three for "PAX",
+   two for "VS". Panes are never on screen together, so each sizes its own
+   column rather than the widest chip anywhere setting the width for all of
+   them. Codes are measured in the font they are drawn in, not guessed at,
+   and this runs after every render so a pane built later is sized too. */
 function sizeFirstColumn(){
   var sample = document.querySelector(".cls-code");
   if (!sample) return;
@@ -1199,7 +1091,9 @@ function sizeFirstColumn(){
     ";text-transform:" + cs.textTransform;
   document.body.appendChild(probe);
 
-  [paneClass, paneRaw].forEach(function(pane){
+  [paneClass, paneRaw, document.getElementById("pane-pax"),
+   document.getElementById("pane-compare")].forEach(function(pane){
+    if (!pane) return;
     var widest = 0;
     pane.querySelectorAll(".cls-code").forEach(function(n){
       probe.textContent = n.textContent;
@@ -1222,13 +1116,26 @@ var countEl = document.getElementById("count");
 cf.appendChild(new Option("All classes", ""));
 DATA.classes.forEach(function(c){ cf.appendChild(new Option(c.code + " — " + c.name, c.code)); });
 
+/* A bare number means a car number, not any digit sequence: searching "6"
+   was matching every 2016 and 2006 in the field. Numeric terms match on a
+   whole word, so "6" finds car 6 while "2016" still finds the year. */
+function matcher(term){
+  var bare = term.replace(/^#/, "");
+  if (/^\d+$/.test(bare)){
+    var re = new RegExp("\\b" + bare + "\\b");
+    return function(hay){ return re.test(hay); };
+  }
+  return function(hay){ return hay.indexOf(term) !== -1; };
+}
+
 function applyFilter(){
   var term = q.value.trim().toLowerCase();
   var cls = cf.value;
   var shown = 0;
+  var matches = term ? matcher(term) : null;
 
   document.querySelectorAll(".entry[data-search]").forEach(function(n){
-    var ok = (!term || n.dataset.search.indexOf(term) !== -1) &&
+    var ok = (!term || matches(n.dataset.search)) &&
              (!cls || n.dataset.cls === cls);
     n.hidden = !ok;
     if (ok) shown++;
