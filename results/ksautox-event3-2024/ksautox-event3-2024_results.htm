@@ -369,10 +369,10 @@ button{font:inherit;color:inherit}
   </header>
 
   <div class="bar" role="tablist">
-    <button class="tab" id="tab-class" role="tab" aria-selected="true" aria-controls="pane-class">Class Results</button>
-    <button class="tab" id="tab-raw"   role="tab" aria-selected="false" aria-controls="pane-raw">Raw Times</button>
+    <button class="tab" id="tab-class" role="tab" aria-selected="true" aria-controls="pane-class">Class</button>
+    <button class="tab" id="tab-raw"   role="tab" aria-selected="false" aria-controls="pane-raw">Raw</button>
     <button class="tab" id="tab-pax" role="tab" aria-selected="false" aria-controls="pane-pax" hidden>PAX</button>
-    <button class="tab" id="tab-compare" role="tab" aria-selected="false" aria-controls="pane-compare" hidden>Compare</button>
+    <button class="tab" id="tab-compare" role="tab" aria-selected="false" aria-controls="pane-compare" hidden>VS</button>
   </div>
 
   <div class="tools">
@@ -813,7 +813,7 @@ function renderCompare(){
   pane.textContent = "";
 
   tab.hidden = compareList.length === 0;
-  tab.textContent = "Compare" + (compareList.length ? " (" + compareList.length + ")" : "");
+  tab.textContent = "VS" + (compareList.length ? " (" + compareList.length + ")" : "");
   if (!compareList.length){
     if (!document.getElementById("pane-compare").hidden) show("class");
     paintCompareButtons();
