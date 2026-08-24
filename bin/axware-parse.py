@@ -354,10 +354,21 @@ def main():
     ap.add_argument("--dnf-cones", type=int, default=DEFAULT_DNF_CONES)
     ap.add_argument("--force", action="store_true",
                     help="emit even if totals fail to reconcile")
+    ap.add_argument("--title",
+                    help="display title for the page and cards; the export's "
+                         "own name is often a run-together slug like "
+                         "'KSRXAugust23'")
+    ap.add_argument("--venue", help="venue and location, e.g. \"McCain's "
+                                    "Offroad Park - Ridgeway, KS\"")
     args = ap.parse_args()
 
     source = Path(args.source).read_text(encoding="latin-1")
     data = parse(source, args.cone, args.gate, args.dnf_cones)
+
+    if args.title:
+        data["event"]["display_title"] = args.title
+    if args.venue:
+        data["event"]["venue"] = args.venue
 
     bad = reconcile(data)
     n = data["event"]["entry_count"]

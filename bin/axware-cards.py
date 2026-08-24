@@ -43,7 +43,8 @@ body{
 }
 .top{background:var(--accent);color:#fff;padding:44px 64px 38px}
 .org{font-size:26px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#9fbaea}
-.evt{margin-top:10px;font-size:44px;font-weight:700;letter-spacing:-.01em;line-height:1.1}
+.evt{margin-top:10px;font-size:44px;font-weight:700;letter-spacing:.01em;
+  line-height:1.1;text-transform:uppercase}
 .date{margin-top:8px;font-size:28px;color:#c3d3f0}
 
 .band{
@@ -99,10 +100,14 @@ def page(inner):
 
 
 def header(ev, date_label):
+    # The export's own name is a run-together slug, so prefer a display
+    # title when one has been supplied. When a venue is known it earns the
+    # second line more than the date does, since the title carries the date.
+    title = ev.get("display_title") or ev.get("name") or "Results"
+    second = ev.get("venue") or date_label
     return ("<div class='top'><div class='org'>%s &middot; RallyCross</div>"
             "<div class='evt'>%s</div><div class='date'>%s</div></div>"
-            % (esc(ev.get("organiser") or "SCCA"),
-               esc(ev.get("name") or "Results"), esc(date_label)))
+            % (esc(ev.get("organiser") or "SCCA"), esc(title), esc(second)))
 
 
 def footer(note):
