@@ -302,15 +302,29 @@ def parse(source, cone, gate, dnf_cones):
 
     ttod_table = find_table(tables, "Top Times Of Day")
 
-    # "KS SCCA -  - KSRXAugust23 - Sun 08-23-2026" -> organiser, name, date
-    parts = [p.strip() for p in event_line.split(" - ") if p.strip()]
+    # The header line is organiser, event number, name, date - but the number
+    # is often blank, which collapses the line by a field:
+    #   "KS SCCA - #3 - Kansas Region Event #3 - Sat 06-08-2024"
+    #   "KS SCCA -  - KSRXAugust23 - Sun 08-23-2026"
+    # Splitting and dropping blanks made the number look like the name.
+    parts = [p.strip() for p in event_line.split(" - ")]
     organiser = parts[0] if parts else ""
-    name = parts[1] if len(parts) > 2 else ""
+    number = None
+    name = ""
+    rest = parts[1:]
+    if rest and rest[0].startswith("#"):
+        number = rest[0]
+        rest = rest[1:]
+    elif rest and not rest[0]:
+        rest = rest[1:]
+    if len(rest) > 1:
+        name = rest[0]
 
     return {
         "event": {
             "title": event_line,
             "organiser": organiser,
+            "number": number,
             "name": name,
             "date": date,
             "note": note,
@@ -344,6 +358,22 @@ def reconcile(data, tolerance=0.0015):
     return bad
 
 
+def read_source(path):
+    """Decode an export.
+
+    AXWare declares ``charset=iso-8859-1`` in every file it writes, but the
+    bytes are frequently UTF-8 - a car entered as "Fìt" comes through as
+    ``\xc3\xac`` and reading it as latin-1 turns it into "FÃ¬t". UTF-8 is
+    tried first because it fails loudly on genuine latin-1, whereas latin-1
+    silently accepts anything and mangles it.
+    """
+    raw = path.read_bytes()
+    try:
+        return raw.decode("utf-8")
+    except UnicodeDecodeError:
+        return raw.decode("latin-1")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -362,7 +392,7 @@ def main():
                                     "Offroad Park - Ridgeway, KS\"")
     args = ap.parse_args()
 
-    source = Path(args.source).read_text(encoding="latin-1")
+    source = read_source(Path(args.source))
     data = parse(source, args.cone, args.gate, args.dnf_cones)
 
     if args.title:

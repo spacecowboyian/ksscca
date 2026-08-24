@@ -228,6 +228,7 @@ button{font:inherit;color:inherit}
 .total{font-weight:700;font-variant-numeric:tabular-nums;font-size:clamp(15px,3.8vw,17px)}
 .gap{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
 .gap.lead{color:var(--good);font-weight:600}
+.gap.nostart{color:var(--faint);font-weight:600;letter-spacing:.04em}
 
 /* Body carries the same left edge as the badge above it. */
 .entry-body{padding:0 var(--pad-x) var(--pad-y) calc(var(--col-rank) + 10px)}
@@ -372,6 +373,7 @@ button{font:inherit;color:inherit}
 .total{font-weight:700;font-variant-numeric:tabular-nums;font-size:clamp(15px,3.8vw,17px)}
 .gap{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
 .gap.lead{color:var(--good);font-weight:600}
+.gap.nostart{color:var(--faint);font-weight:600;letter-spacing:.04em}
 
 /* Body carries the same left edge as the badge above it. */
 .entry-body{padding:0 var(--pad-x) var(--pad-y) calc(var(--col-rank) + 10px)}
@@ -583,14 +585,19 @@ function penaltyCount(e){
 }
 
 /* ---------------------------------------------------------------- header */
-document.title = (EV.name ? EV.name + " — " : "") + "Results";
-document.getElementById("ev-title").textContent =
+/* The export's own name is often a slug, so prefer a supplied title. */
+var EV_TITLE = EV.display_title ||
   [EV.organiser, EV.name].filter(Boolean).join(" · ") || EV.title;
+document.title = EV_TITLE + " — Results";
+document.getElementById("ev-title").textContent = EV_TITLE;
+if (EV.venue) document.getElementById("ev-sub").dataset.venue = EV.venue;
 
 var d = EV.date ? new Date(EV.date + "T12:00:00") : null;
-document.getElementById("ev-sub").textContent = d
-  ? d.toLocaleDateString(undefined, {weekday:"long", year:"numeric", month:"long", day:"numeric"})
-  : "";
+var subParts = [];
+if (d) subParts.push(d.toLocaleDateString(undefined,
+  {weekday:"long", year:"numeric", month:"long", day:"numeric"}));
+if (EV.venue) subParts.push(EV.venue);
+document.getElementById("ev-sub").textContent = subParts.join(" · ");
 
 var badges = document.getElementById("ev-badges");
 [[plural(EV.entry_count, "entry", "entries"), 0],
@@ -650,8 +657,15 @@ function entry(e, ctx){
   var tot = el("span", "total", fmt(e.printed_total));
   if (clock(e.printed_total)) tot.title = clock(e.printed_total);
   times.appendChild(tot);
-  times.appendChild(el("span", "gap" + (ctx.gap == null ? " lead" : ""),
-                       ctx.gap == null ? ctx.leadLabel : signed(ctx.gap)));
+  /* A registered driver who never ran has no total, so they are neither a
+     leader nor a gap - say what actually happened instead. */
+  if (e.printed_total == null){
+    times.appendChild(el("span", "gap nostart",
+      (e.printed_total_raw || "no time").toUpperCase()));
+  } else {
+    times.appendChild(el("span", "gap" + (ctx.gap == null ? " lead" : ""),
+                         ctx.gap == null ? ctx.leadLabel : signed(ctx.gap)));
+  }
   head.appendChild(times);
   row.appendChild(head);
 
@@ -698,6 +712,16 @@ function entry(e, ctx){
     var f = el("span");
     f.appendChild(document.createTextNode("Best run "));
     f.appendChild(el("b", null, best.total.toFixed(3)));
+    /* Without this the score looks like it came from nowhere: the run
+       prints as its clean time with a marker, and the total is the clean
+       time plus the penalty. */
+    if (best.penalty > 0){
+      f.appendChild(document.createTextNode(" \u2014 "));
+      f.appendChild(el("b", null, best.time.toFixed(3)));
+      f.appendChild(document.createTextNode(" + "));
+      f.appendChild(el("b", null, best.penalty.toFixed(3)));
+      f.appendChild(document.createTextNode(" penalty"));
+    }
     line.appendChild(f);
   }
   /* Shown only when the printed total exceeds the runs added up - which is
@@ -785,11 +809,12 @@ DATA.classes.forEach(function(cls){
   sec.dataset.cls = cls.code;
   sec.appendChild(classHead(cls));
 
-  var leader = cls.entries.length ? cls.entries[0].printed_total : null;
+  var timed = cls.entries.filter(function(e){ return e.printed_total != null; });
+  var leader = timed.length ? timed[0].printed_total : null;
   cls.entries.forEach(function(e){
     sec.appendChild(entry(e, {
       rank: e.position,
-      leadLabel: cls.entries.length > 1 ? "class winner" : "only entry",
+      leadLabel: timed.length > 1 ? "class winner" : "only time",
       gap: (e.printed_total == null || leader == null || e.printed_total === leader)
              ? null : e.printed_total - leader
     }));
