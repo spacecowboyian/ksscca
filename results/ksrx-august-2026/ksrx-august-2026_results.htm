@@ -21,6 +21,11 @@
   --bad:#b30000;
   --gold:#c9a227;
   --gold-text:#8a6d00;
+  --invert:#2c3238;
+  --invert-ink:#f4f7fa;
+  --invert-dim:#b6bfc8;
+  --gold-on-dark:#e8c14e;
+  --good-on-dark:#6fcf8b;
 
   /* One padding value governs an entry: the run strip and the penalty line
      begin at the same left edge as the position badge, and the gap between
@@ -127,7 +132,24 @@ button{font:inherit;color:inherit}
 /* ----------------------------------------------------------------- entry */
 .entry{border-bottom:1px solid var(--hair)}
 .entry:last-child{border-bottom:0}
-.entry:target{background:#fff6d9}
+/* A linked-to driver inverts rather than being washed yellow. Every colour
+   in the row is restated for the dark ground, including the trophy gold,
+   which swaps to the lighter tone that only works on dark. */
+.entry:target{background:var(--invert)}
+.entry:target .entry-head:hover{background:none}
+.entry:target .name,
+.entry:target .total,
+.entry:target .rank{color:var(--invert-ink)}
+.entry:target .car,
+.entry:target .gap,
+.entry:target .cls-n,
+.entry:target .foot-line{color:var(--invert-dim)}
+.entry:target .foot-line b{color:var(--invert-ink)}
+.entry:target .rank.trophy{color:var(--gold-on-dark)}
+.entry:target .gap.lead{color:var(--good-on-dark)}
+.entry:target .chev,
+.entry:target .linkbtn{color:var(--invert-dim)}
+.entry:target .linkbtn:hover{color:var(--invert-ink)}
 
 /* Every entry shares one column template, so badges, names and times line
    up down the page exactly as a table would, while still reflowing. */
@@ -159,17 +181,19 @@ button{font:inherit;color:inherit}
    block display back to stack the way the layout expects. */
 .who{display:block;min-width:0}
 .name,.car,.total,.gap{display:block}
-.car{display:flex;align-items:baseline;gap:6px;min-width:0}
+.car{display:flex;align-items:center;gap:6px;min-width:0}
 .cartext{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* Copy control: hidden until the row is hovered on pointer devices, and
    permanently visible but quiet where there is no hover to reveal it. */
 .linkbtn{
-  flex:none;appearance:none;border:0;background:none;padding:2px;cursor:pointer;
-  line-height:0;color:var(--faint);opacity:0;transition:opacity .12s ease;
+  flex:none;align-self:center;appearance:none;border:0;background:none;
+  padding:2px;cursor:pointer;line-height:0;color:var(--faint);
+  opacity:0;transition:opacity .12s ease;
 }
-.linkbtn svg{width:14px;height:14px;fill:currentColor;display:block}
+/* The glyph is 640x512, so height follows that ratio rather than square. */
+.linkbtn svg{width:15px;height:12px;fill:currentColor;display:block}
 .linkbtn:hover{color:var(--accent)}
 .entry-head:hover .linkbtn{opacity:1}
 .linkbtn:focus-visible{opacity:1;outline:2px solid var(--accent);outline-offset:1px}
@@ -248,6 +272,18 @@ button{font:inherit;color:inherit}
   .chev{grid-row:1;grid-column:5;width:14px;height:14px}
   .chev svg{width:14px;height:14px}
   .entry-body{padding-left:calc(var(--pad-x) + 32px)}
+
+  /* The class heading collapses the same way a driver row does: the stats
+     join the class name instead of taking a second line. .cls-title becomes
+     display:contents so its children become flex items of the heading, and
+     every one is given an explicit order. */
+  .cls-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .cls-title{display:contents}
+  .cls-code{order:1}
+  .cls-name{order:2}
+  .cls-stats{order:3;margin-top:0}
+  .cls-n{order:4;margin-left:auto}
+  .cls-head .chev{order:5;align-self:center;margin-left:0}
 }
 
 /* ------------------------------------------------------------------ misc */
@@ -300,8 +336,19 @@ var DATA = JSON.parse(document.getElementById("event-data").textContent);
 var EV = DATA.event;
 var RALLYX = EV.scoring === "rallyx_sum";
 var CHEV = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 11L3 5.5 4 4.5 8 8.9l4-4.4 1 1z"/></svg>';
-var LINK_ICON = '<svg viewBox="0 0 16 16" aria-hidden="true">' +
-  '<path d="M6.9 9.1a2.6 2.6 0 0 0 3.7 0l2.6-2.6a2.6 2.6 0 0 0-3.7-3.7l-1 1 1 1 1-1a1.2 1.2 0 0 1 1.7 1.7L9.6 8.1a1.2 1.2 0 0 1-1.7 0zM9.1 6.9a2.6 2.6 0 0 0-3.7 0L2.8 9.5a2.6 2.6 0 0 0 3.7 3.7l1-1-1-1-1 1a1.2 1.2 0 0 1-1.7-1.7l2.6-2.6a1.2 1.2 0 0 1 1.7 0z"/></svg>';
+/* Font Awesome Free 6 "link" (solid), inlined so the page stays
+   self-contained. Icons are CC BY 4.0 - fontawesome.com/license/free */
+var LINK_ICON = '<svg viewBox="0 0 640 512" aria-hidden="true">' +
+  '<path d="M579.8 267.7c56.5-56.5 56.5-148 0-204.5c-50-50-128.8-56.5-186.3-15.4' +
+  'l-1.6 1.1c-14.4 10.3-17.7 30.3-7.4 44.6s30.3 17.7 44.6 7.4l1.6-1.1c32.1-22.9 ' +
+  '76-19.3 103.8 8.6c31.5 31.5 31.5 82.5 0 114L422.3 334.8c-31.5 31.5-82.5 31.5-114 0' +
+  'c-27.9-27.9-31.5-71.8-8.6-103.8l1.1-1.6c10.3-14.4 6.9-34.4-7.4-44.6s-34.4-6.9-44.6 7.4' +
+  'l-1.1 1.6C206.5 251.2 213 330 263 380c56.5 56.5 148 56.5 204.5 0L579.8 267.7z' +
+  'M60.2 244.3c-56.5 56.5-56.5 148 0 204.5c50 50 128.8 56.5 186.3 15.4l1.6-1.1' +
+  'c14.4-10.3 17.7-30.3 7.4-44.6s-30.3-17.7-44.6-7.4l-1.6 1.1c-32.1 22.9-76 19.3-103.8-8.6' +
+  'C74 372 74 321 105.5 289.5L217.7 177.2c31.5-31.5 82.5-31.5 114 0c27.9 27.9 31.5 71.8 8.6 103.9' +
+  'l-1.1 1.6c-10.3 14.4-6.9 34.4 7.4 44.6s34.4 6.9 44.6-7.4l1.1-1.6C433.5 260.8 427 182 377 132' +
+  'c-56.5-56.5-148-56.5-204.5 0L60.2 244.3z"/></svg>';
 
 function el(tag, cls, txt){
   var n = document.createElement(tag);
