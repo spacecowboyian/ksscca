@@ -58,7 +58,7 @@ body{
 .cn{margin-left:auto;font-size:26px;color:#9fbaea}
 
 .body{flex:1;min-height:0;overflow:hidden;padding:34px 64px;
-  display:flex;flex-direction:column;justify-content:center}
+  display:flex;flex-direction:column;justify-content:flex-start}
 .row{display:flex;align-items:center;gap:24px;padding:22px 0;border-bottom:2px solid var(--hair)}
 .row:last-child{border-bottom:0}
 .rank{
@@ -76,18 +76,6 @@ body{
 .tot{font-size:42px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}
 .gap{margin-top:4px;font-size:25px;color:var(--muted);font-variant-numeric:tabular-nums}
 .gap.lead{color:var(--good);font-weight:700}
-
-/* Single-entry classes get a hero treatment rather than a lonely row. */
-.hero{text-align:center;padding:20px 0}
-.hero .badge{
-  display:inline-block;background:var(--gold);color:#241d00;
-  font-size:26px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
-  padding:10px 20px;margin-bottom:26px;
-}
-.hero .name{font-size:64px;white-space:normal}
-.hero .car{font-size:32px;margin-top:12px}
-.hero .tot{font-size:96px;margin-top:26px}
-.hero .sub{margin-top:10px;font-size:28px;color:var(--muted)}
 
 .foot{
   flex:none;padding:28px 64px 40px;border-top:3px solid var(--hair);
@@ -125,8 +113,12 @@ def footer(note):
 def rows_html(entries, leader, show_class=False):
     out = []
     for i, e in enumerate(entries):
-        gap = ("class winner" if i == 0 else
-               "+%.3f" % (e["printed_total"] - leader))
+        # Match the wording the results page uses: a class with one car
+        # awards no trophy, so do not call it a win.
+        if i == 0:
+            gap = "only entry" if len(entries) == 1 else "class winner"
+        else:
+            gap = "+%.3f" % (e["printed_total"] - leader)
         sub = ("%s " % e["class"] if show_class else "") + \
               "#%s &middot; %s" % (esc(e["number"]), esc(e["car"]))
         out.append(
@@ -148,27 +140,16 @@ def class_card(ev, cls, date_label):
                           "entry" if len(cls["entries"]) == 1 else "entries")))
 
     entries = cls["entries"]
-    if len(entries) == 1:
-        e = entries[0]
-        # A class with one entry awards no trophy, so do not imply one.
-        label = "Class winner" if e["trophy"] else "Sole entry"
-        body = ("<div class='body'><div class='hero'>"
-                "<div class='badge'>%s</div>" % label +
-                "<div class='name'>%s</div><div class='car'>#%s &middot; %s</div>"
-                "<div class='tot'>%s</div><div class='sub'>%s</div>"
-                "</div></div>"
-                % (esc(e["driver"]), esc(e["number"]), esc(e["car"]),
-                   fmt(e["printed_total"]),
-                   "%d runs, no drops" % len(e["runs"])))
-    else:
-        body = "<div class='body'>%s</div>" % rows_html(
-            entries, entries[0]["printed_total"])
+    body = "<div class='body'>%s</div>" % rows_html(
+        entries, entries[0]["printed_total"])
 
     note = "Total of all %d runs, penalties included" % ev["run_count"]
     return page(header(ev, date_label) + band + body + footer(note))
 
 
-def ttod_card(ev, data, date_label, top=5):
+# Seven is what fits at this size; more would be silently clipped
+# by the overflow guard on .body.
+def ttod_card(ev, data, date_label, top=7):
     band = ("<div class='band'><span class='code'>TTOD</span>"
             "<span class='cname'>Top Times Of Day</span></div>")
 
@@ -177,25 +158,22 @@ def ttod_card(ev, data, date_label, top=5):
         return None
     lead = raw[0]
 
-    hero = ("<div class='hero'><div class='badge'>Fastest of the day</div>"
-            "<div class='name'>%s</div><div class='car'>%s #%s &middot; %s</div>"
-            "<div class='tot'>%s</div></div>"
-            % (esc(lead["driver"]), esc(lead["class"]), esc(lead["number"]),
-               esc(lead["car"]), fmt(lead["printed_total"])))
-
-    rest = []
-    for i, e in enumerate(raw[1:], start=2):
-        rest.append(
-            "<div class='row'><div class='rank'>%d</div>"
+    rows = []
+    for i, e in enumerate(raw, start=1):
+        gap = "fastest of the day" if i == 1 else \
+              "+%.3f" % (e["printed_total"] - lead["printed_total"])
+        rows.append(
+            "<div class='row'><div class='rank%s'>%d</div>"
             "<div class='who'><div class='name'>%s</div>"
             "<div class='car'>%s #%s &middot; %s</div></div>"
             "<div class='tim'><div class='tot'>%s</div>"
-            "<div class='gap'>+%.3f</div></div></div>"
-            % (i, esc(e["driver"]), esc(e["class"]), esc(e["number"]),
-               esc(e["car"]), fmt(e["printed_total"]),
-               e["printed_total"] - lead["printed_total"]))
+            "<div class='gap%s'>%s</div></div></div>"
+            % (" trophy" if i == 1 else "", i, esc(e["driver"]),
+               esc(e["class"]), esc(e["number"]), esc(e["car"]),
+               fmt(e["printed_total"]), " lead" if i == 1 else "", gap))
 
-    body = "<div class='body'>%s%s</div>" % (hero, "".join(rest))
+    body = "<div class='body'>%s</div>" % "".join(rows)
+
     note = "Overall raw times, all classes"
     return page(header(ev, date_label) + band + body + footer(note))
 
@@ -245,13 +223,17 @@ def main():
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
 
+    # Top Times Of Day leads the carousel - it is the card most people
+    # come for, and Facebook shows the first image largest.
     cards = []
-    for i, cls in enumerate(data["classes"], start=1):
+    t = ttod_card(ev, data, date_label)
+    n = 1
+    if t:
+        cards.append(("01-ttod", t))
+        n = 2
+    for i, cls in enumerate(data["classes"], start=n):
         cards.append(("%02d-%s" % (i, cls["code"]),
                       class_card(ev, cls, date_label)))
-    t = ttod_card(ev, data, date_label)
-    if t:
-        cards.append(("%02d-ttod" % (len(data["classes"]) + 1), t))
 
     chrome = None if args.html_only else find_chrome()
     if not args.html_only and not chrome:
