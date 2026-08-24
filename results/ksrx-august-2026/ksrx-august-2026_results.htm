@@ -33,10 +33,11 @@
   /* Class headings and driver rows are separate grid containers, so an auto
      column in one has no idea how wide the same column is in the other.
      Fixing every column but the name keeps them on the same vertical lines. */
-  --col-rank:26px;
+  --col-rank:24px;
   --col-gap:84px;
   --col-total:92px;
   --col-chev:16px;
+  --chip-h:28px;
 
   --pad-x:14px;
   --pad-y:12px;
@@ -122,20 +123,27 @@ button{font:inherit;color:inherit}
   width:100%;text-align:left;cursor:pointer;
   border:0;border-bottom:1px solid var(--border);
   background:var(--row-alt);
-  padding:10px var(--pad-x);
+  /* No top padding: the chip runs to the top edge of the heading like a
+     tab, and the class name centres against it rather than sitting on its
+     own baseline. */
+  padding:0 var(--pad-x) 10px;
   position:sticky;top:0;z-index:10;
 }
 .cls-head:hover{background:#e6ecf4}
 .cls-code{
-  /* Aligns with the class name rather than centring against a stats block
-     that runs to three lines on a phone. */
-  grid-column:1;justify-self:center;align-self:start;margin-top:3px;
-  font-weight:700;font-size:11px;letter-spacing:.04em;text-transform:uppercase;
-  color:#fff;background:var(--accent);padding:2px 0;
+  grid-column:1;justify-self:stretch;align-self:start;
+  display:flex;align-items:center;justify-content:center;
+  height:var(--chip-h);
+  font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase;
+  color:#fff;background:var(--accent);
   width:100%;text-align:center;
 }
 .cls-main{grid-column:2;min-width:0}
-.cls-name{font-weight:600}
+/* Matching the chip's height is what puts the two on a shared centre. */
+.cls-name{
+  display:flex;align-items:center;min-height:var(--chip-h);
+  font-weight:600;
+}
 .cls-n{grid-column:3;color:var(--muted);font-size:13px;text-align:right}
 .cls-head .chev{grid-column:4}
 .cls-stats{
@@ -187,7 +195,7 @@ button{font:inherit;color:inherit}
    text on white (about 2.3:1), so trophy positions use a darkened gold that
    clears AA while staying recognisably the same colour. */
 .rank{
-  grid-column:1;justify-self:center;text-align:center;
+  grid-column:1;justify-self:stretch;text-align:center;
   font-size:14px;font-weight:700;color:var(--ink);
   font-variant-numeric:tabular-nums;
 }
@@ -298,11 +306,28 @@ button{font:inherit;color:inherit}
     grid-template-columns:var(--col-rank) minmax(0,1fr) var(--col-gap)
                          var(--col-total) var(--col-chev);
   }
-  .cls-main{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
-  .cls-code{align-self:center;margin-top:0}
+  .cls-main{display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+    min-height:var(--chip-h)}
+  .cls-name{min-height:0}
   .cls-stats{margin-top:0}
   .cls-n{grid-column:4}
   .cls-head .chev{grid-column:5}
+}
+
+/* On a phone the first column is pure marker - a class code and a position
+   number - so it gives up the page's left padding and sits against the edge
+   of the screen. The name column starts ~19px earlier as a result, which is
+   width the driver and car names actually use. */
+@media (max-width:759px){
+  /* The sheet's side rules only exist to separate it from the surround on a
+     wide screen; below that the sheet fills the viewport, so they are just a
+     hairline keeping the class chip off the edge. */
+  .wrap{border-left:0;border-right:0}
+  .cls-head,
+  .entry-head{padding-left:0;gap:var(--gap) 8px}
+  /* The run strip lines up with the names rather than running to the very
+     edge, so the body still reads as belonging to the row above it. */
+  .entry-body{padding-left:calc(var(--col-rank) + 8px)}
 }
 
 /* ------------------------------------------------------------------ misc */
