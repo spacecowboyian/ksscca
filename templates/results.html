@@ -665,10 +665,14 @@ function entry(e, ctx){
     if (r.dnf || r.time == null) cls += " dnf";
     else if (r.penalty > 0) cls += " pen";
     else if (best && r === best) cls += " best";
-    /* In the comparison a run can also be the quickest of the group, which
-       outranks the other states - gold beats green. */
+    /* In a comparison a run can also be the quickest of the group. Green
+       wins that tie: a driver's own best is the more useful thing to see,
+       and it is usually also the group's best, so letting gold take it
+       erased the green marker on exactly the runs that mattered most.
+       Gold therefore marks a run someone won that was not their own best. */
     if (ctx.winners && ctx.winners[i] != null &&
-        r.time != null && !r.dnf && r.total === ctx.winners[i]){
+        r.time != null && !r.dnf && r.total === ctx.winners[i] &&
+        !(best && r === best)){
       cls = "run win";
     }
 
@@ -903,7 +907,8 @@ function renderCompare(){
     (entries[entries.length - 1].printed_total - leader).toFixed(3)));
   stats.appendChild(sp);
   var lg = el("span");
-  lg.appendChild(document.createTextNode("Gold marks the quickest on that run"));
+  lg.appendChild(document.createTextNode(
+    "Green is a driver's own best run, gold the quickest of the group on that run"));
   stats.appendChild(lg);
   main.appendChild(stats);
   head.appendChild(main);
