@@ -30,6 +30,14 @@
   /* One padding value governs an entry: the run strip and the penalty line
      begin at the same left edge as the position badge, and the gap between
      wrapped chip rows matches the gap between chips. */
+  /* Class headings and driver rows are separate grid containers, so an auto
+     column in one has no idea how wide the same column is in the other.
+     Fixing every column but the name keeps them on the same vertical lines. */
+  --col-rank:26px;
+  --col-gap:84px;
+  --col-total:92px;
+  --col-chev:16px;
+
   --pad-x:14px;
   --pad-y:12px;
   --gap:6px;
@@ -107,27 +115,35 @@ button{font:inherit;color:inherit}
 /* The class header doubles as the control that opens every driver in the
    class, and carries the class's summary figures. */
 .cls-head{
-  display:block;width:100%;text-align:left;cursor:pointer;
+  display:grid;
+  grid-template-columns:var(--col-rank) minmax(0,1fr) auto var(--col-chev);
+  align-items:center;
+  gap:0 10px;
+  width:100%;text-align:left;cursor:pointer;
   border:0;border-bottom:1px solid var(--border);
   background:var(--row-alt);
   padding:10px var(--pad-x);
   position:sticky;top:0;z-index:10;
 }
 .cls-head:hover{background:#e6ecf4}
-.cls-title{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .cls-code{
-  font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;
-  color:#fff;background:var(--accent);padding:3px 7px;
+  /* Aligns with the class name rather than centring against a stats block
+     that runs to three lines on a phone. */
+  grid-column:1;justify-self:center;align-self:start;margin-top:3px;
+  font-weight:700;font-size:11px;letter-spacing:.04em;text-transform:uppercase;
+  color:#fff;background:var(--accent);padding:2px 0;
+  width:100%;text-align:center;
 }
+.cls-main{grid-column:2;min-width:0}
 .cls-name{font-weight:600}
-.cls-n{color:var(--muted);font-size:13px;margin-left:auto}
+.cls-n{grid-column:3;color:var(--muted);font-size:13px;text-align:right}
+.cls-head .chev{grid-column:4}
 .cls-stats{
-  margin-top:5px;font-size:12.5px;color:var(--muted);
+  margin-top:4px;font-size:12.5px;color:var(--muted);
   font-variant-numeric:tabular-nums;
   display:flex;flex-wrap:wrap;gap:3px 14px;
 }
 .cls-stats b{color:var(--ink);font-weight:600}
-.cls-head .chev{margin-left:6px}
 
 /* ----------------------------------------------------------------- entry */
 .entry{border-bottom:1px solid var(--hair)}
@@ -155,7 +171,7 @@ button{font:inherit;color:inherit}
    up down the page exactly as a table would, while still reflowing. */
 .entry-head{
   display:grid;
-  grid-template-columns:20px minmax(0,1fr) auto 16px;
+  grid-template-columns:var(--col-rank) minmax(0,1fr) auto var(--col-chev);
   align-items:baseline;
   gap:var(--gap) 10px;
   width:100%;text-align:left;cursor:pointer;
@@ -171,7 +187,7 @@ button{font:inherit;color:inherit}
    text on white (about 2.3:1), so trophy positions use a darkened gold that
    clears AA while staying recognisably the same colour. */
 .rank{
-  min-width:20px;text-align:right;
+  grid-column:1;justify-self:center;text-align:center;
   font-size:14px;font-weight:700;color:var(--ink);
   font-variant-numeric:tabular-nums;
 }
@@ -255,14 +271,16 @@ button{font:inherit;color:inherit}
    display:contents so its two children join the row's own grid. */
 @media (min-width:760px){
   .entry-head{
-    grid-template-columns:20px minmax(0,1fr) auto auto 14px;
-    gap:0 12px;
+    grid-template-columns:var(--col-rank) minmax(0,1fr) var(--col-gap)
+                         var(--col-total) var(--col-chev);
+    gap:0 10px;
     padding:7px var(--pad-x);
   }
   /* Every item is pinned explicitly: with .times becoming display:contents,
      leaving any of them to auto-placement pushes the chevron onto a second
      row. */
   .rank{grid-row:1;grid-column:1;font-size:13px}
+  .total{min-width:0}
   .who{grid-row:1;grid-column:2;display:flex;align-items:baseline;gap:10px;min-width:0}
   .name{flex:0 0 auto}
   .car{flex:1 1 auto;min-width:0;font-size:12.5px}
@@ -271,19 +289,20 @@ button{font:inherit;color:inherit}
   .total{grid-row:1;grid-column:4;text-align:right;min-width:88px;font-size:16px}
   .chev{grid-row:1;grid-column:5;width:14px;height:14px}
   .chev svg{width:14px;height:14px}
-  .entry-body{padding-left:calc(var(--pad-x) + 32px)}
 
   /* The class heading collapses the same way a driver row does: the stats
      join the class name instead of taking a second line. .cls-title becomes
      display:contents so its children become flex items of the heading, and
      every one is given an explicit order. */
-  .cls-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
-  .cls-title{display:contents}
-  .cls-code{order:1}
-  .cls-name{order:2}
-  .cls-stats{order:3;margin-top:0}
-  .cls-n{order:4;margin-left:auto}
-  .cls-head .chev{order:5;align-self:center;margin-left:0}
+  .cls-head{
+    grid-template-columns:var(--col-rank) minmax(0,1fr) var(--col-gap)
+                         var(--col-total) var(--col-chev);
+  }
+  .cls-main{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  .cls-code{align-self:center;margin-top:0}
+  .cls-stats{margin-top:0}
+  .cls-n{grid-column:4}
+  .cls-head .chev{grid-column:5}
 }
 
 /* ------------------------------------------------------------------ misc */
@@ -519,20 +538,18 @@ function classHead(cls){
   h.type = "button";
   h.setAttribute("aria-expanded", "false");
 
-  var title = el("span", "cls-title");
-  title.appendChild(el("span", "cls-code", cls.code));
-  title.appendChild(el("span", "cls-name", cls.name));
-  title.appendChild(el("span", "cls-n", plural(cls.entries.length, "entry", "entries")));
-  title.appendChild(chev());
-  h.appendChild(title);
+  h.appendChild(el("span", "cls-code", cls.code));
+
+  var main = el("span", "cls-main");
+  main.appendChild(el("span", "cls-name", cls.name));
 
   var stats = el("span", "cls-stats");
   function stat(label, value, title){
-    var s = el("span");
-    if (title) s.title = title;
-    s.appendChild(document.createTextNode(label + " "));
-    s.appendChild(el("b", null, value));
-    stats.appendChild(s);
+    var x = el("span");
+    if (title) x.title = title;
+    x.appendChild(document.createTextNode(label + " "));
+    x.appendChild(el("b", null, value));
+    stats.appendChild(x);
   }
 
   var timed = cls.entries.filter(function(e){ return e.printed_total != null; });
@@ -558,17 +575,21 @@ function classHead(cls){
   stat("Penalties", pens ? pens + " (+" + secs.toFixed(3) + ")" : "none",
        "Cones, missed gates and DNFs across the class");
 
-  h.appendChild(stats);
+  main.appendChild(stats);
+  h.appendChild(main);
+
+  h.appendChild(el("span", "cls-n", plural(cls.entries.length, "entry", "entries")));
+  h.appendChild(chev());
   return h;
 }
 
 function plainHead(code, name, n){
   var h = el("div", "cls-head");
-  var title = el("span", "cls-title");
-  title.appendChild(el("span", "cls-code", code));
-  title.appendChild(el("span", "cls-name", name));
-  if (n != null) title.appendChild(el("span", "cls-n", plural(n, "entry", "entries")));
-  h.appendChild(title);
+  h.appendChild(el("span", "cls-code", code));
+  var main = el("span", "cls-main");
+  main.appendChild(el("span", "cls-name", name));
+  h.appendChild(main);
+  if (n != null) h.appendChild(el("span", "cls-n", plural(n, "entry", "entries")));
   return h;
 }
 
