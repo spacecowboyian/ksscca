@@ -208,19 +208,19 @@ button{font:inherit;color:inherit}
 /* Both controls appear only once a row is open. Hidden they take no space
    at all rather than sitting at zero opacity, so a collapsed row gives its
    full width to the car name. */
-.linkbtn,.watchbtn{
+.linkbtn,.cmpbtn{
   display:none;flex:none;align-self:center;
   appearance:none;border:0;background:none;padding:2px;cursor:pointer;
   line-height:0;color:var(--faint);text-decoration:none;
 }
 .entry.open .linkbtn,
-.entry.open .watchbtn{display:inline-flex}
+.entry.open .cmpbtn{display:inline-flex}
 /* The glyphs have different viewBoxes, so each gets its own size. */
 .linkbtn svg{width:15px;height:12px;fill:currentColor;display:block}
-.watchbtn svg{width:12px;height:12px;fill:currentColor;display:block}
-.linkbtn:hover,.watchbtn:hover{color:var(--accent)}
-.watchbtn.on{color:var(--good)}
-.linkbtn:focus-visible,.watchbtn:focus-visible{
+.cmpbtn svg{width:12px;height:12px;fill:currentColor;display:block}
+.linkbtn:hover,.cmpbtn:hover{color:var(--accent)}
+.cmpbtn.on{color:var(--good)}
+.linkbtn:focus-visible,.cmpbtn:focus-visible{
   outline:2px solid var(--accent);outline-offset:1px;
 }
 
@@ -352,19 +352,19 @@ button{font:inherit;color:inherit}
 /* Both controls appear only once a row is open. Hidden they take no space
    at all rather than sitting at zero opacity, so a collapsed row gives its
    full width to the car name. */
-.linkbtn,.watchbtn{
+.linkbtn,.cmpbtn{
   display:none;flex:none;align-self:center;
   appearance:none;border:0;background:none;padding:2px;cursor:pointer;
   line-height:0;color:var(--faint);text-decoration:none;
 }
 .entry.open .linkbtn,
-.entry.open .watchbtn{display:inline-flex}
+.entry.open .cmpbtn{display:inline-flex}
 /* The glyphs have different viewBoxes, so each gets its own size. */
 .linkbtn svg{width:15px;height:12px;fill:currentColor;display:block}
-.watchbtn svg{width:12px;height:12px;fill:currentColor;display:block}
-.linkbtn:hover,.watchbtn:hover{color:var(--accent)}
-.watchbtn.on{color:var(--good)}
-.linkbtn:focus-visible,.watchbtn:focus-visible{
+.cmpbtn svg{width:12px;height:12px;fill:currentColor;display:block}
+.linkbtn:hover,.cmpbtn:hover{color:var(--accent)}
+.cmpbtn.on{color:var(--good)}
+.linkbtn:focus-visible,.cmpbtn:focus-visible{
   outline:2px solid var(--accent);outline-offset:1px;
 }
 
@@ -456,7 +456,7 @@ button{font:inherit;color:inherit}
   .entry-body{padding-left:calc(var(--col-rank) + 8px)}
 }
 
-/* ------------------------------------------------------------- watchlist */
+/* -------------------------------------------------------------- compare */
 .run.win{background:var(--gold-tint-light);border-color:#dcc68a;
   color:var(--gold-text);font-weight:700}
 .run.win .n{color:#a08340}
@@ -477,7 +477,7 @@ button{font:inherit;color:inherit}
 .foot li{margin-bottom:4px}
 .key{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
 @media (prefers-reduced-motion:reduce){
-  .linkbtn,.watchbtn{transition:none}
+  .linkbtn,.cmpbtn{transition:none}
 }
 </style>
 </head>
@@ -493,7 +493,7 @@ button{font:inherit;color:inherit}
   <div class="bar" role="tablist">
     <button class="tab" id="tab-class" role="tab" aria-selected="true" aria-controls="pane-class">Class Results</button>
     <button class="tab" id="tab-raw"   role="tab" aria-selected="false" aria-controls="pane-raw">Raw Times</button>
-    <button class="tab" id="tab-watch" role="tab" aria-selected="false" aria-controls="pane-watch" hidden>Watchlist</button>
+    <button class="tab" id="tab-compare" role="tab" aria-selected="false" aria-controls="pane-compare" hidden>Compare</button>
   </div>
 
   <div class="tools">
@@ -506,7 +506,7 @@ button{font:inherit;color:inherit}
   <main>
     <section class="pane" id="pane-class" role="tabpanel" aria-labelledby="tab-class"></section>
     <section class="pane" id="pane-raw" role="tabpanel" aria-labelledby="tab-raw" hidden></section>
-    <section class="pane" id="pane-watch" role="tabpanel" aria-labelledby="tab-watch" hidden></section>
+    <section class="pane" id="pane-compare" role="tabpanel" aria-labelledby="tab-compare" hidden></section>
   </main>
 
   <footer class="foot" id="foot"></footer>
@@ -638,11 +638,11 @@ function entry(e, ctx){
   link.innerHTML = LINK_ICON;
   car.appendChild(link);
 
-  var watch = el("button", "watchbtn");
-  watch.type = "button";
-  watch.dataset.anchor = e.anchor;
-  watch.dataset.driver = e.driver;
-  car.appendChild(watch);
+  var cmp = el("button", "cmpbtn");
+  cmp.type = "button";
+  cmp.dataset.anchor = e.anchor;
+  cmp.dataset.driver = e.driver;
+  car.appendChild(cmp);
   who.appendChild(car);
   head.appendChild(who);
 
@@ -665,7 +665,7 @@ function entry(e, ctx){
     if (r.dnf || r.time == null) cls += " dnf";
     else if (r.penalty > 0) cls += " pen";
     else if (best && r === best) cls += " best";
-    /* In the watchlist a run can also be the quickest of the group, which
+    /* In the comparison a run can also be the quickest of the group, which
        outranks the other states - gold beats green. */
     if (ctx.winners && ctx.winners[i] != null &&
         r.time != null && !r.dnf && r.total === ctx.winners[i]){
@@ -813,54 +813,54 @@ var paneRaw = document.getElementById("pane-raw");
 })();
 
 /* ------------------------------------------------------------------ ttod */
-/* ------------------------------------------------------------ watchlist */
-/* Every driver, keyed by anchor, so the watchlist can pull people from any
+/* -------------------------------------------------------------- compare */
+/* Every driver, keyed by anchor, so the comparison can pull people from any
    class without walking the DOM. */
 var BY_ANCHOR = {};
 DATA.classes.forEach(function(c){
   c.entries.forEach(function(e){ BY_ANCHOR[e.anchor] = e; });
 });
 
-var watchlist = [];
+var compareList = [];
 
-function isWatched(a){ return watchlist.indexOf(a) !== -1; }
+function isCompared(a){ return compareList.indexOf(a) !== -1; }
 
-function toggleWatch(a){
-  var i = watchlist.indexOf(a);
-  if (i === -1) watchlist.push(a); else watchlist.splice(i, 1);
-  paintWatchButtons();
-  renderWatch();
-  syncWatchHash();
+function toggleCompare(a){
+  var i = compareList.indexOf(a);
+  if (i === -1) compareList.push(a); else compareList.splice(i, 1);
+  paintCompareButtons();
+  renderCompare();
+  syncCompareHash();
 }
 
-function paintWatchButtons(){
-  document.querySelectorAll(".watchbtn").forEach(function(b){
-    var on = isWatched(b.dataset.anchor);
+function paintCompareButtons(){
+  document.querySelectorAll(".cmpbtn").forEach(function(b){
+    var on = isCompared(b.dataset.anchor);
     b.classList.toggle("on", on);
     b.innerHTML = on ? CHECK_ICON : PLUS_ICON;
-    b.title = on ? "Remove from watchlist" : "Add to watchlist";
+    b.title = on ? "Remove from comparison" : "Add to comparison";
     b.setAttribute("aria-pressed", on ? "true" : "false");
     b.setAttribute("aria-label",
       (on ? "Remove " : "Add ") + b.dataset.driver +
-      (on ? " from" : " to") + " the watchlist");
+      (on ? " from" : " to") + " the comparison");
   });
 }
 
 /* The selection rides in the hash so a comparison can be shared, the same
    way a single driver's result can. */
-function syncWatchHash(){
-  var h = watchlist.length ? "#watch=" + watchlist.join(",") : " ";
-  history.replaceState(null, "", watchlist.length ? h : location.pathname);
+function syncCompareHash(){
+  var h = compareList.length ? "#compare=" + compareList.join(",") : " ";
+  history.replaceState(null, "", compareList.length ? h : location.pathname);
 }
 
-function readWatchHash(){
-  var m = /^#watch=(.+)$/.exec(location.hash);
+function readCompareHash(){
+  var m = /^#compare=(.+)$/.exec(location.hash);
   if (!m) return false;
-  watchlist = m[1].split(",").filter(function(a){ return BY_ANCHOR[a]; });
-  return watchlist.length > 0;
+  compareList = m[1].split(",").filter(function(a){ return BY_ANCHOR[a]; });
+  return compareList.length > 0;
 }
 
-/* Fastest adjusted time on a given run among the watched drivers. A run
+/* Fastest adjusted time on a given run among the compared drivers. A run
    nobody finished has no winner rather than a bogus one. */
 function runWinners(entries, i){
   var best = null;
@@ -875,19 +875,19 @@ function runWinners(entries, i){
 /* Deliberately not ".run": that class carries the chip styling used in the
    run strips, which turns a table cell into a flex box and stacks the
    columns. */
-function renderWatch(){
-  var pane = document.getElementById("pane-watch");
-  var tab = document.getElementById("tab-watch");
+function renderCompare(){
+  var pane = document.getElementById("pane-compare");
+  var tab = document.getElementById("tab-compare");
   pane.textContent = "";
 
-  tab.hidden = watchlist.length === 0;
-  tab.textContent = "Watchlist" + (watchlist.length ? " (" + watchlist.length + ")" : "");
-  if (!watchlist.length){
-    if (!document.getElementById("pane-watch").hidden) show("class");
+  tab.hidden = compareList.length === 0;
+  tab.textContent = "Compare" + (compareList.length ? " (" + compareList.length + ")" : "");
+  if (!compareList.length){
+    if (!document.getElementById("pane-compare").hidden) show("class");
     return;
   }
 
-  var entries = watchlist.map(function(a){ return BY_ANCHOR[a]; })
+  var entries = compareList.map(function(a){ return BY_ANCHOR[a]; })
                          .filter(Boolean)
                          .sort(function(a, b){ return a.printed_total - b.printed_total; });
   var leader = entries[0].printed_total;
@@ -895,7 +895,7 @@ function renderWatch(){
   var head = el("div", "cls-head");
   head.appendChild(el("span", "cls-code", "VS"));
   var main = el("span", "cls-main");
-  main.appendChild(el("span", "cls-name", "Watchlist"));
+  main.appendChild(el("span", "cls-name", "Compare"));
   var stats = el("span", "cls-stats");
   var sp = el("span");
   sp.appendChild(document.createTextNode("Spread "));
@@ -910,7 +910,7 @@ function renderWatch(){
   head.appendChild(el("span", "cls-n", plural(entries.length, "driver", "drivers")));
   pane.appendChild(head);
 
-  /* The watchlist is the same driver row as everywhere else. A matrix of
+  /* The comparison is the same driver row as everywhere else. A matrix of
      runs across the page cannot survive a twelve-run event, and a second
      layout for the same information is one more thing to keep in step. */
   var winners = [];
@@ -919,7 +919,7 @@ function renderWatch(){
   entries.forEach(function(e, i){
     var row = entry(e, {
       rank: i + 1,
-      idPrefix: "watch-",
+      idPrefix: "compare-",
       showClass: true,
       winners: winners,
       leadLabel: "fastest here",
@@ -931,9 +931,9 @@ function renderWatch(){
   });
 
   var clear = el("div", "cmp-clear");
-  var btn = el("button", "cmp-clear-btn", "Clear watchlist");
+  var btn = el("button", "cmp-clear-btn", "Clear comparison");
   btn.type = "button";
-  btn.id = "clear-watch";
+  btn.id = "clear-compare";
   clear.appendChild(btn);
   pane.appendChild(clear);
 }
@@ -942,8 +942,8 @@ function renderWatch(){
 var tabs = {
   "class": {btn: document.getElementById("tab-class"), pane: paneClass},
   "raw":   {btn: document.getElementById("tab-raw"),   pane: paneRaw},
-  "watch": {btn: document.getElementById("tab-watch"),
-            pane: document.getElementById("pane-watch")}
+  "compare": {btn: document.getElementById("tab-compare"),
+            pane: document.getElementById("pane-compare")}
 };
 function show(which){
   Object.keys(tabs).forEach(function(k){
@@ -954,7 +954,7 @@ function show(which){
 }
 tabs["class"].btn.addEventListener("click", function(){ show("class"); });
 tabs["raw"].btn.addEventListener("click", function(){ show("raw"); });
-tabs["watch"].btn.addEventListener("click", function(){ show("watch"); });
+tabs["compare"].btn.addEventListener("click", function(){ show("compare"); });
 
 /* ------------------------------------------------------------- expanding */
 var runsBox = document.getElementById("showruns");
@@ -1002,19 +1002,19 @@ document.addEventListener("click", function(ev){
     return;
   }
 
-  var watch = ev.target.closest && ev.target.closest(".watchbtn");
-  if (watch){
+  var cmp = ev.target.closest && ev.target.closest(".cmpbtn");
+  if (cmp){
     ev.preventDefault();
     ev.stopPropagation();
-    toggleWatch(watch.dataset.anchor);
+    toggleCompare(cmp.dataset.anchor);
     return;
   }
 
-  if (ev.target.closest && ev.target.closest("#clear-watch")){
-    watchlist = [];
-    paintWatchButtons();
-    renderWatch();
-    syncWatchHash();
+  if (ev.target.closest && ev.target.closest("#clear-compare")){
+    compareList = [];
+    paintCompareButtons();
+    renderCompare();
+    syncCompareHash();
     show("class");
     return;
   }
@@ -1155,8 +1155,8 @@ cf.addEventListener("change", applyFilter);
 function openHash(){
   var h = location.hash.slice(1);
   if (!h) return;
-  if (h.indexOf("watch=") === 0){
-    if (readWatchHash()){ paintWatchButtons(); renderWatch(); show("watch"); }
+  if (h.indexOf("compare=") === 0){
+    if (readCompareHash()){ paintCompareButtons(); renderCompare(); show("compare"); }
     return;
   }
   if (h === "raw"){ show("raw"); return; }
@@ -1205,8 +1205,8 @@ var ul = el("ul");
     EV.penalties.dnf_seconds.toFixed(0) + " seconds.",
   "A gold position number marks a trophy position.",
   "Open a driver to reveal two controls beside their car: a link to their " +
-    "result, and a plus that adds them to the watchlist. The watchlist " +
-    "compares any drivers you pick run by run, across classes, and its own " +
+    "result, and a plus that adds them to the comparison. Compare puts any " +
+    "drivers you pick side by side run by run, across classes, and its own " +
     "address can be shared.",
   "The link icon after a driver's car jumps to their result and puts its " +
     "address in the address bar, ready to copy and share."
@@ -1216,8 +1216,8 @@ foot.appendChild(ul);
 if (EV.note) foot.appendChild(el("div", null, "Timing note: " + EV.note));
 foot.appendChild(el("div", null, "Timing by AXWare Systems. Page generated __GENERATED__."));
 
-renderWatch();
-paintWatchButtons();
+renderCompare();
+paintCompareButtons();
 
 show("class");
 openHash();

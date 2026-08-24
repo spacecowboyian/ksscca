@@ -7,15 +7,15 @@ width. Before writing a new layout, check whether one of these does the job:
 
 | Component | What it is | Where it lives |
 |---|---|---|
-| `entry()` | A driver row: position, name, car, times, and an expandable run strip. Takes an options object — rank, gap, leadLabel, showClass, idPrefix, winners. | `templates/results.html` |
+| `entry()` | A driver row: position, name, car, times, and an expandable run strip. Takes an options object — rank, gap, leadLabel, showClass, idPrefix, winners. Used by the class, raw and compare panes alike. | `templates/results.html` |
 | `classHead()` | A class heading: chip, name, roll-up stats, entry count. | same |
 | `plainHead()` | A heading with no stats, for panes that are not a class. | same |
 | `.strip` / `.run` | The wrapping grid of run chips, with states for best, penalty, DNF and group winner. | same |
 
 **This has gone wrong twice.** The desktop results view was first built as a
 `<table>` separate from the mobile card list, and had to be merged back into
-one component. The watchlist was then built as a bespoke run matrix and had
-to be rebuilt on `entry()`. Both times the bespoke version looked fine with
+one component. The compare view was then built as a bespoke run matrix and
+had to be rebuilt on `entry()`. Both times the bespoke version looked fine with
 this event's nine runs and fell apart on the general case.
 
 Before adding a layout, ask:
