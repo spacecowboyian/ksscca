@@ -36,8 +36,7 @@
   --col-rank:24px;
   --col-gap:84px;
   --col-total:92px;
-  --col-chev:16px;
-  --chip-h:28px;
+  --chev-row:14px;
 
   --pad-x:14px;
   --pad-y:12px;
@@ -117,7 +116,11 @@ button{font:inherit;color:inherit}
    class, and carries the class's summary figures. */
 .cls-head{
   display:grid;
-  grid-template-columns:var(--col-rank) minmax(0,1fr) auto var(--col-chev);
+  /* A second row exists only to hold the chevron along the bottom, which
+     frees the right-hand end of the first row for the numbers. The chip
+     spans both rows, so it fills the heading's full height. */
+  grid-template-columns:var(--col-rank) minmax(0,1fr) auto;
+  grid-template-rows:auto var(--chev-row);
   align-items:center;
   gap:0 10px;
   width:100%;text-align:left;cursor:pointer;
@@ -126,26 +129,21 @@ button{font:inherit;color:inherit}
   /* No top padding: the chip runs to the top edge of the heading like a
      tab, and the class name centres against it rather than sitting on its
      own baseline. */
-  padding:0 var(--pad-x) 10px;
+  padding:0 var(--pad-x) 0 0;
   position:sticky;top:0;z-index:10;
 }
 .cls-head:hover{background:#e6ecf4}
 .cls-code{
-  grid-column:1;justify-self:stretch;align-self:start;
+  grid-column:1;grid-row:1 / -1;justify-self:stretch;align-self:stretch;
   display:flex;align-items:center;justify-content:center;
-  height:var(--chip-h);
   font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase;
   color:#fff;background:var(--accent);
   width:100%;text-align:center;
 }
-.cls-main{grid-column:2;min-width:0}
-/* Matching the chip's height is what puts the two on a shared centre. */
-.cls-name{
-  display:flex;align-items:center;min-height:var(--chip-h);
-  font-weight:600;
-}
-.cls-n{grid-column:3;color:var(--muted);font-size:13px;text-align:right}
-.cls-head .chev{grid-column:4}
+.cls-main{grid-column:2;grid-row:1;min-width:0;padding:9px 0}
+.cls-name{font-weight:600}
+.cls-n{grid-column:3;grid-row:1;color:var(--muted);font-size:13px;text-align:right}
+.cls-head .chev{grid-column:1 / -1;grid-row:2;justify-self:center;align-self:end}
 .cls-stats{
   margin-top:4px;font-size:12.5px;color:var(--muted);
   font-variant-numeric:tabular-nums;
@@ -179,12 +177,15 @@ button{font:inherit;color:inherit}
    up down the page exactly as a table would, while still reflowing. */
 .entry-head{
   display:grid;
-  grid-template-columns:var(--col-rank) minmax(0,1fr) auto var(--col-chev);
+  /* Same skeleton as a class heading: a second row carries the chevron
+     along the bottom so the first row can run the times to the edge. */
+  grid-template-columns:var(--col-rank) minmax(0,1fr) auto;
+  grid-template-rows:auto var(--chev-row);
   align-items:baseline;
   gap:var(--gap) 10px;
   width:100%;text-align:left;cursor:pointer;
   background:none;border:0;
-  padding:var(--pad-y) var(--pad-x);
+  padding:var(--pad-y) var(--pad-x) 0 0;
 }
 .entry-head:hover{background:var(--hover)}
 .entry.static .entry-head{cursor:default}
@@ -195,7 +196,7 @@ button{font:inherit;color:inherit}
    text on white (about 2.3:1), so trophy positions use a darkened gold that
    clears AA while staying recognisably the same colour. */
 .rank{
-  grid-column:1;justify-self:stretch;text-align:center;
+  grid-column:1;grid-row:1;justify-self:stretch;text-align:center;
   font-size:14px;font-weight:700;color:var(--ink);
   font-variant-numeric:tabular-nums;
 }
@@ -203,7 +204,7 @@ button{font:inherit;color:inherit}
 
 /* These are spans so they can live inside the header button, so they need
    block display back to stack the way the layout expects. */
-.who{display:block;min-width:0}
+.who{grid-row:1;display:block;min-width:0}
 .name,.car,.total,.gap{display:block}
 .car{display:flex;align-items:center;gap:6px;min-width:0}
 .cartext{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -229,20 +230,30 @@ button{font:inherit;color:inherit}
 }
 .car{font-size:13px;color:var(--muted)}
 
-.times{display:block;text-align:right;min-width:96px}
+.times{grid-row:1;display:block;text-align:right;min-width:96px}
 .total{font-weight:700;font-variant-numeric:tabular-nums;font-size:clamp(15px,3.8vw,17px)}
 .gap{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
 .gap.lead{color:var(--good);font-weight:600}
 
-.chev{width:16px;height:16px;color:var(--faint);transition:transform .15s ease;
-  align-self:center}
-.chev svg{display:block;width:16px;height:16px;fill:currentColor}
+/* The open/close affordance lives along the bottom of the row rather than
+   in a right-hand column, so the times can run to the edge. On a phone it
+   is just a chevron sitting in the row's own bottom padding; on a desktop
+   it becomes a small grey tab that appears on hover. Clicking it toggles
+   the row because it sits inside the row's own control. */
+.chev{
+  grid-column:1 / -1;grid-row:2;justify-self:center;align-self:end;
+  display:flex;align-items:center;justify-content:center;
+  width:26px;height:var(--chev-row);
+  color:var(--faint);transition:transform .15s ease;
+}
+.chev svg{width:12px;height:12px}
+.chev svg{display:block;fill:currentColor}
 .entry.open .entry-head .chev,
 .cls.open .cls-head .chev{transform:rotate(180deg)}
 .entry.static .chev{visibility:hidden}
 
 /* Body carries the same left edge as the badge above it. */
-.entry-body{padding:0 var(--pad-x) var(--pad-y)}
+.entry-body{padding:0 var(--pad-x) var(--pad-y) calc(var(--col-rank) + 10px)}
 .entry:not(.open) .entry-body{display:none}
 
 /* Run strip: chips carry their own run number, so a wrap never separates a
@@ -280,9 +291,9 @@ button{font:inherit;color:inherit}
 @media (min-width:760px){
   .entry-head{
     grid-template-columns:var(--col-rank) minmax(0,1fr) var(--col-gap)
-                         var(--col-total) var(--col-chev);
+                         var(--col-total);
     gap:0 10px;
-    padding:7px var(--pad-x);
+    padding:7px var(--pad-x) 0 0;
   }
   /* Every item is pinned explicitly: with .times becoming display:contents,
      leaving any of them to auto-placement pushes the chevron onto a second
@@ -295,8 +306,18 @@ button{font:inherit;color:inherit}
   .times{display:contents}
   .gap{grid-row:1;grid-column:3;text-align:right;white-space:nowrap;font-size:12.5px}
   .total{grid-row:1;grid-column:4;text-align:right;min-width:88px;font-size:16px}
-  .chev{grid-row:1;grid-column:5;width:14px;height:14px}
   .chev svg{width:14px;height:14px}
+
+  /* No chevron until the row is hovered - it would otherwise be permanent
+     furniture on every line for something used occasionally. */
+  .chev{
+    width:38px;background:#dde3ea;color:var(--muted);
+    opacity:0;transition:opacity .12s ease, transform .15s ease;
+  }
+  .entry-head:hover .chev,
+  .cls-head:hover .chev,
+  .entry-head:focus-visible .chev,
+  .cls-head:focus-visible .chev{opacity:1}
 
   /* The class heading collapses the same way a driver row does: the stats
      join the class name instead of taking a second line. .cls-title becomes
@@ -304,14 +325,11 @@ button{font:inherit;color:inherit}
      every one is given an explicit order. */
   .cls-head{
     grid-template-columns:var(--col-rank) minmax(0,1fr) var(--col-gap)
-                         var(--col-total) var(--col-chev);
+                         var(--col-total);
   }
-  .cls-main{display:flex;align-items:center;gap:14px;flex-wrap:wrap;
-    min-height:var(--chip-h)}
-  .cls-name{min-height:0}
+  .cls-main{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
   .cls-stats{margin-top:0}
   .cls-n{grid-column:4}
-  .cls-head .chev{grid-column:5}
 }
 
 /* On a phone the first column is pure marker - a class code and a position
@@ -324,7 +342,7 @@ button{font:inherit;color:inherit}
      hairline keeping the class chip off the edge. */
   .wrap{border-left:0;border-right:0}
   .cls-head,
-  .entry-head{padding-left:0;gap:var(--gap) 8px}
+  .entry-head{gap:var(--gap) 8px}
   /* The run strip lines up with the names rather than running to the very
      edge, so the body still reads as belonging to the row above it. */
   .entry-body{padding-left:calc(var(--col-rank) + 8px)}
