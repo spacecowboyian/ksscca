@@ -1209,6 +1209,50 @@ function renderCompare(){
   sizeFirstColumn();
 }
 
+/* ------------------------------------------------------------------ pax */
+/* Autocross only: RallyCross has no index. The PAX export carries no run
+   data, so entries are matched back to the class results by anchor and the
+   ordinary row is reused with the indexed time as its headline figure. */
+(function(){
+  var pax = (DATA.pax || []).filter(function(p){
+    /* A factor of zero means the class is not indexed - Novice, usually -
+       so those rows carry no meaningful PAX time. */
+    return p.factor > 0 && p.pax_time > 0;
+  });
+  if (!pax.length) return;
+
+  var pane = document.getElementById("pane-pax");
+  var tab = document.getElementById("tab-pax");
+  tab.hidden = false;
+
+  var head = plainHead("PAX", "Every entry on index, fastest first", pax.length);
+  pane.appendChild(head);
+
+  var lead = pax[0].pax_time;
+  pax.forEach(function(p, i){
+    var e = BY_ANCHOR[p.anchor];
+    if (!e) return;
+    pane.appendChild(entry(e, {
+      rank: p.pax_position,
+      idPrefix: "pax-",
+      showClass: true,
+      total: p.pax_time,
+      leadLabel: "fastest on index",
+      gap: i === 0 ? null : p.pax_time - lead,
+      interval: i > 0 ? p.pax_time - pax[i - 1].pax_time : null,
+      equation: {raw: p.total, factor: p.factor}
+    }));
+  });
+
+  var skipped = (DATA.pax || []).length - pax.length;
+  if (skipped){
+    var n = el("div", "pane-note",
+      plural(skipped, "entry", "entries") + " in unindexed classes are not " +
+      "listed here - they appear in the class results.");
+    pane.appendChild(n);
+  }
+})();
+
 /* ----------------------------------------------------------------- tabs */
 var tabs = {
   "class": {btn: document.getElementById("tab-class"), pane: paneClass},
