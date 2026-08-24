@@ -154,7 +154,25 @@ button{font:inherit;color:inherit}
    block display back to stack the way the layout expects. */
 .who{display:block;min-width:0}
 .name,.car,.total,.gap{display:block}
+.namewrap{display:flex;align-items:center;gap:6px;min-width:0}
 .name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Copy control: hidden until the row is hovered on pointer devices, and
+   permanently visible but quiet where there is no hover to reveal it. */
+.linkbtn{
+  flex:none;appearance:none;border:0;background:none;padding:2px;cursor:pointer;
+  line-height:0;color:var(--faint);opacity:0;transition:opacity .12s ease;
+}
+.linkbtn svg{width:14px;height:14px;fill:currentColor;display:block}
+.linkbtn:hover{color:var(--accent)}
+.entry-head:hover .linkbtn{opacity:1}
+.linkbtn:focus-visible{opacity:1;outline:2px solid var(--accent);outline-offset:1px}
+@media (hover:none){
+  .linkbtn{opacity:.5}
+}
+@media (prefers-reduced-motion:reduce){
+  .linkbtn{transition:none}
+}
 .car{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 .times{display:block;text-align:right;min-width:96px}
@@ -200,10 +218,29 @@ button{font:inherit;color:inherit}
   font-variant-numeric:tabular-nums;
 }
 .foot-line b{color:var(--ink);font-weight:600}
-.copy{
-  appearance:none;border:0;background:none;cursor:pointer;padding:0;
-  font-size:12.5px;font-weight:600;color:var(--accent);
-  border-bottom:1px solid var(--hair);margin-left:auto;
+/* Once there is width to spare, the row collapses from two lines to one:
+   the car joins the name, and the gap moves left of the total so the time
+   people look for stays hard against the right edge. .times becomes
+   display:contents so its two children join the row's own grid. */
+@media (min-width:760px){
+  .entry-head{
+    grid-template-columns:22px minmax(0,1fr) auto auto 14px;
+    gap:0 12px;
+    padding:7px var(--pad-x);
+  }
+  /* Every item is pinned explicitly: with .times becoming display:contents,
+     leaving any of them to auto-placement pushes the chevron onto a second
+     row. */
+  .rank{grid-row:1;grid-column:1;width:22px;height:22px;font-size:12px}
+  .who{grid-row:1;grid-column:2;display:flex;align-items:baseline;gap:10px;min-width:0}
+  .namewrap{flex:0 1 auto}
+  .car{flex:1 1 auto;min-width:0;font-size:12.5px}
+  .times{display:contents}
+  .gap{grid-row:1;grid-column:3;text-align:right;white-space:nowrap;font-size:12.5px}
+  .total{grid-row:1;grid-column:4;text-align:right;min-width:88px;font-size:16px}
+  .chev{grid-row:1;grid-column:5;width:14px;height:14px}
+  .chev svg{width:14px;height:14px}
+  .entry-body{padding-left:calc(var(--pad-x) + 34px)}
 }
 
 /* ------------------------------------------------------------------ misc */
@@ -263,6 +300,8 @@ var DATA = JSON.parse(document.getElementById("event-data").textContent);
 var EV = DATA.event;
 var RALLYX = EV.scoring === "rallyx_sum";
 var CHEV = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 11L3 5.5 4 4.5 8 8.9l4-4.4 1 1z"/></svg>';
+var LINK_ICON = '<svg viewBox="0 0 16 16" aria-hidden="true">' +
+  '<path d="M6.9 9.1a2.6 2.6 0 0 0 3.7 0l2.6-2.6a2.6 2.6 0 0 0-3.7-3.7l-1 1 1 1 1-1a1.2 1.2 0 0 1 1.7 1.7L9.6 8.1a1.2 1.2 0 0 1-1.7 0zM9.1 6.9a2.6 2.6 0 0 0-3.7 0L2.8 9.5a2.6 2.6 0 0 0 3.7 3.7l1-1-1-1-1 1a1.2 1.2 0 0 1-1.7-1.7l2.6-2.6a1.2 1.2 0 0 1 1.7 0z"/></svg>';
 
 function el(tag, cls, txt){
   var n = document.createElement(tag);
@@ -336,8 +375,9 @@ function entry(e, ctx){
 
   var bodyId = "body-" + row.id;
 
-  var head = el("button", "entry-head");
-  head.type = "button";
+  var head = el("div", "entry-head");
+  head.setAttribute("role", "button");
+  head.tabIndex = 0;
   head.setAttribute("aria-expanded", "false");
   head.setAttribute("aria-controls", bodyId);
 
@@ -346,7 +386,18 @@ function entry(e, ctx){
   head.appendChild(rank);
 
   var who = el("span", "who");
-  who.appendChild(el("span", "name", e.driver));
+  var nameWrap = el("span", "namewrap");
+  nameWrap.appendChild(el("span", "name", e.driver));
+
+  var link = el("button", "linkbtn");
+  link.type = "button";
+  link.dataset.anchor = e.anchor;
+  link.title = "Copy a link to this driver's result";
+  link.setAttribute("aria-label", "Copy a link to " + e.driver + "'s result");
+  link.innerHTML = LINK_ICON;
+  nameWrap.appendChild(link);
+  who.appendChild(nameWrap);
+
   who.appendChild(el("span", "car",
     (ctx.showClass ? e.class + " " : "") + "#" + e.number + " · " + e.car));
   head.appendChild(who);
@@ -408,10 +459,6 @@ function entry(e, ctx){
     s.appendChild(el("b", null, fmt(e.printed_total)));
     line.appendChild(s);
   }
-  var copy = el("button", "copy", "Copy link");
-  copy.type = "button";
-  copy.dataset.anchor = e.anchor;
-  line.appendChild(copy);
   body.appendChild(line);
 
   row.appendChild(body);
@@ -594,14 +641,19 @@ function syncClass(sec){
 }
 
 document.addEventListener("click", function(ev){
-  var copy = ev.target.closest && ev.target.closest(".copy");
-  if (copy){
-    var url = location.href.split("#")[0] + "#" + copy.dataset.anchor;
-    history.replaceState(null, "", "#" + copy.dataset.anchor);
-    if (navigator.clipboard){
-      navigator.clipboard.writeText(url).then(function(){ say("Link copied"); },
-                                              function(){ say(url); });
-    } else { say(url); }
+  /* The copy control sits inside the header, so it has to be handled first
+     and swallowed - otherwise copying a link would also toggle the row. */
+  var link = ev.target.closest && ev.target.closest(".linkbtn");
+  if (link){
+    ev.preventDefault();
+    ev.stopPropagation();
+    var url = location.href.split("#")[0] + "#" + link.dataset.anchor;
+    history.replaceState(null, "", "#" + link.dataset.anchor);
+    copyText(url).then(
+      function(){ say("Driver link copied"); },
+      /* The address bar already carries the link, so point at that rather
+         than dumping the URL into a toast nobody can select. */
+      function(){ say("Couldn't copy — the link is in your address bar"); });
     return;
   }
 
@@ -613,13 +665,26 @@ document.addEventListener("click", function(ev){
     return;
   }
 
-  var head = ev.target.closest && ev.target.closest("button.entry-head");
+  var head = ev.target.closest && ev.target.closest(".entry-head");
   if (head){
     var row = head.closest(".entry");
     setEntry(row, !row.classList.contains("open"));
     syncClass(row.closest(".cls"));
     syncMaster();
   }
+});
+
+/* The header is a div so it can contain a button, so it needs the keyboard
+   behaviour a real button would have given it for free. */
+document.addEventListener("keydown", function(ev){
+  if (ev.key !== "Enter" && ev.key !== " " && ev.key !== "Spacebar") return;
+  var head = ev.target.closest && ev.target.closest(".entry-head");
+  if (!head || ev.target.closest(".linkbtn")) return;
+  ev.preventDefault();
+  var row = head.closest(".entry");
+  setEntry(row, !row.classList.contains("open"));
+  syncClass(row.closest(".cls"));
+  syncMaster();
 });
 
 /* Runs are open by default where there is room for them and rolled up where
@@ -690,6 +755,29 @@ q.addEventListener("input", applyFilter);
 cf.addEventListener("change", applyFilter);
 
 /* ------------------------------------------------------------ deep links */
+/* The site is served over http, where navigator.clipboard is not exposed at
+   all - it needs a secure context. The textarea and execCommand route is
+   deprecated but is the only one that works here, so it is the fallback
+   rather than the other way round. */
+function copyText(text){
+  if (navigator.clipboard && window.isSecureContext){
+    return navigator.clipboard.writeText(text);
+  }
+  return new Promise(function(resolve, reject){
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.cssText = "position:fixed;top:-1000px;left:-1000px;opacity:0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, ta.value.length);
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (err) { ok = false; }
+    document.body.removeChild(ta);
+    ok ? resolve() : reject();
+  });
+}
+
 var toast = document.getElementById("toast");
 var toastTimer;
 function say(msg){
@@ -746,7 +834,8 @@ var ul = el("ul");
     EV.penalties.gate_seconds.toFixed(0) + " seconds. A DNF is scored as " +
     plural(EV.penalties.dnf_cones, "cone", "cones") + ", or " +
     EV.penalties.dnf_seconds.toFixed(0) + " seconds.",
-  "A gold position badge marks a trophy position."
+  "A gold position badge marks a trophy position. Hover or tap the link icon " +
+    "beside a driver's name to copy a link straight to their result."
 ].forEach(function(t){ ul.appendChild(el("li", null, t)); });
 foot.appendChild(ul);
 
