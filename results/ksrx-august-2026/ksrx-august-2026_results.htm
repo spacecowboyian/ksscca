@@ -21,6 +21,7 @@
   --bad:#b30000;
   --gold:#c9a227;
   --gold-text:#8a6d00;
+  --gold-tint-light:#fdf4dd;
   --invert:#2c3238;
   --invert-ink:#f4f7fa;
   --invert-dim:#b6bfc8;
@@ -162,6 +163,7 @@ button{font:inherit;color:inherit}
 .entry:target .foot-line{color:var(--invert-dim)}
 .entry:target .foot-line b{color:var(--invert-ink)}
 .entry:target .rank.trophy{color:var(--gold-on-dark)}
+.entry:target .run.win{background:#3d3417;border-color:#6b5a24;color:var(--gold-on-dark)}
 .entry:target .gap.lead{color:var(--good-on-dark)}
 .entry:target .linkbtn{color:var(--invert-dim)}
 .entry:target .linkbtn:hover{color:var(--invert-ink)}
@@ -203,25 +205,24 @@ button{font:inherit;color:inherit}
 .cartext{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-/* Copy control: hidden until the row is hovered on pointer devices, and
-   permanently visible but quiet where there is no hover to reveal it. */
-.linkbtn{
-  flex:none;align-self:center;appearance:none;border:0;background:none;
-  padding:2px;cursor:pointer;line-height:0;color:var(--faint);
-  opacity:0;transition:opacity .12s ease;
+/* Both controls appear only once a row is open. Hidden they take no space
+   at all rather than sitting at zero opacity, so a collapsed row gives its
+   full width to the car name. */
+.linkbtn,.watchbtn{
+  display:none;flex:none;align-self:center;
+  appearance:none;border:0;background:none;padding:2px;cursor:pointer;
+  line-height:0;color:var(--faint);text-decoration:none;
 }
-/* The glyph is 640x512, so height follows that ratio rather than square. */
+.entry.open .linkbtn,
+.entry.open .watchbtn{display:inline-flex}
+/* The glyphs have different viewBoxes, so each gets its own size. */
 .linkbtn svg{width:15px;height:12px;fill:currentColor;display:block}
-.linkbtn:hover{color:var(--accent)}
-.entry:hover .linkbtn{opacity:1}
-.linkbtn:focus-visible{opacity:1;outline:2px solid var(--accent);outline-offset:1px}
-@media (hover:none){
-  .linkbtn{opacity:.5}
+.watchbtn svg{width:12px;height:12px;fill:currentColor;display:block}
+.linkbtn:hover,.watchbtn:hover{color:var(--accent)}
+.watchbtn.on{color:var(--good)}
+.linkbtn:focus-visible,.watchbtn:focus-visible{
+  outline:2px solid var(--accent);outline-offset:1px;
 }
-@media (prefers-reduced-motion:reduce){
-  .linkbtn{transition:none}
-}
-.car{font-size:13px;color:var(--muted)}
 
 .times{grid-row:1;display:block;text-align:right;min-width:96px}
 .total{font-weight:700;font-variant-numeric:tabular-nums;font-size:clamp(15px,3.8vw,17px)}
@@ -311,6 +312,43 @@ button{font:inherit;color:inherit}
   .entry-body{padding-left:calc(var(--col-rank) + 8px)}
 }
 
+/* ------------------------------------------------------------- watchlist */
+.cmp-table{display:none;overflow-x:auto;padding:0 var(--pad-x) 4px 0}
+.cmp-table table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+.cmp-table th,.cmp-table td{
+  padding:7px 8px;text-align:right;white-space:nowrap;
+  border-bottom:1px solid var(--hair);font-size:13px;
+}
+.cmp-table th{
+  font-size:11px;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--muted);font-weight:600;
+}
+.cmp-table td.l,.cmp-table th.l{text-align:left;padding-left:0}
+.cmp-name{display:block;font-weight:600;font-size:14px}
+.cmp-car{display:block;font-size:12px;color:var(--muted)}
+.cmp-table td.tot{font-weight:700;font-size:14px}
+.cmp-table td.cmprun .p{color:var(--bad);font-size:10px;font-weight:700}
+/* Gold marks the quickest on that run, and only in this view - green still
+   means a driver's own best, which is a different question. */
+.cmp-table td.cmpwin{color:var(--gold-text);font-weight:700}
+.run.win{background:var(--gold-tint-light);border-color:#dcc68a;
+  color:var(--gold-text);font-weight:700}
+.run.win .n{color:#a08340}
+
+.cmp-cards .entry{border-bottom:1px solid var(--hair)}
+.cmp-clear{padding:12px var(--pad-x) 18px 0}
+.cmp-clear-btn{
+  appearance:none;border:1px solid var(--border);background:var(--paper);
+  color:var(--muted);font-size:12.5px;font-weight:600;
+  padding:6px 12px;cursor:pointer;
+}
+.cmp-clear-btn:hover{color:var(--bad);border-color:var(--bad)}
+
+@media (min-width:760px){
+  .cmp-table{display:block}
+  .cmp-cards{display:none}
+}
+
 /* ------------------------------------------------------------------ misc */
 .pane[hidden]{display:none}
 .foot{padding:16px var(--pad-x) 26px;font-size:13px;color:var(--muted);border-top:1px solid var(--border)}
@@ -319,7 +357,7 @@ button{font:inherit;color:inherit}
 .foot li{margin-bottom:4px}
 .key{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
 @media (prefers-reduced-motion:reduce){
-  .linkbtn{transition:none}
+  .linkbtn,.watchbtn{transition:none}
 }
 </style>
 </head>
@@ -335,6 +373,7 @@ button{font:inherit;color:inherit}
   <div class="bar" role="tablist">
     <button class="tab" id="tab-class" role="tab" aria-selected="true" aria-controls="pane-class">Class Results</button>
     <button class="tab" id="tab-raw"   role="tab" aria-selected="false" aria-controls="pane-raw">Raw Times</button>
+    <button class="tab" id="tab-watch" role="tab" aria-selected="false" aria-controls="pane-watch" hidden>Watchlist</button>
   </div>
 
   <div class="tools">
@@ -347,6 +386,7 @@ button{font:inherit;color:inherit}
   <main>
     <section class="pane" id="pane-class" role="tabpanel" aria-labelledby="tab-class"></section>
     <section class="pane" id="pane-raw" role="tabpanel" aria-labelledby="tab-raw" hidden></section>
+    <section class="pane" id="pane-watch" role="tabpanel" aria-labelledby="tab-watch" hidden></section>
   </main>
 
   <footer class="foot" id="foot"></footer>
@@ -362,6 +402,13 @@ var EV = DATA.event;
 var RALLYX = EV.scoring === "rallyx_sum";
 /* Font Awesome Free 6 "link" (solid), inlined so the page stays
    self-contained. Icons are CC BY 4.0 - fontawesome.com/license/free */
+var PLUS_ICON = '<svg viewBox="0 0 448 512" aria-hidden="true"><path d="M256 80' +
+  'c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192' +
+  'V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32' +
+  'H256V80z"/></svg>';
+var CHECK_ICON = '<svg viewBox="0 0 448 512" aria-hidden="true"><path d="M438.6 105.4' +
+  'c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5' +
+  '-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/></svg>';
 var LINK_ICON = '<svg viewBox="0 0 640 512" aria-hidden="true">' +
   '<path d="M579.8 267.7c56.5-56.5 56.5-148 0-204.5c-50-50-128.8-56.5-186.3-15.4' +
   'l-1.6 1.1c-14.4 10.3-17.7 30.3-7.4 44.6s30.3 17.7 44.6 7.4l1.6-1.1c32.1-22.9 ' +
@@ -470,6 +517,12 @@ function entry(e, ctx){
   link.setAttribute("aria-label", "Link to " + e.driver + "'s result");
   link.innerHTML = LINK_ICON;
   car.appendChild(link);
+
+  var watch = el("button", "watchbtn");
+  watch.type = "button";
+  watch.dataset.anchor = e.anchor;
+  watch.dataset.driver = e.driver;
+  car.appendChild(watch);
   who.appendChild(car);
   head.appendChild(who);
 
@@ -634,35 +687,206 @@ var paneRaw = document.getElementById("pane-raw");
 })();
 
 /* ------------------------------------------------------------------ ttod */
-/* Top Times Of Day belongs with the raw order, not the class standings -
-   it is a cross-class figure and only muddled the class pane. */
-if (DATA.ttod && DATA.ttod.length){
-  [paneRaw].forEach(function(pane){
-    var sec = el("section", "cls");
-    sec.appendChild(plainHead("TTOD", "Top Times Of Day", null));
-    DATA.ttod.forEach(function(x){
-      var row = el("article", "entry static");
-      var head = el("div", "entry-head");
-      var r = el("span", "rank trophy", "★");
-      head.appendChild(r);
-      var who = el("span", "who");
-      who.appendChild(el("span", "name", x.driver));
-      who.appendChild(el("span", "car", x.label + " · " + x.class + " #" + x.number));
-      head.appendChild(who);
-      var t = el("span", "times");
-      t.appendChild(el("span", "total", x.time.toFixed(3)));
-      head.appendChild(t);
-      row.appendChild(head);
-      sec.appendChild(row);
-    });
-    pane.appendChild(sec);
+/* ------------------------------------------------------------ watchlist */
+/* Every driver, keyed by anchor, so the watchlist can pull people from any
+   class without walking the DOM. */
+var BY_ANCHOR = {};
+DATA.classes.forEach(function(c){
+  c.entries.forEach(function(e){ BY_ANCHOR[e.anchor] = e; });
+});
+
+var watchlist = [];
+
+function isWatched(a){ return watchlist.indexOf(a) !== -1; }
+
+function toggleWatch(a){
+  var i = watchlist.indexOf(a);
+  if (i === -1) watchlist.push(a); else watchlist.splice(i, 1);
+  paintWatchButtons();
+  renderWatch();
+  syncWatchHash();
+}
+
+function paintWatchButtons(){
+  document.querySelectorAll(".watchbtn").forEach(function(b){
+    var on = isWatched(b.dataset.anchor);
+    b.classList.toggle("on", on);
+    b.innerHTML = on ? CHECK_ICON : PLUS_ICON;
+    b.title = on ? "Remove from watchlist" : "Add to watchlist";
+    b.setAttribute("aria-pressed", on ? "true" : "false");
+    b.setAttribute("aria-label",
+      (on ? "Remove " : "Add ") + b.dataset.driver +
+      (on ? " from" : " to") + " the watchlist");
   });
+}
+
+/* The selection rides in the hash so a comparison can be shared, the same
+   way a single driver's result can. */
+function syncWatchHash(){
+  var h = watchlist.length ? "#watch=" + watchlist.join(",") : " ";
+  history.replaceState(null, "", watchlist.length ? h : location.pathname);
+}
+
+function readWatchHash(){
+  var m = /^#watch=(.+)$/.exec(location.hash);
+  if (!m) return false;
+  watchlist = m[1].split(",").filter(function(a){ return BY_ANCHOR[a]; });
+  return watchlist.length > 0;
+}
+
+/* Fastest adjusted time on a given run among the watched drivers. A run
+   nobody finished has no winner rather than a bogus one. */
+function runWinners(entries, i){
+  var best = null;
+  entries.forEach(function(e){
+    var r = e.runs[i];
+    if (!r || r.time == null || r.dnf) return;
+    if (best === null || r.total < best) best = r.total;
+  });
+  return best;
+}
+
+/* Deliberately not ".run": that class carries the chip styling used in the
+   run strips, which turns a table cell into a flex box and stacks the
+   columns. */
+function runCell(r, best){
+  var td = el("td", "cmprun");
+  if (!r){ return td; }
+  if (r.time == null){
+    td.textContent = (r.status || "\u2014").toUpperCase();
+    return td;
+  }
+  if (best !== null && r.total === best && !r.dnf) td.className = "cmprun cmpwin";
+  td.appendChild(document.createTextNode(r.time.toFixed(3)));
+  var tag = penMark(r);
+  if (tag){
+    td.appendChild(document.createTextNode(" "));
+    td.appendChild(el("span", "p", tag));
+    td.title = penWords(r) + " \u2192 " + r.total.toFixed(3) + " with penalty";
+  }
+  return td;
+}
+
+function renderWatch(){
+  var pane = document.getElementById("pane-watch");
+  var tab = document.getElementById("tab-watch");
+  pane.textContent = "";
+
+  tab.hidden = watchlist.length === 0;
+  tab.textContent = "Watchlist" + (watchlist.length ? " (" + watchlist.length + ")" : "");
+  if (!watchlist.length){
+    if (!document.getElementById("pane-watch").hidden) show("class");
+    return;
+  }
+
+  var entries = watchlist.map(function(a){ return BY_ANCHOR[a]; })
+                         .filter(Boolean)
+                         .sort(function(a, b){ return a.printed_total - b.printed_total; });
+  var leader = entries[0].printed_total;
+
+  var head = el("div", "cls-head");
+  head.appendChild(el("span", "cls-code", "VS"));
+  var main = el("span", "cls-main");
+  main.appendChild(el("span", "cls-name", "Watchlist"));
+  var stats = el("span", "cls-stats");
+  var sp = el("span");
+  sp.appendChild(document.createTextNode("Spread "));
+  sp.appendChild(el("b", null,
+    (entries[entries.length - 1].printed_total - leader).toFixed(3)));
+  stats.appendChild(sp);
+  var lg = el("span");
+  lg.appendChild(document.createTextNode("Gold marks the quickest on that run"));
+  stats.appendChild(lg);
+  main.appendChild(stats);
+  head.appendChild(main);
+  head.appendChild(el("span", "cls-n", plural(entries.length, "driver", "drivers")));
+  pane.appendChild(head);
+
+  /* ---- desktop: a real matrix, drivers down, runs across */
+  var wrap = el("div", "cmp-table");
+  var t = el("table");
+  var hr = el("tr");
+  hr.appendChild(el("th", "l", "Driver"));
+  for (var i = 0; i < EV.run_count; i++) hr.appendChild(el("th", null, "R" + (i + 1)));
+  hr.appendChild(el("th", null, RALLYX ? "Total" : "Best"));
+  hr.appendChild(el("th", null, "Gap"));
+  var thead = el("thead"); thead.appendChild(hr); t.appendChild(thead);
+
+  var tb = el("tbody");
+  entries.forEach(function(e){
+    var tr = el("tr");
+    var who = el("td", "l");
+    who.appendChild(el("span", "cmp-name", e.driver));
+    who.appendChild(el("span", "cmp-car", e.class + " #" + e.number + " \u00b7 " + e.car));
+    tr.appendChild(who);
+    for (var i = 0; i < EV.run_count; i++){
+      tr.appendChild(runCell(e.runs[i], runWinners(entries, i)));
+    }
+    tr.appendChild(el("td", "tot", fmt(e.printed_total)));
+    tr.appendChild(el("td", null,
+      e.printed_total === leader ? "\u2014" : signed(e.printed_total - leader)));
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb);
+  wrap.appendChild(t);
+  pane.appendChild(wrap);
+
+  /* ---- phone: the matrix will not fit, so each driver keeps their own
+     strip of runs with the winning runs marked the same way */
+  var cards = el("div", "cmp-cards");
+  entries.forEach(function(e){
+    /* Marked open so the run strip shows: the collapsed-body rule is more
+       specific than anything the watchlist could override it with. */
+    var row = el("article", "entry open");
+    var h = el("div", "entry-head");
+    h.appendChild(el("span", "rank", String(entries.indexOf(e) + 1)));
+    var who = el("span", "who");
+    who.appendChild(el("span", "name", e.driver));
+    who.appendChild(el("span", "car", e.class + " #" + e.number + " \u00b7 " + e.car));
+    h.appendChild(who);
+    var times = el("span", "times");
+    times.appendChild(el("span", "total", fmt(e.printed_total)));
+    times.appendChild(el("span", "gap" + (e.printed_total === leader ? " lead" : ""),
+      e.printed_total === leader ? "fastest here" : signed(e.printed_total - leader)));
+    h.appendChild(times);
+    row.appendChild(h);
+
+    var body = el("div", "entry-body");
+    var strip = el("div", "strip");
+    e.runs.forEach(function(r, i){
+      var best = runWinners(entries, i);
+      var cls = "run";
+      if (r.dnf || r.time == null) cls += " dnf";
+      else if (best !== null && r.total === best) cls += " win";
+      else if (r.penalty > 0) cls += " pen";
+      var chip = el("div", cls);
+      chip.appendChild(el("span", "n", "R" + (i + 1)));
+      chip.appendChild(el("span", "v", r.time == null
+        ? (r.status || "\u2014").toUpperCase() : r.time.toFixed(3)));
+      var mark = penMark(r);
+      if (mark) chip.appendChild(el("span", "p", mark));
+      strip.appendChild(chip);
+    });
+    body.appendChild(strip);
+    row.appendChild(body);
+    cards.appendChild(row);
+  });
+  pane.appendChild(cards);
+
+  var clear = el("div", "cmp-clear");
+  var btn = el("button", "cmp-clear-btn", "Clear watchlist");
+  btn.type = "button";
+  btn.id = "clear-watch";
+  clear.appendChild(btn);
+  pane.appendChild(clear);
 }
 
 /* ----------------------------------------------------------------- tabs */
 var tabs = {
   "class": {btn: document.getElementById("tab-class"), pane: paneClass},
-  "raw":   {btn: document.getElementById("tab-raw"),   pane: paneRaw}
+  "raw":   {btn: document.getElementById("tab-raw"),   pane: paneRaw},
+  "watch": {btn: document.getElementById("tab-watch"),
+            pane: document.getElementById("pane-watch")}
 };
 function show(which){
   Object.keys(tabs).forEach(function(k){
@@ -673,6 +897,7 @@ function show(which){
 }
 tabs["class"].btn.addEventListener("click", function(){ show("class"); });
 tabs["raw"].btn.addEventListener("click", function(){ show("raw"); });
+tabs["watch"].btn.addEventListener("click", function(){ show("watch"); });
 
 /* ------------------------------------------------------------- expanding */
 var runsBox = document.getElementById("showruns");
@@ -717,6 +942,23 @@ document.addEventListener("click", function(ev){
      toggling the row it sits in. */
   if (ev.target.closest && ev.target.closest(".linkbtn")){
     ev.stopPropagation();
+    return;
+  }
+
+  var watch = ev.target.closest && ev.target.closest(".watchbtn");
+  if (watch){
+    ev.preventDefault();
+    ev.stopPropagation();
+    toggleWatch(watch.dataset.anchor);
+    return;
+  }
+
+  if (ev.target.closest && ev.target.closest("#clear-watch")){
+    watchlist = [];
+    paintWatchButtons();
+    renderWatch();
+    syncWatchHash();
+    show("class");
     return;
   }
 
@@ -856,6 +1098,10 @@ cf.addEventListener("change", applyFilter);
 function openHash(){
   var h = location.hash.slice(1);
   if (!h) return;
+  if (h.indexOf("watch=") === 0){
+    if (readWatchHash()){ paintWatchButtons(); renderWatch(); show("watch"); }
+    return;
+  }
   if (h === "raw"){ show("raw"); return; }
   var node = document.getElementById(h) || document.getElementById("raw-" + h);
   if (!node) return;
@@ -901,6 +1147,10 @@ var ul = el("ul");
     plural(EV.penalties.dnf_cones, "cone", "cones") + ", or " +
     EV.penalties.dnf_seconds.toFixed(0) + " seconds.",
   "A gold position number marks a trophy position.",
+  "Open a driver to reveal two controls beside their car: a link to their " +
+    "result, and a plus that adds them to the watchlist. The watchlist " +
+    "compares any drivers you pick run by run, across classes, and its own " +
+    "address can be shared.",
   "The link icon after a driver's car jumps to their result and puts its " +
     "address in the address bar, ready to copy and share."
 ].forEach(function(t){ ul.appendChild(el("li", null, t)); });
@@ -908,6 +1158,9 @@ foot.appendChild(ul);
 
 if (EV.note) foot.appendChild(el("div", null, "Timing note: " + EV.note));
 foot.appendChild(el("div", null, "Timing by AXWare Systems. Page generated 24 August 2026."));
+
+renderWatch();
+paintWatchButtons();
 
 show("class");
 openHash();
