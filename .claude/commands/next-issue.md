@@ -25,8 +25,11 @@ Skip any issue that is:
   events would make that bug machine-readable); **#16 before #15** and before the `/autocross/`
   description in #25; **#6 supersedes #30**; **#29 largely subsumes #27**.
 
-Among what's left, prefer: small and fully verifiable over large; unblocking others over
-leaf work; `seo` and `bug` over `content`.
+Among what's left, **work oldest first** — lowest issue number, since GitHub issue numbers
+are assigned in creation order on this repo. Don't reorder by size, label, or how quick a
+win looks; age in the queue is the tiebreaker that matters. The one exception is a hard
+dependency: skip an older issue only when it is genuinely blocked by a newer one that must
+land first (the known chains below), not because a younger issue merely looks easier.
 
 If nothing is actionable, say so plainly, list what each remaining issue is waiting on, and
 stop. If you are running under `/loop`, end the loop — there is no point waking up to an
