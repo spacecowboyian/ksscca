@@ -47,11 +47,17 @@ This matters less than it sounds: `is_ssl()` is true at runtime, so `site_url()`
 `home_url()` scheme-correct on the fly and every *generated* URL is already https. Only
 hardcoded database strings were ever wrong.
 
-**Yoast's meta fields are not REST-writable.** `_yoast_wpseo_metadesc` is not registered
-with `show_in_rest`; writes are silently dropped (the tool reports `ignored_keys`). Yoast
-does fall back to the **page excerpt**, and `excerpt` *is* writable — that's the working
-route for meta descriptions. The `kingsize` theme never renders excerpts, so setting one
-changes nothing visible on the page.
+**Yoast's meta fields are not REST-writable.** `_yoast_wpseo_metadesc` and
+`_yoast_wpseo_meta-robots-noindex` are both unregistered with `show_in_rest`; writes are
+silently dropped (the tool reports `ignored_keys`). Yoast falls back to the **page excerpt**
+for descriptions, and `excerpt` *is* writable — that's the working route. There is no
+equivalent fallback for `noindex`; setting that one needs wp-admin (Yoast's per-page SEO
+tab → "Allow search engines to show this page in search results?"). The `kingsize` theme
+never renders excerpts, so setting one changes nothing visible on the page.
+
+**WooCommerce redirects `/checkout/` → `/cart/` on an empty cart.** A 302, not a bug. Reading
+both URLs without following/noting the redirect looks like a duplicate-title problem — it
+isn't one; each page has its own correct title. Cost real time once already.
 
 ## Conventions
 
