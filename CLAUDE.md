@@ -59,6 +59,18 @@ never renders excerpts, so setting one changes nothing visible on the page.
 both URLs without following/noting the redirect looks like a duplicate-title problem — it
 isn't one; each page has its own correct title. Cost real time once already.
 
+**`msr-calendar` silently drops any event whose MotorsportReg `type` contains a `/`.**
+Confirmed 2026-09-06 against the raw feed
+(`https://api.motorsportreg.com/rest/calendars/organization/85F4C839-1D72-822B-798D90283FD4F720`):
+plain `RallyCross` events render; `Autocross/Solo` does not, with no filter set in the
+plugin's own settings and no malformed row left behind — a clean silent drop, almost
+certainly a `type`-branching function (`explode('/', ...)`, a switch/case) that has no
+fallback. `Autocross/Solo` and `Time Trial/HPDE` are MotorsportReg's standard taxonomy
+names, not one-off values, so **every future Solo or Time Trial event will vanish from any
+page rendering `[msr_calendar]`, including the homepage**, until the plugin is patched.
+Needs file access — try Plugins → Editor in wp-admin first (works without SFTP if
+`DISALLOW_FILE_EDIT` isn't set), else it's a #9 job. See #4.
+
 **`robots.txt` is a physical file, not WordPress-generated.** Its headers give it away:
 `accept-ranges: bytes` only appears on a static file served off disk — WordPress's virtual
 `do_robots()` output is dynamic PHP and never sets it. Nothing in wp-admin can touch it,
