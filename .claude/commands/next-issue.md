@@ -23,7 +23,7 @@ Skip any issue that is:
 - labelled **`needs-human`** — already escalated, still waiting
 - **blocked by an open dependency**. Known chains: **#4 before #31** (marking up the wrong
   events would make that bug machine-readable); **#16 before #15** and before the `/autocross/`
-  description in #25; **#6 supersedes #30**; **#7 largely subsumes #27**.
+  description in #25; **#6 supersedes #30**; **#29 largely subsumes #27**.
 
 Among what's left, prefer: small and fully verifiable over large; unblocking others over
 leaf work; `seo` and `bug` over `content`.
@@ -37,6 +37,11 @@ unchanged queue.
 Re-read the issue as written, then check the work against **"What an agent cannot do alone"**
 in `CLAUDE.md`. Judge the actual task, not the issue title — many issues are a mix, and the
 API-doable part is often most of it.
+
+**Visual changes are always a person's call** — see "Visual changes are Ian's call" in
+`CLAUDE.md`. If the fix would alter what a visitor sees, do not make it, however small.
+Diagnose it, write the options up on the issue, label it, move on. Metadata and code-level
+work that renders identically is yours to do.
 
 **If any part needs a person**, do the API-doable part first, then for the remainder:
 

@@ -70,6 +70,21 @@ future domain change. All 296 content links were converted on 2026-09-03.
 **Every change gets an issue comment** saying what changed, the verification that it landed,
 and how to undo it.
 
+## Visual changes are Ian's call
+
+**Do not make changes that alter the site's visual layout or design.** Code and metadata
+improvements only. Anything a visitor would *see* change — page copy, headings, layout,
+navigation labels, images, adding or removing a visible block — gets diagnosed, written up
+on the issue, and labelled `needs-human`. Ian makes the call.
+
+This is about what renders, not about risk. Invisible edits are fine even when they touch
+page content: rewriting a link's `href` while its anchor text stays put, setting an excerpt
+the theme never renders, editing `<title>` or meta. Adding a visible heading is not, however
+small and however obviously correct it seems.
+
+When you hit one, the useful work is still the diagnosis: say what is wrong, what the
+options are, and what each would cost. Land that on the issue and move on.
+
 ## What an agent cannot do alone
 
 These need a person, and are the escalation cases for `/next-issue`:
@@ -79,6 +94,7 @@ These need a person, and are the escalation cases for `/next-issue`:
 - **Theme options** — `kingsize` options (and its Save button is broken, see #17)
 - **Plugin activate/deactivate/delete**
 - **WP Engine portal** — cache purge, SSH, cert, file drops at the document root
+- **Anything visual** — see above; this is the most common escalation, not the rarest
 - **Judgement calls** — what a page should say, whether to remove a feature, anything
   affecting members
 
