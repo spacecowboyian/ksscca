@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+# Authenticated WordPress REST helper for ksscca.org.
+#
+# Reads WP_APP_PASS from .env (gitignored) and signs requests with HTTP Basic
+# auth, which is what WordPress Application Passwords expect. The credential is
+# never echoed, never passed as a command-line argument, and never lands in
+# shell history.
+#
+#   bin/wp-rest GET    /wp/v2/settings
+#   bin/wp-rest GET    /wp/v2/widgets
+#   bin/wp-rest POST   /wp/v2/settings '{"timezone_string":"America/Chicago"}'
+#   bin/wp-rest DELETE /wp/v2/plugins/js_composer/js_composer
+#
+# Pass -v as the first argument to include response headers and HTTP status.
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ENV_FILE="${WP_ENV_FILE:-$REPO_ROOT/.env}"
+[[ -f "$ENV_FILE" ]] || ENV_FILE="$REPO_ROOT/env.org"
+SITE="${WP_SITE:-https://www.ksscca.org}"
+WP_USER="${WP_USER:-Ian@futurehat.com}"
+
+VERBOSE=""
+if [[ "${1:-}" == "-v" ]]; then VERBOSE=1; shift; fi
+
+if [[ ! -f "$ENV_FILE" ]]; then
+  echo "error: no .env (or env.org) found at $REPO_ROOT" >&2
+  exit 1
+fi
+
+raw="$( { grep -E '^WP_APP_PASS=' "$ENV_FILE" || true; } | head -1 )"
+WP_APP_PASS="${raw#WP_APP_PASS=}"
+WP_APP_PASS="${WP_APP_PASS%\"}"; WP_APP_PASS="${WP_APP_PASS#\"}"
+WP_APP_PASS="${WP_APP_PASS%\'}"; WP_APP_PASS="${WP_APP_PASS#\'}"
+WP_APP_PASS="${WP_APP_PASS%$'\r'}"
+
+if [[ -z "$WP_APP_PASS" ]]; then
+  cat >&2 <<'MSG'
+error: WP_APP_PASS is not set in .env
+
+Create one in WordPress:
+  Users -> Profile -> Application Passwords -> name it "claude-code" -> Add New
+Then paste the generated value into .env as:
+  WP_APP_PASS=xxxx xxxx xxxx xxxx xxxx xxxx
+
+Spaces in the value are fine; WordPress ignores them. Do not paste it into chat.
+MSG
+  exit 1
+fi
+
+METHOD="${1:?usage: wp-rest [-v] METHOD PATH [JSON_BODY]}"
+ENDPOINT="${2:?usage: wp-rest [-v] METHOD PATH [JSON_BODY]}"
+BODY="${3:-}"
+
+ARGS=(-sS -m 60 -X "$METHOD" --user "$WP_USER:$WP_APP_PASS")
+if [[ -n "$VERBOSE" ]]; then ARGS+=(-D - -w '\n[HTTP %{http_code}]\n'); fi
+if [[ -n "$BODY" ]]; then ARGS+=(-H 'Content-Type: application/json' -d "$BODY"); fi
+
+curl "${ARGS[@]}" "${SITE}/wp-json${ENDPOINT}"
