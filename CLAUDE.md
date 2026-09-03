@@ -110,6 +110,35 @@ small and however obviously correct it seems.
 When you hit one, the useful work is still the diagnosis: say what is wrong, what the
 options are, and what each would cost. Land that on the issue and move on.
 
+## WPCode: a way around "needs file access" that isn't SFTP
+
+The site has **WPCode** installed (wp-admin sidebar: "Code Snippets" — the menu label is
+from its old name, the plugin itself is WPCode). It runs arbitrary PHP through wp-admin,
+no SFTP or WP Engine portal needed. This is a real alternative to filing something as
+"blocked on #9" whenever the actual need is *new PHP behavior* — a shortcode, a filter, a
+hook — not a change to an existing file.
+
+**One critical setting: Insert Method must be "Auto Insert" (location "Run Everywhere"),
+never "Shortcode".** WPCode's own "Shortcode" mode only executes the snippet's PHP where
+someone places WPCode's *own* wrapper shortcode in content — if the snippet itself calls
+`add_shortcode()` to register something, that registration call never runs, and whatever
+it was supposed to register just doesn't exist anywhere. Symptom: the shortcode text
+shows up literally on the page, unprocessed. Cost real time diagnosing once already —
+see the `ksscca-calendar` snippet (`snippets/ksscca-calendar.php`) for a working example.
+
+**What it can't reach:** anything WordPress's own request lifecycle doesn't touch —
+`wp-config.php` constants (#24's `siteurl`), a physical file WP Engine serves straight off
+disk before WordPress even loads (#33's `robots.txt`), or the existing `msr-calendar`
+plugin's own file. Those genuinely still need #9. What WPCode *did* solve: #4, by writing
+a parallel shortcode that fetches the same feed correctly instead of waiting to patch the
+buggy one.
+
+**Testing a new snippet safely:** create a throwaway `draft`→`publish` test page via
+`wp_create_page` with the shortcode on it, curl the live URL, delete the page once
+confirmed. REST API `content.rendered` did *not* reliably reflect shortcode output during
+testing — trust the live front-end URL over the REST field when verifying anything that
+depends on `the_content` filters.
+
 ## What an agent cannot do alone
 
 These need a person, and are the escalation cases for `/next-issue`:
