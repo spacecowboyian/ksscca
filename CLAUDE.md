@@ -59,6 +59,13 @@ never renders excerpts, so setting one changes nothing visible on the page.
 both URLs without following/noting the redirect looks like a duplicate-title problem — it
 isn't one; each page has its own correct title. Cost real time once already.
 
+**`robots.txt` is a physical file, not WordPress-generated.** Its headers give it away:
+`accept-ranges: bytes` only appears on a static file served off disk — WordPress's virtual
+`do_robots()` output is dynamic PHP and never sets it. Nothing in wp-admin can touch it,
+including Yoast's Tools → File editor (that edits the virtual version; a physical file on
+disk takes priority regardless). Needs WP Engine SFTP or the file manager — same blocker
+as #9.
+
 ## Conventions
 
 **Internal links are root-relative.** Not `https://www.ksscca.org/wp-content/...` but:
