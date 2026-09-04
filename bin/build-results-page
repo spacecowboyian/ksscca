@@ -28,6 +28,8 @@ STYLE = """<style>
 @import url('https://fonts.googleapis.com/css2?family=PT+Sans+Narrow:wght@700&family=Inter:wght@400;500;600;700&display=swap');
 #ksr-results{font-family:'Inter',Verdana,Arial,sans-serif;color:#e7e5df;min-width:0;}
 #ksr-results p:empty{display:none;margin:0;}
+/* The theme repeats the page title as an <h2 class="title-page"> above the content; our H1 replaces it. */
+body.page-id-PAGE_ID .row.header .title-page{display:none;}
 #ksr-results .ksr-layout{display:grid;grid-template-columns:160px 1fr;border:1px solid #2d2d2d;min-width:0;}
 #ksr-results .ksr-years{background:transparent;border-right:1px solid #2d2d2d;}
 #ksr-results .ksr-year-btn{display:block;width:100%;text-align:left;padding:14px 18px;background:none;border:none;border-bottom:1px solid #2d2d2d;color:#99978f;font-family:'PT Sans Narrow',Verdana,Arial,sans-serif;font-size:19px;font-weight:700;letter-spacing:.02em;cursor:pointer;}
@@ -106,7 +108,7 @@ def render_row(row):
 def render(data):
     years = sorted(data["seasons"].keys(), reverse=True)
     disc = data["discipline"]
-    out = [STYLE, ""]
+    out = [STYLE.replace("PAGE_ID", str(data["page_id"])), ""]
     # Same H1 treatment as the homepage's "Upcoming Events" heading (page 1342):
     # theme h1 (PT Sans Narrow, 40px, white) + inline left-align and 700 weight.
     out.append(f'<h1 style="text-align: left; font-weight: 700;">{esc(data["title"])}</h1>')
