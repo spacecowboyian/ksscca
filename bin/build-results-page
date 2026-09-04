@@ -56,6 +56,7 @@ body.page-id-PAGE_ID .row.header .title-page{display:none;}
 #ksr-results .ksr-intro{text-align:left;color:#99978f;font-size:13px;margin:0 0 18px;}
 #ksr-results .ksr-current{border:1px solid #2d2d2d;margin-bottom:34px;}
 #ksr-results .ksr-na{padding:14px 20px;font-size:13px;color:#99978f;}
+#ksr-results .ksr-pending{color:#99978f;font-weight:400;font-style:italic;}
 @media (max-width:700px){
 #ksr-results .ksr-layout{grid-template-columns:1fr;}
 #ksr-results .ksr-years{display:flex;overflow-x:auto;border-right:none;border-bottom:1px solid #2d2d2d;-webkit-overflow-scrolling:touch;}
@@ -97,6 +98,16 @@ def esc(s):
 
 
 def render_row(row):
+    """One event row. A row with no links is an event that has happened but
+    whose results are not posted yet -- it still gets a row, marked pending,
+    so the season reads as complete."""
+    if not row["links"]:
+        links_html = '<span class="ksr-pending">Results pending</span>'
+        return (
+            f'<div class="ksr-row"><div class="ksr-event-name">{esc(row["title"])}</div>'
+            f'<div class="ksr-meta"><div class="ksr-event-sub">{esc(row.get("date", ""))}</div>'
+            f'<div class="ksr-links">{links_html}</div></div></div>'
+        )
     links = []
     for i, (label, href) in enumerate(row["links"]):
         if i:
