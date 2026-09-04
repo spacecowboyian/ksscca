@@ -46,8 +46,8 @@ STYLE = """<style>
 #ksr-results .ksr-meta{display:flex;justify-content:space-between;align-items:baseline;gap:14px;margin-top:1px;line-height:1.2;}
 #ksr-results .ksr-event-sub{font-size:12.5px;color:#99978f;min-width:0;}
 #ksr-results .ksr-links{font-size:13px;white-space:nowrap;flex:none;margin-left:auto;}
-#ksr-results .ksr-link{color:#8fd6a8;text-decoration:none;font-weight:600;}
-#ksr-results .ksr-link:hover{color:#b3e6c4;text-decoration:underline;}
+#ksr-results .ksr-link{color:#e2c47c;text-decoration:none;font-weight:600;}
+#ksr-results .ksr-link:hover{color:#f2d999;text-decoration:underline;}
 #ksr-results .ksr-sep{color:#4a4a4a;}
 @media (max-width:700px){
 #ksr-results .ksr-layout{grid-template-columns:1fr;}
