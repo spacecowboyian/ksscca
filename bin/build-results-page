@@ -107,9 +107,11 @@ def render(data):
     years = sorted(data["seasons"].keys(), reverse=True)
     disc = data["discipline"]
     out = [STYLE, ""]
-    out.append(f'<h1 style="text-align: center;">{esc(data["title"])}</h1>')
+    # Same H1 treatment as the homepage's "Upcoming Events" heading (page 1342):
+    # theme h1 (PT Sans Narrow, 40px, white) + inline left-align and 700 weight.
+    out.append(f'<h1 style="text-align: left; font-weight: 700;">{esc(data["title"])}</h1>')
     if data.get("intro"):
-        out.append(f'<p style="text-align:center;color:#99978f;font-size:13px;">{esc(data["intro"])}</p>')
+        out.append(f'<p style="text-align:left;color:#99978f;font-size:13px;">{esc(data["intro"])}</p>')
     out.append('<div id="ksr-results"><div class="ksr-layout">')
     nav = "".join(
         f'<button type="button" class="ksr-year-btn{" active" if i == 0 else ""}" data-year="{y}" role="tab" aria-selected="{"true" if i == 0 else "false"}">{y}</button>'
