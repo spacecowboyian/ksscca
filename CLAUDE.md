@@ -93,9 +93,11 @@ full `wp_update_page` rewrite instead of incremental swaps.
 
 Autocross Results (898) and RallyCross Results (996) are rendered from
 `results/autocross.json` and `results/rallycross.json` by `bin/build-results-page`
-(year sidebar, one row per event day, Class / PAX / Raw links). To post a new event:
-upload the export files to the Media Library, add a row to the JSON (calendar order,
-earliest first, within its season), run
+(small uppercase H1 with the full page name, a "Current Results" section for the season in
+`current.season`, then the "Results Archive" year sidebar; one row per event day, Class /
+PAX / Raw links). To post a new event: upload the export files to the Media Library, add a
+row to the JSON (`current.rows` for this season, or the right `seasons` year; calendar
+order, earliest first), run
 
 ```bash
 bin/build-results-page results/autocross.json > results/build/autocross.html
