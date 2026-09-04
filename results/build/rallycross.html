@@ -3,7 +3,7 @@
 #ksr-results{font-family:'Inter',Verdana,Arial,sans-serif;color:#e7e5df;min-width:0;}
 #ksr-results p:empty{display:none;margin:0;}
 /* The theme repeats the page title as an <h2 class="title-page"> above the content; our H1 replaces it. */
-body.page-id-996 header .title-page{display:none;}
+body.page-id-996 .row.header .title-page{display:none;}
 #ksr-results .ksr-layout{display:grid;grid-template-columns:160px 1fr;border:1px solid #2d2d2d;min-width:0;}
 #ksr-results .ksr-years{background:transparent;border-right:1px solid #2d2d2d;}
 #ksr-results .ksr-year-btn{display:block;width:100%;text-align:left;padding:14px 18px;background:none;border:none;border-bottom:1px solid #2d2d2d;color:#99978f;font-family:'PT Sans Narrow',Verdana,Arial,sans-serif;font-size:19px;font-weight:700;letter-spacing:.02em;cursor:pointer;}
@@ -25,6 +25,11 @@ body.page-id-996 header .title-page{display:none;}
 #ksr-results .ksr-link{color:#e2c47c;text-decoration:none;font-weight:600;}
 #ksr-results .ksr-link:hover{color:#f2d999;text-decoration:underline;}
 #ksr-results .ksr-sep{color:#4a4a4a;}
+#ksr-results .ksr-eyebrow{font-family:'Inter',Verdana,Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#99978f;margin:0 0 6px;text-align:left;}
+#ksr-results .ksr-h{text-align:left;font-weight:700;margin:0 0 12px;}
+#ksr-results .ksr-intro{text-align:left;color:#99978f;font-size:13px;margin:0 0 18px;}
+#ksr-results .ksr-current{border:1px solid #2d2d2d;margin-bottom:34px;}
+#ksr-results .ksr-na{padding:14px 20px;font-size:13px;color:#99978f;}
 @media (max-width:700px){
 #ksr-results .ksr-layout{grid-template-columns:1fr;}
 #ksr-results .ksr-years{display:flex;overflow-x:auto;border-right:none;border-bottom:1px solid #2d2d2d;-webkit-overflow-scrolling:touch;}
@@ -40,9 +45,17 @@ body.page-id-996 header .title-page{display:none;}
 </style>
 <noscript><style>#ksr-results .ksr-season{display:block;}#ksr-results .ksr-years{display:none;}</style></noscript>
 
-<h1 style="text-align: left; font-weight: 700;">Kansas RallyCross Results</h1>
-<p style="text-align:left;color:#99978f;font-size:13px;">Class and raw-time results for every Kansas Region RallyCross, by season. The most recent season is shown first; pick a year to see earlier events.</p>
-<div id="ksr-results"><div class="ksr-layout">
+<div id="ksr-results">
+<h1 class="ksr-eyebrow">Kansas Region SCCA RallyCross Results</h1>
+<p class="ksr-intro">Class and raw-time results for every Kansas Region RallyCross, by season. The most recent season is shown first; pick a year to see earlier events.</p>
+<h2 class="ksr-h">Current Results</h2>
+<div class="ksr-current">
+<div class="ksr-season-head">2026 RallyCross Season &middot; 1 event</div>
+<div class="ksr-col-head"><span>Event</span><span>Results</span></div>
+<div class="ksr-row"><div class="ksr-event-name">RallyCross</div><div class="ksr-meta"><div class="ksr-event-sub">August 23, 2026</div><div class="ksr-links"><a class="ksr-link" href="/wp-content/uploads/2026/08/ksrx-august-2026_results.htm">Results</a></div></div></div>
+</div>
+<h2 class="ksr-h">Results Archive</h2>
+<div class="ksr-layout">
 <nav class="ksr-years" role="tablist" aria-label="Season"><button type="button" class="ksr-year-btn active" data-year="2025" role="tab" aria-selected="true">2025</button><button type="button" class="ksr-year-btn" data-year="2024" role="tab" aria-selected="false">2024</button><button type="button" class="ksr-year-btn" data-year="2021" role="tab" aria-selected="false">2021</button><button type="button" class="ksr-year-btn" data-year="2020" role="tab" aria-selected="false">2020</button><button type="button" class="ksr-year-btn" data-year="2019" role="tab" aria-selected="false">2019</button><button type="button" class="ksr-year-btn" data-year="2018" role="tab" aria-selected="false">2018</button></nav>
 <div class="ksr-panel">
 <section class="ksr-season active" data-year="2025" id="season-2025" role="tabpanel">
@@ -96,7 +109,8 @@ body.page-id-996 header .title-page{display:none;}
 <div class="ksr-row"><div class="ksr-event-name">Jurassic RallyCross</div><div class="ksr-meta"><div class="ksr-event-sub">November 18, 2018</div><div class="ksr-links"><a class="ksr-link" href="/wp-content/uploads/2018/11/jurassic_fin.htm">Class</a><span class="ksr-sep"> &middot; </span><a class="ksr-link" href="/wp-content/uploads/2018/11/jurassic_raw.htm">Raw</a></div></div></div>
 <div class="ksr-row"><div class="ksr-event-name">Final Destination RallyCross</div><div class="ksr-meta"><div class="ksr-event-sub">December 16, 2018</div><div class="ksr-links"><a class="ksr-link" href="/wp-content/uploads/2018/12/finaldestination_fin-1.htm">Class</a><span class="ksr-sep"> &middot; </span><a class="ksr-link" href="/wp-content/uploads/2018/12/finaldestination_raw-1.htm">Raw</a></div></div></div>
 </section>
-</div></div></div>
+</div></div>
+</div>
 <script>
 (function(){
 var root=document.getElementById('ksr-results');if(!root)return;

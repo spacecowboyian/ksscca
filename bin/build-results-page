@@ -51,6 +51,11 @@ body.page-id-PAGE_ID .row.header .title-page{display:none;}
 #ksr-results .ksr-link{color:#e2c47c;text-decoration:none;font-weight:600;}
 #ksr-results .ksr-link:hover{color:#f2d999;text-decoration:underline;}
 #ksr-results .ksr-sep{color:#4a4a4a;}
+#ksr-results .ksr-eyebrow{font-family:'Inter',Verdana,Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#99978f;margin:0 0 6px;text-align:left;}
+#ksr-results .ksr-h{text-align:left;font-weight:700;margin:0 0 12px;}
+#ksr-results .ksr-intro{text-align:left;color:#99978f;font-size:13px;margin:0 0 18px;}
+#ksr-results .ksr-current{border:1px solid #2d2d2d;margin-bottom:34px;}
+#ksr-results .ksr-na{padding:14px 20px;font-size:13px;color:#99978f;}
 @media (max-width:700px){
 #ksr-results .ksr-layout{grid-template-columns:1fr;}
 #ksr-results .ksr-years{display:flex;overflow-x:auto;border-right:none;border-bottom:1px solid #2d2d2d;-webkit-overflow-scrolling:touch;}
@@ -109,12 +114,32 @@ def render(data):
     years = sorted(data["seasons"].keys(), reverse=True)
     disc = data["discipline"]
     out = [STYLE.replace("PAGE_ID", str(data["page_id"])), ""]
-    # Same H1 treatment as the homepage's "Upcoming Events" heading (page 1342):
-    # theme h1 (PT Sans Narrow, 40px, white) + inline left-align and 700 weight.
-    out.append(f'<h1 style="text-align: left; font-weight: 700;">{esc(data["title"])}</h1>')
+    out.append('<div id="ksr-results">')
+    # Small eyebrow line carries the full page name (it is the page's H1 for
+    # search engines, styled at H6 size); the visible section headings are H2s
+    # with the same inline treatment as the homepage's "Upcoming Events" H1.
+    out.append(f'<h1 class="ksr-eyebrow">{esc(data["title"])}</h1>')
     if data.get("intro"):
-        out.append(f'<p style="text-align:left;color:#99978f;font-size:13px;">{esc(data["intro"])}</p>')
-    out.append('<div id="ksr-results"><div class="ksr-layout">')
+        out.append(f'<p class="ksr-intro">{esc(data["intro"])}</p>')
+
+    current = data.get("current") or {}
+    season = current.get("season", "")
+    rows = current.get("rows") or []
+    out.append('<h2 class="ksr-h">Current Results</h2>')
+    out.append('<div class="ksr-current">')
+    n = len(rows)
+    label = f'{n} event{"s" if n != 1 else ""}' if n else "no results posted yet"
+    out.append(f'<div class="ksr-season-head">{esc(season)} {esc(disc)} Season &middot; {label}</div>')
+    if rows:
+        out.append('<div class="ksr-col-head"><span>Event</span><span>Results</span></div>')
+        for r in rows:
+            out.append(render_row(r))
+    else:
+        out.append('<div class="ksr-na">NA</div>')
+    out.append("</div>")
+
+    out.append('<h2 class="ksr-h">Results Archive</h2>')
+    out.append('<div class="ksr-layout">')
     nav = "".join(
         f'<button type="button" class="ksr-year-btn{" active" if i == 0 else ""}" data-year="{y}" role="tab" aria-selected="{"true" if i == 0 else "false"}">{y}</button>'
         for i, y in enumerate(years)
@@ -130,7 +155,8 @@ def render(data):
         for r in rows:
             out.append(render_row(r))
         out.append("</section>")
-    out.append("</div></div></div>")
+    out.append("</div></div>")  # .ksr-panel, .ksr-layout
+    out.append("</div>")  # #ksr-results
     out.append(SCRIPT)
     return "\n".join(out) + "\n"
 

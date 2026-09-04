@@ -1,6 +1,6 @@
 {
  "page_id": 996,
- "title": "Kansas RallyCross Results",
+ "title": "Kansas Region SCCA RallyCross Results",
  "discipline": "RallyCross",
  "intro": "Class and raw-time results for every Kansas Region RallyCross, by season. The most recent season is shown first; pick a year to see earlier events.",
  "seasons": {
@@ -386,6 +386,21 @@
      [
       "Raw",
       "/wp-content/uploads/2018/12/finaldestination_raw-1.htm"
+     ]
+    ]
+   }
+  ]
+ },
+ "current": {
+  "season": "2026",
+  "rows": [
+   {
+    "title": "RallyCross",
+    "date": "August 23, 2026",
+    "links": [
+     [
+      "Results",
+      "/wp-content/uploads/2026/08/ksrx-august-2026_results.htm"
      ]
     ]
    }

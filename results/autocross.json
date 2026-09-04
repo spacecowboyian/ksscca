@@ -1,6 +1,6 @@
 {
  "page_id": 898,
- "title": "Kansas Autocross Results",
+ "title": "Kansas Region SCCA Autocross Results",
  "discipline": "Solo",
  "intro": "Class, PAX and raw-time results for every Kansas Region autocross, by season. The most recent season is shown first; pick a year to see earlier events.",
  "seasons": {
@@ -1546,5 +1546,9 @@
     ]
    }
   ]
+ },
+ "current": {
+  "season": "2026",
+  "rows": []
  }
 }
