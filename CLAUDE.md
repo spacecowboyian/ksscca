@@ -78,6 +78,35 @@ including Yoast's Tools → File editor (that edits the virtual version; a physi
 disk takes priority regardless). Needs WP Engine SFTP or the file manager — same blocker
 as #9.
 
+**`wpautop` wraps an inline element followed by a block in an empty `<p></p>`.** A
+`<span>` title followed by a `<div>` inside a row rendered with a 17px gap that no CSS on
+the row could remove: the theme's paragraph margin on a `<p>` WordPress had inserted. Use
+block elements (`<div>`) for every sibling inside hand-written layout markup, keep each row
+on one line, and add `p:empty{display:none}` as a guard. Cost real time on the results
+redesign.
+
+**Many chained `wp_replace_in_post` edits to one `<style>` block corrupt the CSS.** Rules
+silently stop parsing (`display:grid` ignored even with `!important`). For CSS, do one clean
+full `wp_update_page` rewrite instead of incremental swaps.
+
+## Results pages are generated, not hand-edited
+
+Autocross Results (898) and RallyCross Results (996) are rendered from
+`results/autocross.json` and `results/rallycross.json` by `bin/build-results-page`
+(year sidebar, one row per event day, Class / PAX / Raw links). To post a new event:
+upload the export files to the Media Library, add a row to the JSON (calendar order,
+earliest first, within its season), run
+
+```bash
+bin/build-results-page results/autocross.json > results/build/autocross.html
+```
+
+and publish the output as the page's full content with `wp_update_page`. Row titles and
+dates come from the timing export's own header line (`Org - #N - Event name - Date`); do not
+invent event numbers. `bin/post-results` predates this and writes the old "CLICK HERE" list
+format; it is kept only as a reference. The pre-redesign page bodies are in
+`results/backups/`.
+
 ## Conventions
 
 **Internal links are root-relative.** Not `https://www.ksscca.org/wp-content/...` but:

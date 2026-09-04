@@ -1,0 +1,116 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=PT+Sans+Narrow:wght@700&family=Inter:wght@400;500;600;700&display=swap');
+#ksr-results{font-family:'Inter',Verdana,Arial,sans-serif;color:#e7e5df;min-width:0;}
+#ksr-results p:empty{display:none;margin:0;}
+#ksr-results .ksr-layout{display:grid;grid-template-columns:160px 1fr;border:1px solid #2d2d2d;min-width:0;}
+#ksr-results .ksr-years{background:transparent;border-right:1px solid #2d2d2d;}
+#ksr-results .ksr-year-btn{display:block;width:100%;text-align:left;padding:14px 18px;background:none;border:none;border-bottom:1px solid #2d2d2d;color:#99978f;font-family:'PT Sans Narrow',Verdana,Arial,sans-serif;font-size:19px;font-weight:700;letter-spacing:.02em;cursor:pointer;}
+#ksr-results .ksr-year-btn:last-child{border-bottom:none;}
+#ksr-results .ksr-year-btn.active{color:#e7e5df;background:#161616;box-shadow:inset 3px 0 0 #6cc98d;}
+#ksr-results .ksr-year-btn:not(.active):hover{color:#e7e5df;background:#161616;}
+#ksr-results .ksr-panel{padding:0;min-width:0;}
+#ksr-results .ksr-season{display:none;}
+#ksr-results .ksr-season.active{display:block;}
+#ksr-results .ksr-season-head{padding:16px 20px;border-bottom:1px solid #2d2d2d;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#99978f;}
+#ksr-results .ksr-col-head{display:flex;justify-content:space-between;padding:10px 20px;border-bottom:1px solid #2d2d2d;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#99978f;}
+#ksr-results .ksr-row{display:block;padding:12px 20px;border-bottom:1px solid #2d2d2d;}
+#ksr-results .ksr-row:last-child{border-bottom:none;}
+#ksr-results .ksr-row:hover{background:#161616;}
+#ksr-results .ksr-event-name{display:block;font-weight:600;font-size:14.5px;color:#e7e5df;line-height:1.2;margin:0;padding:0;}
+#ksr-results .ksr-meta{display:flex;justify-content:space-between;align-items:baseline;gap:14px;margin-top:1px;line-height:1.2;}
+#ksr-results .ksr-event-sub{font-size:12.5px;color:#99978f;min-width:0;}
+#ksr-results .ksr-links{font-size:13px;white-space:nowrap;flex:none;margin-left:auto;}
+#ksr-results .ksr-link{color:#8fd6a8;text-decoration:none;font-weight:600;}
+#ksr-results .ksr-link:hover{color:#b3e6c4;text-decoration:underline;}
+#ksr-results .ksr-sep{color:#4a4a4a;}
+@media (max-width:700px){
+#ksr-results .ksr-layout{grid-template-columns:1fr;}
+#ksr-results .ksr-years{display:flex;overflow-x:auto;border-right:none;border-bottom:1px solid #2d2d2d;-webkit-overflow-scrolling:touch;}
+#ksr-results .ksr-year-btn{width:auto;flex:none;padding:12px 16px;border-bottom:none;border-right:1px solid #2d2d2d;white-space:nowrap;font-size:17px;}
+#ksr-results .ksr-year-btn:last-child{border-right:none;}
+#ksr-results .ksr-year-btn.active{box-shadow:inset 0 -3px 0 #6cc98d;}
+#ksr-results .ksr-season-head,#ksr-results .ksr-col-head{padding-left:14px;padding-right:14px;}
+#ksr-results .ksr-row{padding:10px 14px;}
+#ksr-results .ksr-event-name{font-size:14px;}
+#ksr-results .ksr-event-sub{font-size:12px;}
+#ksr-results .ksr-links{font-size:12.5px;}
+}
+</style>
+<noscript><style>#ksr-results .ksr-season{display:block;}#ksr-results .ksr-years{display:none;}</style></noscript>
+
+<h1 style="text-align: center;">Kansas Region SCCA RallyCross Results</h1>
+<p style="text-align:center;color:#99978f;font-size:13px;">Class and raw-time results for every Kansas Region RallyCross, by season. The most recent season is shown first; pick a year to see earlier events.</p>
+<div id="ksr-results"><div class="ksr-layout">
+<nav class="ksr-years" role="tablist" aria-label="Season"><button type="button" class="ksr-year-btn active" data-year="2025" role="tab" aria-selected="true">2025</button><button type="button" class="ksr-year-btn" data-year="2024" role="tab" aria-selected="false">2024</button><button type="button" class="ksr-year-btn" data-year="2021" role="tab" aria-selected="false">2021</button><button type="button" class="ksr-year-btn" data-year="2020" role="tab" aria-selected="false">2020</button><button type="button" class="ksr-year-btn" data-year="2019" role="tab" aria-selected="false">2019</button><button type="button" class="ksr-year-btn" data-year="2018" role="tab" aria-selected="false">2018</button></nav>
+<div class="ksr-panel">
+<section class="ksr-season active" data-year="2025" id="season-2025" role="tabpanel">
+<div class="ksr-season-head">2025 RallyCross Results &middot; 5 events</div>
+<div class="ksr-col-head"><span>Event</span><span>Results</span></div>
+<div class="ksr-row"><div class="ksr-event-name">RallyCross Endurocross</div><div class="ksr-meta"><div class="ksr-event-sub">April 19, 2025</div><div class="ksr-links"><a class="ksr-link" href="/wp-content/uploads/2025/04/ksrx-april-2025_fin.htm">Class</a><span class="ksr-sep"> &middot; </span><a class="ksr-link" href="/wp-content/uploads/2025/04/ksrx-april-2025_raw.htm">Raw</a></div></div></div>
+<div class="ksr-row"><div class="ksr-event-name">RallyCross Barrel Racing</div><div class="ksr-meta"><div class="ksr-event-sub">July 5, 2025</div><div class="ksr-links"><a class="ksr-link" href="/wp-content/uploads/2025/07/ksrx-july-2025_fin.htm">Class</a><span class="ksr-sep"> &middot; </span><a class="ksr-link" href="/wp-content/uploads/2025/07/ksrx-july-2025_raw.htm">Raw</a></div></div></div>
+<div class="ksr-row"><div class="ksr-event-name">RallyCross Plinko</div><div class="ksr-meta"><div class="ksr-event-sub">August 16, 2025</div><div class="ksr-links"><a class="ksr-link" href="/wp-content/uploads/2025/08/ksrx-august-2025_fin.htm">Class</a><span class="ksr-sep"> &middot; </span><a class="ksr-link" href="/wp-content/uploads/2025/08/ksrx-august-2025_raw.htm">Raw</a></div></div></div>
+<div class="ksr-row"><div class="ksr-event-name">RallyCross Endurocross</div><div class="ksr-meta"><div class="ksr-event-sub">November 8, 2025</div><div class="ksr-links"><a class="ksr-link" href="/wp-content/uploads/2025/12/ksrx-november-2025_fin.htm">Class</a><span class="ksr-sep"> &middot; </span><a class="ksr-link" href="/wp-content/uploads/2025/12/ksrx-november-2025_raw.htm">Raw</a></div></div></div>
+<div class="ksr-row"><div class="ksr-event-name">RallyCross BDR</div><div class="ksr-meta"><div class="ksr-event-sub">December 13, 2025</div><div class="ksr-links"><a class="ksr-link" href="/wp-content/uploads/2025/12/ksrx-december-2025_fin.htm">Class</a><span class="ksr-sep"> &middot; </span><a class="ksr-link" href="/wp-content/uploads/2025/12/ksrx-december-2025_raw.htm">Raw</a></div></div></div>
+</section>
+<section class="ksr-season" data-year="2024" id="season-2024" role="tabpanel">
+<div class="ksr-season-head">2024 RallyCross Results &middot; 4 events</div>
+<div class="ksr-col-head"><span>Event</span><span>Results</span></div>
+<div class="ksr-row"><div class="ksr-event-name">RallyCross Endurocross</div><div class="ksr-meta"><div class="ksr-event-sub">April 20, 2024</div><div class="ksr-links"><a class="ksr-link" href="/wp-content/uploads/2024/04/event-1-final-results.htm">Class</a><span class="ksr-sep"> &middot; </span><a class="ksr-link" href="/wp-content/uploads/2024/04/event-1_raw.htm">Raw</a></div></div></div>
+<div class="ksr-row"><div class="ksr-event-name">RallyCross Gymkhana</div><div class="ksr-meta"><div class="ksr-event-sub">May 25, 2024</div><div class="ksr-links"><a class="ksr-link" href="/wp-content/uploads/2024/05/gymkahna_fin.htm">Class</a><span class="ksr-sep"> &middot; </span><a class="ksr-link" href="/wp-content/uploads/2024/06/gymkahna_raw.htm">Raw</a></div></div></div>
+<div class="ksr-row"><div class="ksr-event-name">RallyCross Dust Drags</div><div class="ksr-meta"><div class="ksr-event-sub">August 31, 2024</div><div class="ksr-links"><a class="ksr-link" href="/wp-content/uploads/2024/09/ksrx-august-dust-drags_fin.htm">Class</a><span class="ksr-sep"> &middot; </span><a class="ksr-link" href="/wp-content/uploads/2024/09/ksrx-august-dust-drags_raw.htm">Raw</a></div></div></div>
+<div class="ksr-row"><div class="ksr-event-name">RallyCross Endurocross</div><div class="ksr-meta"><div class="ksr-event-sub">November 11, 2024</div><div class="ksr-links"><a class="ksr-link" href="/wp-content/uploads/2024/11/ksrx-nov24-endurocross_fin.htm">Class</a><span class="ksr-sep"> &middot; </span><a class="ksr-link" href="/wp-content/uploads/2024/11/ksrx-nov24-endurocross_raw.htm">Raw</a></div></div></div>
+</section>
+<section class="ksr-season" data-year="2021" id="season-2021" role="tabpanel">
+<div class="ksr-season-head">2021 RallyCross Results &middot; 2 events</div>
+<div class="ksr-col-head"><span>Event</span><span>Results</span></div>
+<div class="ksr-row"><div class="ksr-event-name">RallyCross</div><div class="ksr-meta"><div class="ksr-event-sub">November 14, 2021</div><div class="ksr-links"><a class="ksr-link" href="/wp-content/uploads/2021/11/rx2021event1_fin.htm">Class</a><span class="ksr-sep"> &middot; </span><a class="ksr-link" href="/wp-content/uploads/2021/11/rx2021event1_raw.htm">Raw</a></div></div></div>
+<div class="ksr-row"><div class="ksr-event-name">RallyCross</div><div class="ksr-meta"><div class="ksr-event-sub">December 19, 2021</div><div class="ksr-links"><a class="ksr-link" href="/wp-content/uploads/2021/12/rx2021e2_fin.htm">Class</a><span class="ksr-sep"> &middot; </span><a class="ksr-link" href="/wp-content/uploads/2021/12/rx2021e2_raw.htm">Raw</a></div></div></div>
+</section>
+<section class="ksr-season" data-year="2020" id="season-2020" role="tabpanel">
+<div class="ksr-season-head">2020 RallyCross Results &middot; 4 events</div>
+<div class="ksr-col-head"><span>Event</span><span>Results</span></div>
+<div class="ksr-row"><div class="ksr-event-name">Season Points</div><div class="ksr-meta"><div class="ksr-event-sub"></div><div class="ksr-links"><a class="ksr-link" href="/rallycross-season-points/">Points</a></div></div></div>
+<div class="ksr-row"><div class="ksr-event-name">RallyCross Bring a Friend</div><div class="ksr-meta"><div class="ksr-event-sub">May 30, 2020</div><div class="ksr-links"><a class="ksr-link" href="/wp-content/uploads/2020/06/bringafriend1_fin.htm">Class</a><span class="ksr-sep"> &middot; </span><a class="ksr-link" href="/wp-content/uploads/2020/06/bringafriend1_raw.htm">Raw</a></div></div></div>
+<div class="ksr-row"><div class="ksr-event-name">RallyCross Candy Van Express</div><div class="ksr-meta"><div class="ksr-event-sub">November 1, 2020</div><div class="ksr-links"><a class="ksr-link" href="/wp-content/uploads/2020/11/nov1rx_fin-1.htm">Class</a><span class="ksr-sep"> &middot; </span><a class="ksr-link" href="/wp-content/uploads/2020/11/nov1rx_raw-1.htm">Raw</a></div></div></div>
+<div class="ksr-row"><div class="ksr-event-name">RallyCross Gobbler 500</div><div class="ksr-meta"><div class="ksr-event-sub">November 22, 2020</div><div class="ksr-links"><a class="ksr-link" href="/wp-content/uploads/2020/11/gobbler500_fin.htm">Class</a><span class="ksr-sep"> &middot; </span><a class="ksr-link" href="/wp-content/uploads/2020/11/gobbler500_raw.htm">Raw</a></div></div></div>
+<div class="ksr-row"><div class="ksr-event-name">RallyCross Lucky 13</div><div class="ksr-meta"><div class="ksr-event-sub">December 13, 2020</div><div class="ksr-links"><a class="ksr-link" href="/wp-content/uploads/2020/12/lucky13_fin.htm">Class</a><span class="ksr-sep"> &middot; </span><a class="ksr-link" href="/wp-content/uploads/2020/12/lucky13_raw.htm">Raw</a></div></div></div>
+</section>
+<section class="ksr-season" data-year="2019" id="season-2019" role="tabpanel">
+<div class="ksr-season-head">2019 RallyCross Results &middot; 4 events</div>
+<div class="ksr-col-head"><span>Event</span><span>Results</span></div>
+<div class="ksr-row"><div class="ksr-event-name">RallyCross Let It Burn</div><div class="ksr-meta"><div class="ksr-event-sub">April 20, 2019</div><div class="ksr-links"><a class="ksr-link" href="/wp-content/uploads/2019/04/letitburn_fin.htm">Class</a><span class="ksr-sep"> &middot; </span><a class="ksr-link" href="/wp-content/uploads/2019/04/letitburn_raw.htm">Raw</a></div></div></div>
+<div class="ksr-row"><div class="ksr-event-name">RallyCross Hot Fun in the Summer Time</div><div class="ksr-meta"><div class="ksr-event-sub">August 24, 2019</div><div class="ksr-links"><a class="ksr-link" href="/wp-content/uploads/2019/08/hotfun_fin.htm">Class</a><span class="ksr-sep"> &middot; </span><a class="ksr-link" href="/wp-content/uploads/2019/08/hotfun_raw.htm">Raw</a></div></div></div>
+<div class="ksr-row"><div class="ksr-event-name">RallyCross Wake Me Up When September Ends</div><div class="ksr-meta"><div class="ksr-event-sub">September 14, 2019</div><div class="ksr-links"><a class="ksr-link" href="/wp-content/uploads/2019/09/wakemeup_fin.htm">Class</a><span class="ksr-sep"> &middot; </span><a class="ksr-link" href="/wp-content/uploads/2019/09/wakemeup_raw.htm">Raw</a></div></div></div>
+<div class="ksr-row"><div class="ksr-event-name">RallyCross Turkey Jive</div><div class="ksr-meta"><div class="ksr-event-sub">November 24, 2019</div><div class="ksr-links"><a class="ksr-link" href="/wp-content/uploads/2019/11/turkeyjive_fin.htm">Class</a><span class="ksr-sep"> &middot; </span><a class="ksr-link" href="/wp-content/uploads/2019/11/turkeyjive_raw.htm">Raw</a></div></div></div>
+</section>
+<section class="ksr-season" data-year="2018" id="season-2018" role="tabpanel">
+<div class="ksr-season-head">2018 RallyCross Results &middot; 6 events</div>
+<div class="ksr-col-head"><span>Event</span><span>Results</span></div>
+<div class="ksr-row"><div class="ksr-event-name">Season Points</div><div class="ksr-meta"><div class="ksr-event-sub"></div><div class="ksr-links"><a class="ksr-link" href="/rallycross-season-points/">Points</a></div></div></div>
+<div class="ksr-row"><div class="ksr-event-name">RallyCross Genesis</div><div class="ksr-meta"><div class="ksr-event-sub">March 25, 2018</div><div class="ksr-links"><a class="ksr-link" href="/wp-content/uploads/2018/03/genesis_fin.htm">Class</a><span class="ksr-sep"> &middot; </span><a class="ksr-link" href="/wp-content/uploads/2018/03/genesis_raw.htm">Raw</a></div></div></div>
+<div class="ksr-row"><div class="ksr-event-name">RallyCross Part Deux</div><div class="ksr-meta"><div class="ksr-event-sub">April 29, 2018</div><div class="ksr-links"><a class="ksr-link" href="/wp-content/uploads/2018/04/deux_fin.htm">Class</a><span class="ksr-sep"> &middot; </span><a class="ksr-link" href="/wp-content/uploads/2018/04/deux_raw.htm">Raw</a></div></div></div>
+<div class="ksr-row"><div class="ksr-event-name">Unity RallyCross</div><div class="ksr-meta"><div class="ksr-event-sub">July 1, 2018</div><div class="ksr-links"><a class="ksr-link" href="/wp-content/uploads/2018/07/unity_fin.htm">Class</a><span class="ksr-sep"> &middot; </span><a class="ksr-link" href="/wp-content/uploads/2018/07/unity_raw.htm">Raw</a><span class="ksr-sep"> &middot; </span><a class="ksr-link" href="/wp-content/uploads/2018/07/UnityRankings.pdf">Rankings (PDF)</a></div></div></div>
+<div class="ksr-row"><div class="ksr-event-name">Armageddon RallyCross</div><div class="ksr-meta"><div class="ksr-event-sub">September 15, 2018</div><div class="ksr-links"><a class="ksr-link" href="/wp-content/uploads/2018/09/armageddon_fin-1.htm">Class</a><span class="ksr-sep"> &middot; </span><a class="ksr-link" href="/wp-content/uploads/2018/09/armageddon_raw-1.htm">Raw</a></div></div></div>
+<div class="ksr-row"><div class="ksr-event-name">Jurassic RallyCross</div><div class="ksr-meta"><div class="ksr-event-sub">November 18, 2018</div><div class="ksr-links"><a class="ksr-link" href="/wp-content/uploads/2018/11/jurassic_fin.htm">Class</a><span class="ksr-sep"> &middot; </span><a class="ksr-link" href="/wp-content/uploads/2018/11/jurassic_raw.htm">Raw</a></div></div></div>
+<div class="ksr-row"><div class="ksr-event-name">Final Destination RallyCross</div><div class="ksr-meta"><div class="ksr-event-sub">December 16, 2018</div><div class="ksr-links"><a class="ksr-link" href="/wp-content/uploads/2018/12/finaldestination_fin-1.htm">Class</a><span class="ksr-sep"> &middot; </span><a class="ksr-link" href="/wp-content/uploads/2018/12/finaldestination_raw-1.htm">Raw</a></div></div></div>
+</section>
+</div></div></div>
+<script>
+(function(){
+var root=document.getElementById('ksr-results');if(!root)return;
+var btns=root.querySelectorAll('.ksr-year-btn'),panels=root.querySelectorAll('.ksr-season');
+function show(y,push){
+var found=false;
+panels.forEach(function(p){var on=p.getAttribute('data-year')===y;p.classList.toggle('active',on);if(on)found=true;});
+if(!found)return false;
+btns.forEach(function(b){b.classList.toggle('active',b.getAttribute('data-year')===y);b.setAttribute('aria-selected',b.getAttribute('data-year')===y?'true':'false');});
+if(push&&history.replaceState){history.replaceState(null,'','#'+y);}
+var ab=root.querySelector('.ksr-year-btn.active');if(ab&&ab.scrollIntoView){ab.scrollIntoView({block:'nearest',inline:'nearest'});}
+return true;
+}
+btns.forEach(function(b){b.addEventListener('click',function(){show(b.getAttribute('data-year'),true);});});
+var h=(location.hash||'').replace('#','');
+if(!(h&&show(h,false))){show(btns[0].getAttribute('data-year'),false);}
+window.addEventListener('hashchange',function(){var y=(location.hash||'').replace('#','');if(y)show(y,false);});
+})();
+</script>

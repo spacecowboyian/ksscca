@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """Automate posting a results event to ksscca.org.
 
+SUPERSEDED (2026-09-04): pages 898 and 996 are now generated from
+results/*.json by bin/build-results-page (see CLAUDE.md, "Results pages are
+generated"). This script still writes the old "CLICK HERE" list format and
+would prepend it above the generated markup. Kept for reference only.
+
 Uploads timing-software exports (.htm files) to the Media Library, then
 prepends a new event block to the relevant results page (Autocross Results,
 ID 898, or RallyCross Results, ID 996) in the exact format those pages

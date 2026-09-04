@@ -1,0 +1,1550 @@
+{
+ "page_id": 898,
+ "title": "Kansas Region SCCA Autocross Results",
+ "discipline": "Solo",
+ "intro": "Class, PAX and raw-time results for every Kansas Region autocross, by season. The most recent season is shown first; pick a year to see earlier events.",
+ "seasons": {
+  "2024": [
+   {
+    "title": "MiDiv Weekend Day 1",
+    "date": "May 4, 2024",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2024/06/may4_fin_d1.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2024/07/may4_d1_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2024/07/may4_d1_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "MiDiv Weekend Day 2",
+    "date": "May 5, 2024",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2024/06/may4_fin_d2.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2024/07/may4_d2_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2024/07/may4_d2_raw_.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Event #3",
+    "date": "June 8, 2024",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2024/06/event-3_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2024/06/event-3_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2024/06/event-3_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Event #4",
+    "date": "June 9, 2024",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2024/06/event-4_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2024/06/event-4_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2024/06/event-4_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Wichita Autocross #9",
+    "date": "July 6, 2024",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2024/07/jul6_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2024/07/jul6_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2024/07/jul6_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Wichita Autocross #10",
+    "date": "July 7, 2024",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2024/07/jul7_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2024/07/jul7_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2024/07/jul7_raw.htm"
+     ]
+    ]
+   }
+  ],
+  "2023": [
+   {
+    "title": "Solo",
+    "date": "July 1, 2023",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2023/07/ajsccs_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2023/07/ajsccs_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2023/07/ajsccs_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Solo",
+    "date": "July 2, 2023",
+    "links": [
+     [
+      "Complete results (PDF)",
+      "http://www.salinascca.org/wp-content/uploads/2023/07/RESULTS_7-21.pdf"
+     ]
+    ]
+   }
+  ],
+  "2022": [
+   {
+    "title": "Season Points",
+    "date": "",
+    "links": [
+     [
+      "Points",
+      "/autocross-season-points/"
+     ]
+    ]
+   },
+   {
+    "title": "Solo",
+    "date": "April 9, 2022",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2022/04/april92022_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2022/04/april92022_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2022/04/april92022_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Solo",
+    "date": "April 10, 2022",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2022/04/april102022_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2022/04/april102022_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2022/04/april102022_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Solo",
+    "date": "May 14, 2022",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2022/05/may142022_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2022/05/may142022_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2022/05/may142022_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Solo",
+    "date": "May 15, 2022",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2022/05/may152022_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2022/05/may152022_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2022/05/may152022_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Solo",
+    "date": "August 20, 2022",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2022/08/aug202022_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2022/08/aug202022_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2022/08/aug202022_raw.htm"
+     ]
+    ]
+   }
+  ],
+  "2021": [
+   {
+    "title": "MiDiv Weekend Day 1",
+    "date": "April 24, 2021",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2021/04/2021midiv_fin_d1.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2021/04/2021midiv_pax_d1.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2021/04/2021midiv_raw_d1.htm"
+     ]
+    ]
+   },
+   {
+    "title": "MiDiv Weekend Day 2",
+    "date": "April 25, 2021",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2021/04/2021midiv_fin_d2.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2021/04/2021midiv_pax_d2.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2021/04/2021midiv_raw_d2.htm"
+     ]
+    ]
+   },
+   {
+    "title": "MiDiv Weekend, Two Days Combined",
+    "date": "April 24–25, 2021",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2021/04/2021midiv_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2021/04/2021midiv_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2021/04/2021midiv_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Solo",
+    "date": "May 15, 2021",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2021/05/2021may15_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2021/05/2021may15_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2021/05/2021may15_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Solo",
+    "date": "May 16, 2021",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2021/05/may16_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2021/05/may16_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2021/05/may16_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Solo",
+    "date": "July 10, 2021",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2021/07/event5_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2021/07/event5_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2021/07/event5_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Sunflower Solo Showdown @ Topeka",
+    "date": "July 11, 2021",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2021/07/sunflowershowdown_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2021/07/sunflowershowdown_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2021/07/sunflowershowdown_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Sunflower Solo Showdown @ Wichita",
+    "date": "August 1, 2021",
+    "links": [
+     [
+      "All results (external)",
+      "http://wichitascca.org/results.html"
+     ]
+    ]
+   },
+   {
+    "title": "Sunflower Solo Showdown @ Salina",
+    "date": "September 12, 2021",
+    "links": [
+     [
+      "All results (external)",
+      "http://www.salinascca.org/?page_id=11"
+     ]
+    ]
+   },
+   {
+    "title": "Solo",
+    "date": "October 2, 2021",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2021/10/october2_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2021/10/october2_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2021/10/october2_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Solo",
+    "date": "October 3, 2021",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2021/10/october3_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2021/10/october3_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2021/10/october3_raw.htm"
+     ]
+    ]
+   }
+  ],
+  "2020": [
+   {
+    "title": "Topeka ProSolo, Class (both courses)",
+    "date": "June 27–28, 2020",
+    "links": [
+     [
+      "Class (PDF)",
+      "/wp-content/uploads/2020/10/2020-Tire-Rack-SCCA-Topeka-ProSolo-RT60Ft.pdf"
+     ]
+    ]
+   },
+   {
+    "title": "Topeka ProSolo, Left Course (Event 1)",
+    "date": "June 27–28, 2020",
+    "links": [
+     [
+      "PAX",
+      "/wp-content/uploads/2020/10/prosololeft_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2020/10/prosololeft_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Topeka ProSolo, Right Course (Event 2)",
+    "date": "June 27–28, 2020",
+    "links": [
+     [
+      "PAX",
+      "/wp-content/uploads/2020/10/prosoloright_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2020/10/prosoloright_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Event 3",
+    "date": "July 11, 2020",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2020/07/2020_event3_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2020/07/2020_event3_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2020/07/2020_event3_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Event 4",
+    "date": "July 12, 2020",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2020/07/2020event4_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2020/07/2020event4_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2020/07/2020event4_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Event 5",
+    "date": "July 19, 2020",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2020/07/2020event5_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2020/07/2020event5_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2020/07/2020event5_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Solo",
+    "date": "August 2, 2020",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2020/10/Aug2_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2020/10/Aug2_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2020/10/Aug2_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Solo",
+    "date": "September 13, 2020",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2020/10/sept132020_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2020/10/sept132020_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2020/10/sept132020_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "MiDiv Weekend Day 1 (Points Event #8)",
+    "date": "October 3, 2020",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2020/10/midiv2020_fin_d1.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2020/10/midiv2020_pax_d1.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2020/10/midiv2020_raw_d1.htm"
+     ]
+    ]
+   },
+   {
+    "title": "MiDiv Weekend Day 2 (Points Event #9)",
+    "date": "October 4, 2020",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2020/10/midiv2020_fin_d2.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2020/10/midiv2020_pax_d2.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2020/10/midiv2020_raw_d2.htm"
+     ]
+    ]
+   },
+   {
+    "title": "MiDiv Weekend, Two Days Combined",
+    "date": "October 3–4, 2020",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2020/10/midiv2020_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2020/10/midiv2020_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2020/10/midiv2020_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Event 10",
+    "date": "October 10, 2020",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2020/10/event10_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2020/10/event10_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2020/10/event10_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Event 11",
+    "date": "October 11, 2020",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2020/10/event11_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2020/10/event11_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2020/10/event11_raw.htm"
+     ]
+    ]
+   }
+  ],
+  "2019": [
+   {
+    "title": "Test n Tune",
+    "date": "March 23, 2019",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2019/03/event12019_fin-1.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2019/03/tnt2019_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2019/03/tnt2019_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Event 1",
+    "date": "March 24, 2019",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2019/03/event12019_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2019/03/event12019_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2019/03/event12019_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Event 2",
+    "date": "April 14, 2019",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2019/04/event2_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2019/04/event2_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2019/04/event2_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "MiDiv Weekend Day 1 (Points Event #3)",
+    "date": "May 4, 2019",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2019/05/ks2019midiv_fin_d1.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2019/05/ks2019midiv_pax_d1.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2019/05/ks2019midiv_raw_d1.htm"
+     ]
+    ]
+   },
+   {
+    "title": "MiDiv Weekend Day 2 (Points Event #4)",
+    "date": "May 5, 2019",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2019/05/ks2019midiv_fin_d2.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2019/05/ks2019midiv_pax_d2.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2019/05/ks2019midiv_raw_d2.htm"
+     ]
+    ]
+   },
+   {
+    "title": "MiDiv Weekend, Two Days Combined",
+    "date": "May 4–5, 2019",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2019/05/ks2019midiv_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2019/05/ks2019midiv_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2019/05/ks2019midiv_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Solo",
+    "date": "June 15, 2019",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2019/06/june152019_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2019/06/june152019_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2019/06/june152019_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Solo",
+    "date": "June 16, 2019",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2019/06/june162019_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2019/06/june162019_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2019/06/june162019_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Solo",
+    "date": "August 10, 2019",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2019/08/aug102019_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2019/08/aug102019_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2019/08/aug102019_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Solo",
+    "date": "August 11, 2019",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2019/08/aug112019_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2019/08/aug112019_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2019/08/aug112019_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Event 9",
+    "date": "September 22, 2019",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2019/09/2019event9_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2019/09/2019event9_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2019/09/2019event9_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Event 10",
+    "date": "October 5, 2019",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2019/10/event102019_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2019/10/event102019_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2019/10/event102019_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Event 11",
+    "date": "October 6, 2019",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2019/10/event112019_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2019/10/event112019_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2019/10/event112019_raw.htm"
+     ]
+    ]
+   }
+  ],
+  "2018": [
+   {
+    "title": "MiDiv Weekend Day 1",
+    "date": "April 21, 2018",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2018/04/midivday1_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2018/04/midivday1_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2018/04/midivday1_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "MiDiv Weekend Day 2",
+    "date": "April 22, 2018",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2018/04/midivday2_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2018/04/midivday2_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2018/04/midivday2_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "MiDiv Weekend, Two Days Combined",
+    "date": "April 21–22, 2018",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2018/04/midivsolo_finupdate.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2018/04/midivsolo_paxupdate.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2018/04/midivsolo_rawupdate.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Solo",
+    "date": "June 9, 2018",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2018/06/june9solo_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2018/06/june9solo_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2018/06/june9solo_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Solo",
+    "date": "June 10, 2018",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2018/06/june10solo_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2018/06/june10solo_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2018/06/june10solo_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Solo",
+    "date": "July 7, 2018",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2018/07/july7thsolo_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2018/07/july7thsolo_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2018/07/july7thsolo_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Solo",
+    "date": "July 8, 2018",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2018/07/july8thsolo_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2018/07/july8thsolo_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2018/07/july8thsolo_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Solo",
+    "date": "August 18, 2018",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2018/08/aug18solo_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2018/08/aug18solo_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2018/08/aug18solo_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Solo",
+    "date": "August 19, 2018",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2018/08/aug19solo_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2018/08/aug19solo_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2018/08/aug19solo_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Solo",
+    "date": "September 22, 2018",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2018/09/sept22solo_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2018/09/sept22solo_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2018/09/sept22solo_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Solo",
+    "date": "September 23, 2018",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2018/09/sept23solo_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2018/09/sept23solo_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2018/09/sept23solo_raw.htm"
+     ]
+    ]
+   }
+  ],
+  "2017": [
+   {
+    "title": "MiDiv Weekend Day 1",
+    "date": "April 22, 2017",
+    "links": [
+     [
+      "Class",
+      "http://www.kcrscca.org/results/solo/2017/2017midiv1_fin_d1.htm"
+     ],
+     [
+      "PAX",
+      "http://www.kcrscca.org/results/solo/2017/2017midiv1_pax_d1.htm"
+     ],
+     [
+      "Raw",
+      "http://www.kcrscca.org/results/solo/2017/2017midiv1_raw_d1.htm"
+     ]
+    ]
+   },
+   {
+    "title": "MiDiv Weekend Day 2",
+    "date": "April 23, 2017",
+    "links": [
+     [
+      "Class",
+      "http://www.kcrscca.org/results/solo/2017/2017midiv1_fin_d2.htm"
+     ],
+     [
+      "PAX",
+      "http://www.kcrscca.org/results/solo/2017/2017midiv1_pax_d2.htm"
+     ],
+     [
+      "Raw",
+      "http://www.kcrscca.org/results/solo/2017/2017midiv1_raw_d2.htm"
+     ]
+    ]
+   },
+   {
+    "title": "MiDiv Weekend, Two Days Combined",
+    "date": "April 22–23, 2017",
+    "links": [
+     [
+      "Class",
+      "http://www.kcrscca.org/results/solo/2017/2017midiv1_fin.htm"
+     ],
+     [
+      "PAX",
+      "http://www.kcrscca.org/results/solo/2017/2017midiv1_pax.htm"
+     ],
+     [
+      "Raw",
+      "http://www.kcrscca.org/results/solo/2017/2017midiv1_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "KS Region Event #3",
+    "date": "June 24, 2017",
+    "links": [
+     [
+      "Class",
+      "https://kcrscca.org/results/solo/2017/2017ev5_fin.htm"
+     ],
+     [
+      "PAX",
+      "https://kcrscca.org/results/solo/2017/2017ev5_pax.htm"
+     ],
+     [
+      "Raw",
+      "https://kcrscca.org/results/solo/2017/2017ev5_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "KS Region Event #4",
+    "date": "June 25, 2017",
+    "links": [
+     [
+      "Class",
+      "https://kcrscca.org/results/solo/2017/2017event6_fin.htm"
+     ],
+     [
+      "PAX",
+      "https://kcrscca.org/results/solo/2017/2017event6_pax.htm"
+     ],
+     [
+      "Raw",
+      "https://kcrscca.org/results/solo/2017/2017event6_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "KS Region Event #5",
+    "date": "July 22, 2017",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2017/07/july222017_fin-2.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2017/07/july222017_pax-2.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2017/07/july222017_raw-2.htm"
+     ]
+    ]
+   },
+   {
+    "title": "KS Region Event #6",
+    "date": "July 23, 2017",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2017/07/july232017_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2017/07/july232017_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2017/07/july232017_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Party at the Park Day 1",
+    "date": "August 5, 2017",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2017/08/partyatpark2017day1_fin.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Party at the Park Day 2",
+    "date": "August 6, 2017",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2017/08/partyatpark2017day2_fin.htm"
+     ]
+    ]
+   },
+   {
+    "title": "KS Region Event #7",
+    "date": "September 23, 2017",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2017/09/2017event7_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2017/09/2017event7_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2017/09/2017event7_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "KS Region Event #8",
+    "date": "September 24, 2017",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2017/09/2017event8_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2017/09/2017event8_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2017/09/2017event8_raw.htm"
+     ]
+    ]
+   }
+  ],
+  "2016": [
+   {
+    "title": "KS Region Event #1",
+    "date": "MiDiv weekend, April 2016",
+    "links": [
+     [
+      "Class",
+      "http://www.kcrscca.org/results/solo/2016/midiv1_fin_d1.htm"
+     ],
+     [
+      "PAX",
+      "http://www.kcrscca.org/results/solo/2016/midiv1_pax_d1.htm"
+     ],
+     [
+      "Raw",
+      "http://www.kcrscca.org/results/solo/2016/midiv1_raw_d1.htm"
+     ]
+    ]
+   },
+   {
+    "title": "KS Region Event #2",
+    "date": "MiDiv weekend, April 2016",
+    "links": [
+     [
+      "Class",
+      "http://www.kcrscca.org/results/solo/2016/midiv1_fin_d2.htm"
+     ],
+     [
+      "PAX",
+      "http://www.kcrscca.org/results/solo/2016/midiv1_pax_d2.htm"
+     ],
+     [
+      "Raw",
+      "http://www.kcrscca.org/results/solo/2016/midiv1_raw_d2.htm"
+     ]
+    ]
+   },
+   {
+    "title": "KS Region Event #3",
+    "date": "June 12, 2016",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2013/05/2016ksbonus_fin.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2013/05/2016ksbonus_pax.htm"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2013/05/2016ksbonus_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "KS Region Event #4",
+    "date": "July 9, 2016",
+    "links": [
+     [
+      "Class",
+      "https://kcrscca.org/results/solo/2016/2016event5_fin.htm"
+     ],
+     [
+      "PAX",
+      "https://kcrscca.org/results/solo/2016/2016event5_pax.htm"
+     ],
+     [
+      "Raw",
+      "https://kcrscca.org/results/solo/2016/2016event5_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "KS Region Event #5",
+    "date": "July 10, 2016",
+    "links": [
+     [
+      "Class",
+      "https://kcrscca.org/results/solo/2016/2016event6_fin.htm"
+     ],
+     [
+      "PAX",
+      "https://kcrscca.org/results/solo/2016/2016event6_pax.htm"
+     ],
+     [
+      "Raw",
+      "https://kcrscca.org/results/solo/2016/2016event6_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "KS Region Event #6",
+    "date": "August 20, 2016",
+    "links": [
+     [
+      "Class",
+      "https://kcrscca.org/results/solo/2016/2016event9_fin.htm"
+     ],
+     [
+      "PAX",
+      "https://kcrscca.org/results/solo/2016/2016event9_pax.htm"
+     ],
+     [
+      "Raw",
+      "https://kcrscca.org/results/solo/2016/2016event9_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "KS Region Event #7",
+    "date": "August 21, 2016",
+    "links": [
+     [
+      "Class",
+      "https://kcrscca.org/results/solo/2016/2016event10_fin.htm"
+     ],
+     [
+      "PAX",
+      "https://kcrscca.org/results/solo/2016/2016event10_pax.htm"
+     ],
+     [
+      "Raw",
+      "https://kcrscca.org/results/solo/2016/2016event10_raw.htm"
+     ]
+    ]
+   }
+  ],
+  "2015": [
+   {
+    "title": "KS Region Event #1",
+    "date": "April 25, 2015",
+    "links": [
+     [
+      "Class",
+      "http://www.kcrscca.org/results/solo/2015/2015event2_fin.htm"
+     ],
+     [
+      "PAX",
+      "http://www.kcrscca.org/results/solo/2015/2015event2_pax.htm"
+     ],
+     [
+      "Raw",
+      "http://www.kcrscca.org/results/solo/2015/2015event2_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "KS Region Event #2",
+    "date": "April 26, 2015",
+    "links": [
+     [
+      "Class",
+      "http://www.kcrscca.org/results/solo/2015/2015event3_fin.htm"
+     ],
+     [
+      "PAX",
+      "http://www.kcrscca.org/results/solo/2015/2015event3_pax.htm"
+     ],
+     [
+      "Raw",
+      "http://www.kcrscca.org/results/solo/2015/2015event3_raw.htm"
+     ]
+    ]
+   }
+  ],
+  "2014": [
+   {
+    "title": "KS Region Event #1",
+    "date": "July 12, 2014",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2013/05/Final-Results.html"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2013/05/Pax-Time-Results.html"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2013/05/Final-Raw-Time-Results.html"
+     ]
+    ]
+   },
+   {
+    "title": "KS Region Event #2",
+    "date": "July 13, 2014",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2013/05/Final-Results2.html"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2013/05/Pax-Time-Results2.html"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2013/05/Final-Raw-Time-Results2.html"
+     ]
+    ]
+   },
+   {
+    "title": "KS Region Event #3",
+    "date": "August 2, 2014",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2013/05/Final-Results9.html"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2013/05/Pax-Time-Results9.html"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2013/05/Final-Raw-Time-Results9.html"
+     ]
+    ]
+   },
+   {
+    "title": "KS Region Event #4",
+    "date": "August 3, 2014",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2013/05/Final-Results10.html"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2013/05/Pax-Time-Results10.html"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2013/05/Final-Raw-Time-Results10.html"
+     ]
+    ]
+   },
+   {
+    "title": "KS Region Event #5",
+    "date": "October 18, 2014",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2013/05/Final-Results1.html"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2013/05/Pax-Time-Results1.html"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2013/05/Final-Raw-Time-Results1.html"
+     ]
+    ]
+   },
+   {
+    "title": "KS Region Event #6",
+    "date": "October 19, 2014",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2013/05/Final-Results3.html"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2013/05/Pax-Time-Results3.html"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2013/05/Final-Raw-Time-Results3.html"
+     ]
+    ]
+   }
+  ]
+ }
+}

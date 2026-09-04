@@ -1,0 +1,47 @@
+{
+ "page_id": 996,
+ "title": "Kansas Region SCCA RallyCross Results",
+ "discipline": "RallyCross",
+ "intro": "Class and raw-time results for every Kansas Region RallyCross, by season. The most recent season is shown first; pick a year to see earlier events.",
+ "seasons": {
+  "2025": [
+   {"title": "RallyCross Endurocross", "date": "April 19, 2025", "links": [["Class", "/wp-content/uploads/2025/04/ksrx-april-2025_fin.htm"], ["Raw", "/wp-content/uploads/2025/04/ksrx-april-2025_raw.htm"]]},
+   {"title": "RallyCross Barrel Racing", "date": "July 5, 2025", "links": [["Class", "/wp-content/uploads/2025/07/ksrx-july-2025_fin.htm"], ["Raw", "/wp-content/uploads/2025/07/ksrx-july-2025_raw.htm"]]},
+   {"title": "RallyCross Plinko", "date": "August 16, 2025", "links": [["Class", "/wp-content/uploads/2025/08/ksrx-august-2025_fin.htm"], ["Raw", "/wp-content/uploads/2025/08/ksrx-august-2025_raw.htm"]]},
+   {"title": "RallyCross Endurocross", "date": "November 8, 2025", "links": [["Class", "/wp-content/uploads/2025/12/ksrx-november-2025_fin.htm"], ["Raw", "/wp-content/uploads/2025/12/ksrx-november-2025_raw.htm"]]},
+   {"title": "RallyCross BDR", "date": "December 13, 2025", "links": [["Class", "/wp-content/uploads/2025/12/ksrx-december-2025_fin.htm"], ["Raw", "/wp-content/uploads/2025/12/ksrx-december-2025_raw.htm"]]}
+  ],
+  "2024": [
+   {"title": "RallyCross Endurocross", "date": "April 20, 2024", "links": [["Class", "/wp-content/uploads/2024/04/event-1-final-results.htm"], ["Raw", "/wp-content/uploads/2024/04/event-1_raw.htm"]]},
+   {"title": "RallyCross Gymkhana", "date": "May 25, 2024", "links": [["Class", "/wp-content/uploads/2024/05/gymkahna_fin.htm"], ["Raw", "/wp-content/uploads/2024/06/gymkahna_raw.htm"]]},
+   {"title": "RallyCross Dust Drags", "date": "August 31, 2024", "links": [["Class", "/wp-content/uploads/2024/09/ksrx-august-dust-drags_fin.htm"], ["Raw", "/wp-content/uploads/2024/09/ksrx-august-dust-drags_raw.htm"]]},
+   {"title": "RallyCross Endurocross", "date": "November 11, 2024", "links": [["Class", "/wp-content/uploads/2024/11/ksrx-nov24-endurocross_fin.htm"], ["Raw", "/wp-content/uploads/2024/11/ksrx-nov24-endurocross_raw.htm"]]}
+  ],
+  "2021": [
+   {"title": "RallyCross", "date": "November 14, 2021", "links": [["Class", "/wp-content/uploads/2021/11/rx2021event1_fin.htm"], ["Raw", "/wp-content/uploads/2021/11/rx2021event1_raw.htm"]]},
+   {"title": "RallyCross", "date": "December 19, 2021", "links": [["Class", "/wp-content/uploads/2021/12/rx2021e2_fin.htm"], ["Raw", "/wp-content/uploads/2021/12/rx2021e2_raw.htm"]]}
+  ],
+  "2020": [
+   {"title": "Season Points", "date": "", "links": [["Points", "/rallycross-season-points/"]]},
+   {"title": "RallyCross Bring a Friend", "date": "May 30, 2020", "links": [["Class", "/wp-content/uploads/2020/06/bringafriend1_fin.htm"], ["Raw", "/wp-content/uploads/2020/06/bringafriend1_raw.htm"]]},
+   {"title": "RallyCross Candy Van Express", "date": "November 1, 2020", "links": [["Class", "/wp-content/uploads/2020/11/nov1rx_fin-1.htm"], ["Raw", "/wp-content/uploads/2020/11/nov1rx_raw-1.htm"]]},
+   {"title": "RallyCross Gobbler 500", "date": "November 22, 2020", "links": [["Class", "/wp-content/uploads/2020/11/gobbler500_fin.htm"], ["Raw", "/wp-content/uploads/2020/11/gobbler500_raw.htm"]]},
+   {"title": "RallyCross Lucky 13", "date": "December 13, 2020", "links": [["Class", "/wp-content/uploads/2020/12/lucky13_fin.htm"], ["Raw", "/wp-content/uploads/2020/12/lucky13_raw.htm"]]}
+  ],
+  "2019": [
+   {"title": "RallyCross Let It Burn", "date": "April 20, 2019", "links": [["Class", "/wp-content/uploads/2019/04/letitburn_fin.htm"], ["Raw", "/wp-content/uploads/2019/04/letitburn_raw.htm"]]},
+   {"title": "RallyCross Hot Fun in the Summer Time", "date": "August 24, 2019", "links": [["Class", "/wp-content/uploads/2019/08/hotfun_fin.htm"], ["Raw", "/wp-content/uploads/2019/08/hotfun_raw.htm"]]},
+   {"title": "RallyCross Wake Me Up When September Ends", "date": "September 14, 2019", "links": [["Class", "/wp-content/uploads/2019/09/wakemeup_fin.htm"], ["Raw", "/wp-content/uploads/2019/09/wakemeup_raw.htm"]]},
+   {"title": "RallyCross Turkey Jive", "date": "November 24, 2019", "links": [["Class", "/wp-content/uploads/2019/11/turkeyjive_fin.htm"], ["Raw", "/wp-content/uploads/2019/11/turkeyjive_raw.htm"]]}
+  ],
+  "2018": [
+   {"title": "Season Points", "date": "", "links": [["Points", "/rallycross-season-points/"]]},
+   {"title": "RallyCross Genesis", "date": "March 25, 2018", "links": [["Class", "/wp-content/uploads/2018/03/genesis_fin.htm"], ["Raw", "/wp-content/uploads/2018/03/genesis_raw.htm"]]},
+   {"title": "RallyCross Part Deux", "date": "April 29, 2018", "links": [["Class", "/wp-content/uploads/2018/04/deux_fin.htm"], ["Raw", "/wp-content/uploads/2018/04/deux_raw.htm"]]},
+   {"title": "Unity RallyCross", "date": "July 1, 2018", "links": [["Class", "/wp-content/uploads/2018/07/unity_fin.htm"], ["Raw", "/wp-content/uploads/2018/07/unity_raw.htm"], ["Rankings (PDF)", "/wp-content/uploads/2018/07/UnityRankings.pdf"]]},
+   {"title": "Armageddon RallyCross", "date": "September 15, 2018", "links": [["Class", "/wp-content/uploads/2018/09/armageddon_fin-1.htm"], ["Raw", "/wp-content/uploads/2018/09/armageddon_raw-1.htm"]]},
+   {"title": "Jurassic RallyCross", "date": "November 18, 2018", "links": [["Class", "/wp-content/uploads/2018/11/jurassic_fin.htm"], ["Raw", "/wp-content/uploads/2018/11/jurassic_raw.htm"]]},
+   {"title": "Final Destination RallyCross", "date": "December 16, 2018", "links": [["Class", "/wp-content/uploads/2018/12/finaldestination_fin-1.htm"], ["Raw", "/wp-content/uploads/2018/12/finaldestination_raw-1.htm"]]}
+  ]
+ }
+}
