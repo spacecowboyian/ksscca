@@ -31,9 +31,17 @@ win looks; age in the queue is the tiebreaker that matters. The one exception is
 dependency: skip an older issue only when it is genuinely blocked by a newer one that must
 land first (the known chains below), not because a younger issue merely looks easier.
 
-If nothing is actionable, say so plainly, list what each remaining issue is waiting on, and
-stop. If you are running under `/loop`, end the loop — there is no point waking up to an
-unchanged queue.
+Ian answers `needs-human` comments over time without necessarily saying so — always
+re-read an issue's full comment thread before treating a `needs-human` label as final;
+his answer may already be sitting there. If a genuinely new answer unblocks an issue,
+that issue is back in play regardless of label — treat the label as "was blocked as of
+the last pass," not "permanently out of scope."
+
+Once every open issue has been passed over in this session (each either resolved,
+progressed, or re-confirmed still blocked with nothing new since last checked), start
+over from the oldest open issue rather than stopping — new comments accumulate between
+passes. Only end the loop if a full pass finds zero issues with anything new to act on
+*and* the user hasn't asked to keep cycling.
 
 ## 2. Decide who can do it
 
