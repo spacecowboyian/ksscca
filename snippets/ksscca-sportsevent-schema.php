@@ -29,7 +29,8 @@ if ( ! function_exists( 'ksscca_sportsevent_page_config' ) ) {
 	 */
 	function ksscca_sportsevent_page_config( $post_id ) {
 		$pages = array(
-			1342 => array( 'type_filter' => '' ),          // Home -- unfiltered
+			1655 => array( 'type_filter' => '' ),          // Home -- unfiltered (front page since 2026-09-04)
+			1342 => array( 'type_filter' => '' ),          // Former home, still live at /home/
 			899  => array( 'type_filter' => 'autocross' ),  // Autocross Schedule
 			31   => array( 'type_filter' => 'rallycross' ), // RallyCross Schedule
 		);
