@@ -74,6 +74,16 @@
       "/wp-content/uploads/2025/12/ksrx-december-2025_raw.htm"
      ]
     ]
+   },
+   {
+    "title": "Season Points",
+    "date": "End of season standings",
+    "links": [
+     [
+      "Points",
+      "/wp-content/uploads/2025/12/kansas-rallycross-championship-2025__points.htm"
+     ]
+    ]
    }
   ],
   "2024": [
@@ -166,16 +176,6 @@
   ],
   "2020": [
    {
-    "title": "Season Points",
-    "date": "",
-    "links": [
-     [
-      "Points",
-      "/rallycross-season-points/"
-     ]
-    ]
-   },
-   {
     "title": "RallyCross Bring a Friend",
     "date": "May 30, 2020",
     "links": [
@@ -228,6 +228,16 @@
      [
       "Raw",
       "/wp-content/uploads/2020/12/lucky13_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Season Points",
+    "date": "End of season standings",
+    "links": [
+     [
+      "Points",
+      "/wp-content/uploads/2021/01/2020rx__points.htm"
      ]
     ]
    }
@@ -288,19 +298,19 @@
       "/wp-content/uploads/2019/11/turkeyjive_raw.htm"
      ]
     ]
-   }
-  ],
-  "2018": [
+   },
    {
     "title": "Season Points",
-    "date": "",
+    "date": "End of season standings",
     "links": [
      [
       "Points",
-      "/rallycross-season-points/"
+      "/wp-content/uploads/2019/12/rallyx2019__pointsfinal.htm"
      ]
     ]
-   },
+   }
+  ],
+  "2018": [
    {
     "title": "RallyCross Genesis",
     "date": "March 25, 2018",
@@ -386,6 +396,16 @@
      [
       "Raw",
       "/wp-content/uploads/2018/12/finaldestination_raw-1.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Season Points",
+    "date": "End of season standings",
+    "links": [
+     [
+      "Points",
+      "/wp-content/uploads/2018/12/rallyx2018__pointsfinal.htm"
      ]
     ]
    }

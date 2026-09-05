@@ -146,16 +146,6 @@
   ],
   "2022": [
    {
-    "title": "Season Points",
-    "date": "",
-    "links": [
-     [
-      "Points",
-      "/autocross-season-points/"
-     ]
-    ]
-   },
-   {
     "title": "Solo",
     "date": "April 9, 2022",
     "links": [
@@ -242,6 +232,20 @@
      [
       "Raw",
       "/wp-content/uploads/2022/08/aug202022_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Season Points",
+    "date": "End of season standings",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2023/01/solo2022__points.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2023/01/solo2022__pax_points.htm"
      ]
     ]
    }
@@ -426,6 +430,20 @@
      [
       "Raw",
       "/wp-content/uploads/2021/10/october3_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Season Points",
+    "date": "End of season standings",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2021/09/2021solo__pointssept.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2021/09/2021solo__pax_pointssept.htm"
      ]
     ]
    }
@@ -646,6 +664,20 @@
      [
       "Raw",
       "/wp-content/uploads/2020/10/event11_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Season Points",
+    "date": "End of season standings",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2020/10/solo2020__points-2.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2020/10/solo2020__pax_points-2.htm"
      ]
     ]
    }
@@ -884,6 +916,20 @@
       "/wp-content/uploads/2019/10/event112019_raw.htm"
      ]
     ]
+   },
+   {
+    "title": "Season Points",
+    "date": "End of season standings",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2019/10/2019autox__pointsfinal.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2019/10/2019autox__pax_pointsfinal.htm"
+     ]
+    ]
    }
   ],
   "2018": [
@@ -1082,6 +1128,20 @@
      [
       "Raw",
       "/wp-content/uploads/2018/09/sept23solo_raw.htm"
+     ]
+    ]
+   },
+   {
+    "title": "Season Points",
+    "date": "End of season standings",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2018/09/solo2018__pointsfinal.htm"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2018/09/solo2018__pax_pointsfinal.htm"
      ]
     ]
    }
