@@ -24,11 +24,15 @@ import json
 import sys
 from pathlib import Path
 
-STYLE = """<style>
-@import url('https://fonts.googleapis.com/css2?family=PT+Sans+Narrow:wght@700&family=Inter:wght@400;500;600;700&display=swap');
+STYLE = """<style>/* Results archive styles. This comment stays on the same line as the tag on
+purpose: a newline straight after <style> lets wpautop insert a <p> that swallows
+whatever rule comes first, so the first line is kept expendable. The fonts these
+rules use are enqueued in the document head by the ksscca-fonts snippet (#36),
+not imported here. */
 #ksr-results{font-family:'Inter',Verdana,Arial,sans-serif;color:#e7e5df;min-width:0;}
 #ksr-results p:empty{display:none;margin:0;}
-/* The theme repeats the page title as an <h2 class="title-page"> above the content; our H1 replaces it. */
+/* The theme repeats the page title above the content; our H1 replaces it.
+   No literal tags in these comments: WordPress parses them as real markup. */
 body.page-id-PAGE_ID .row.header .title-page{display:none;}
 #ksr-results .ksr-layout{display:grid;grid-template-columns:160px 1fr;border:1px solid #2d2d2d;min-width:0;}
 #ksr-results .ksr-years{background:transparent;border-right:1px solid #2d2d2d;}
