@@ -143,7 +143,9 @@ def render(data):
     out.append(f'<div class="ksr-season-head">{esc(season)} {esc(disc)} Season &middot; {label}</div>')
     if rows:
         out.append('<div class="ksr-col-head"><span>Event</span><span>Results</span></div>')
-        for r in rows:
+        # Current season reads newest first -- the most recent event is what a
+        # visitor came for. The archive below stays in calendar order.
+        for r in reversed(rows):
             out.append(render_row(r))
     else:
         out.append('<div class="ksr-na">NA</div>')
