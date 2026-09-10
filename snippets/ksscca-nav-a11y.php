@@ -79,8 +79,12 @@ if ( ! function_exists( 'ksscca_nav_a11y_css' ) ) {
 /* The theme prints a child-count badge in the same corner the control needs. */
 .top-bar li.ksr-parent span.cnt{display:none !important;}
 .ksr-subtoggle{position:absolute;top:0;right:0;width:56px;height:45px;padding:0;border:0;background:none;color:#e7e5df;font-size:20px;line-height:45px;cursor:pointer;z-index:5;}
-.ksr-subtoggle::before{content:"\25BE";display:inline-block;transition:transform .15s;}
-.ksr-subtoggle[aria-expanded="true"]::before{transform:rotate(180deg);}
+/* The caret is the theme's own right-facing arrow, rotated, so the two kinds
+   of row use one glyph at one size in one place. Closed points down, open
+   points up. If the theme's image ever moves this falls back to no arrow,
+   which is why the button keeps its own hit area rather than relying on it. */
+.ksr-subtoggle::before{content:"";position:absolute;right:0;top:2px;width:30px;height:30px;background:url("/wp-content/themes/kingsize/images/submenu_hover_arrow.png") no-repeat 0 0;transform:rotate(90deg);transition:transform .15s;}
+.ksr-subtoggle[aria-expanded="true"]::before{transform:rotate(-90deg);}
 .ksr-subtoggle:focus-visible{outline:2px solid #e2c47c;outline-offset:-2px;}
 /* One arrow per row, and the right one. The theme paints a right-facing
    arrow on every top-level item, which on a parent now sat beside the
