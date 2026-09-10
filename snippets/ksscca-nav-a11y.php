@@ -63,6 +63,32 @@ if ( ! function_exists( 'ksscca_nav_a11y_css' ) ) {
 #mainNavigation ul li ul{width:200px !important;padding-left:0 !important;padding-right:0 !important;}
 #mainNavigation ul li ul li{width:100% !important;padding:0 !important;}
 #mainNavigation ul li ul li a{display:block !important;width:auto !important;max-width:none !important;padding:11px 16px !important;}
+
+/* Mobile submenus. The theme ships styling for these rows in
+   mobile_navigation.css but nothing that ever reveals them: no has-dropdown
+   class for Foundation to bind to, and no open state of its own. So tapping a
+   discipline simply followed its link and the 15 child pages had no route on
+   a phone. The disclosure buttons are added in JS below; these rules give the
+   open state somewhere to land, and repaint rows the theme styles for a light
+   background (#333 text on white stripes) that would be invisible here. */
+.top-bar li.ksr-open > ul.sub-menu{display:block !important;}
+.top-bar ul.sub-menu,.top-bar ul.sub-menu li{background:#0d0d0d !important;background-image:none !important;border:0 !important;}
+.top-bar ul.sub-menu li{border-top:1px solid #262626 !important;}
+.top-bar ul.sub-menu a{color:#e7e5df !important;font-size:15px !important;line-height:1.4 !important;padding:12px 56px 12px 34px !important;display:block !important;background-image:none !important;}
+.top-bar li.ksr-parent{position:relative;}
+/* The theme prints a child-count badge in the same corner the control needs. */
+.top-bar li.ksr-parent span.cnt{display:none !important;}
+.ksr-subtoggle{position:absolute;top:0;right:0;width:56px;height:45px;padding:0;border:0;background:none;color:#e7e5df;font-size:20px;line-height:45px;cursor:pointer;z-index:5;}
+.ksr-subtoggle::before{content:"\25BE";display:inline-block;transition:transform .15s;}
+.ksr-subtoggle[aria-expanded="true"]::before{transform:rotate(180deg);}
+.ksr-subtoggle:focus-visible{outline:2px solid #e2c47c;outline-offset:-2px;}
+
+/* Desktop logo. The image sat 9px from each side of a 218px column and
+   overflowed its own container's height, so it read as jammed into the
+   corner. Padding plus a fluid image gives it room without resizing it by
+   hand. */
+#logo{padding:22px 18px 18px !important;height:auto !important;box-sizing:border-box;}
+#logo img{max-width:100% !important;height:auto !important;display:block;margin:0 auto !important;}
 .toggle-topbar a{position:absolute;}
 .toggle-topbar a::after{content:"";position:absolute;top:calc(50% - 4px);left:50%;width:44px;height:44px;transform:translate(-50%,-50%);}
 </style>
@@ -99,6 +125,40 @@ if ( ! function_exists( 'ksscca_nav_a11y_js' ) ) {
 			a.setAttribute('aria-label', 'Open menu');
 		}
 	});
+
+	// Mobile submenu disclosure. A separate control rather than hijacking the
+	// parent link: three of the four parents point at real pages
+	// (/rallycross/, /road-racing/, /track-events/), so intercepting the tap
+	// would cut off the only route to them.
+	//
+	// Run more than once on purpose. Foundation's top bar rebuilds this markup
+	// during its own init, which happens after this inline script, and that
+	// rebuild discards anything already appended. The duplicate guard below
+	// makes repeat calls harmless.
+	function ksrAddSubToggles() {
+	document.querySelectorAll('.top-bar li').forEach(function (li) {
+		var sub = li.querySelector(':scope > ul.sub-menu');
+		var link = li.querySelector(':scope > a');
+		if (!sub || !link || li.querySelector(':scope > .ksr-subtoggle')) { return; }
+		li.classList.add('ksr-parent');
+		var name = link.textContent.replace(/\s*\d+\s*$/, '').trim();
+		var btn = document.createElement('button');
+		btn.type = 'button';
+		btn.className = 'ksr-subtoggle';
+		btn.setAttribute('aria-expanded', 'false');
+		btn.setAttribute('aria-label', 'Show ' + name + ' pages');
+		btn.addEventListener('click', function (e) {
+			e.preventDefault();
+			e.stopPropagation();
+			var open = li.classList.toggle('ksr-open');
+			btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+		});
+		li.appendChild(btn);
+	});
+	}
+	ksrAddSubToggles();
+	window.addEventListener('load', ksrAddSubToggles);
+	setTimeout(ksrAddSubToggles, 600);
 })();
 </script>
 		<?php
