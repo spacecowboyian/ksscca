@@ -52,6 +52,17 @@ if ( ! function_exists( 'ksscca_nav_a11y_css' ) ) {
    longest labels wrap to a second line. */
 #mainNavigation ul li ul li a{color:#e7e5df !important;font-size:15px !important;line-height:1.45 !important;}
 #mainNavigation ul li ul li a:hover,#mainNavigation ul li ul li a:focus{color:#ffffff !important;}
+/* Submenu rows: make the link the row. The theme puts the padding on the li
+   and fixes both the li and the panel to a width, so the anchor was a 150x22
+   island inside a 41px row: the top 10px, bottom 8px and left 10px of every
+   row did nothing when clicked. Padding moves to the anchor, the row goes
+   full width, and the bottom border now runs edge to edge with it. Rows come
+   out 45px, so each one also clears the 44px comfortable tap size.
+   The panel widens 182 -> 200 because the 15px type wraps two labels at the
+   old width; past 200 nothing further fits on one line. */
+#mainNavigation ul li ul{width:200px !important;padding-left:0 !important;padding-right:0 !important;}
+#mainNavigation ul li ul li{width:100% !important;padding:0 !important;}
+#mainNavigation ul li ul li a{display:block !important;width:auto !important;max-width:none !important;padding:11px 16px !important;}
 .toggle-topbar a{position:absolute;}
 .toggle-topbar a::after{content:"";position:absolute;top:calc(50% - 4px);left:50%;width:44px;height:44px;transform:translate(-50%,-50%);}
 </style>
