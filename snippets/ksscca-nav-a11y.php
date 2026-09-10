@@ -82,6 +82,21 @@ if ( ! function_exists( 'ksscca_nav_a11y_css' ) ) {
 .ksr-subtoggle::before{content:"\25BE";display:inline-block;transition:transform .15s;}
 .ksr-subtoggle[aria-expanded="true"]::before{transform:rotate(180deg);}
 .ksr-subtoggle:focus-visible{outline:2px solid #e2c47c;outline-offset:-2px;}
+/* One arrow per row, and the right one. The theme paints a right-facing
+   arrow on every top-level item, which on a parent now sat beside the
+   caret saying two different things. Parents keep only the caret; rows
+   that navigate keep the arrow. */
+.top-bar li.ksr-parent > a span{background-image:none !important;}
+/* Rows edge to edge. The row's background is painted by a span inside the
+   anchor, and the theme reserves 40px of anchor padding to its right, so
+   every row had an unpainted strip down the right that read as a column.
+   The reserved space moves inside the span instead. */
+.top-bar li > a{padding-right:0 !important;}
+.top-bar li > a > span{padding:10px 40px 10px 10px !important;}
+.top-bar li.ksr-parent > a > span{padding-right:56px !important;}
+/* Submenu rows carry their own padding; the span inside them must not
+   inherit the row treatment or the first child sits indented from the rest. */
+.top-bar ul.sub-menu a span{padding:0 !important;background:none !important;display:inline !important;}
 
 /* Desktop logo. The image sat 9px from each side of a 218px column and
    overflowed its own container's height, so it read as jammed into the
