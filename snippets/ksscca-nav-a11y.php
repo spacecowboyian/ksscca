@@ -45,6 +45,13 @@ if ( ! function_exists( 'ksscca_nav_a11y_css' ) ) {
    4px upward nudge keeps all 44 pixels inside the 45px bar; without it the
    bottom edge falls onto page content, which both loses the tap and would
    put an invisible target over the hero. */
+/* Submenu legibility. The links inherit the nav anchor's pure red #ff0000,
+   except where a current-item rule happens to override it to white, so the
+   four flyouts were three red and one white at 5.25:1. One documented token
+   for all of them, at 16.67:1, and 15px instead of 12px. Only the two
+   longest labels wrap to a second line. */
+#mainNavigation ul li ul li a{color:#e7e5df !important;font-size:15px !important;line-height:1.45 !important;}
+#mainNavigation ul li ul li a:hover,#mainNavigation ul li ul li a:focus{color:#ffffff !important;}
 .toggle-topbar a{position:absolute;}
 .toggle-topbar a::after{content:"";position:absolute;top:calc(50% - 4px);left:50%;width:44px;height:44px;transform:translate(-50%,-50%);}
 </style>
