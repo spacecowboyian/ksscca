@@ -78,18 +78,19 @@ if ( ! function_exists( 'ksscca_nav_a11y_css' ) ) {
 .top-bar li.ksr-parent{position:relative;}
 /* The theme prints a child-count badge in the same corner the control needs. */
 .top-bar li.ksr-parent span.cnt{display:none !important;}
-.ksr-subtoggle{position:absolute;top:0;right:0;width:56px;height:45px;padding:0;border:0;background:none;color:#e7e5df;font-size:20px;line-height:45px;cursor:pointer;z-index:5;}
-/* The caret is the theme's own right-facing arrow, rotated, so the two kinds
-   of row use one glyph at one size in one place. Closed points down, open
-   points up. If the theme's image ever moves this falls back to no arrow,
-   which is why the button keeps its own hit area rather than relying on it. */
-.ksr-subtoggle::before{content:"";position:absolute;right:0;top:2px;width:30px;height:30px;background:url("/wp-content/themes/kingsize/images/submenu_hover_arrow.png") no-repeat 0 0;transform:rotate(90deg);transition:transform .15s;}
-.ksr-subtoggle[aria-expanded="true"]::before{transform:rotate(-90deg);}
-.ksr-subtoggle:focus-visible{outline:2px solid #e2c47c;outline-offset:-2px;}
-/* One arrow per row, and the right one. The theme paints a right-facing
-   arrow on every top-level item, which on a parent now sat beside the
-   caret saying two different things. Parents keep only the caret; rows
-   that navigate keep the arrow. */
+/* The whole parent row is the control, so the arrow is drawn on the row
+   rather than on a separate button sitting in the corner. pointer-events
+   none keeps the graphic out of hit testing; the row underneath takes the
+   tap wherever it lands. */
+.top-bar li.ksr-parent > a{position:relative;cursor:pointer;}
+/* The caret is the theme's own right-facing arrow, rotated, so both kinds of
+   row use one glyph at one size in one place. Closed points down, open up. */
+.top-bar li.ksr-parent > a::after{content:"";position:absolute;right:0;top:2px;width:30px;height:30px;background:url("/wp-content/themes/kingsize/images/submenu_hover_arrow.png") no-repeat 0 0;transform:rotate(90deg);transition:transform .15s;pointer-events:none;}
+.top-bar li.ksr-parent.ksr-open > a::after{transform:rotate(-90deg);}
+.top-bar li.ksr-parent > a:focus-visible{outline:2px solid #e2c47c;outline-offset:-2px;}
+/* One arrow per row, and the right one. The theme paints a right-facing arrow
+   on every top-level item, which on a parent said the opposite of what the row
+   does. Parents show the rotated caret; rows that navigate keep the arrow. */
 .top-bar li.ksr-parent > a span{background-image:none !important;}
 /* Rows edge to edge. The row's background is painted by a span inside the
    anchor, and the theme reserves 40px of anchor padding to its right, so
@@ -145,39 +146,36 @@ if ( ! function_exists( 'ksscca_nav_a11y_js' ) ) {
 		}
 	});
 
-	// Mobile submenu disclosure. A separate control rather than hijacking the
-	// parent link: three of the four parents point at real pages
-	// (/rallycross/, /road-racing/, /track-events/), so intercepting the tap
-	// would cut off the only route to them.
+	// Mobile submenu disclosure: the whole parent row is the control.
 	//
-	// Run more than once on purpose. Foundation's top bar rebuilds this markup
-	// during its own init, which happens after this inline script, and that
-	// rebuild discards anything already appended. The duplicate guard below
-	// makes repeat calls harmless.
-	function ksrAddSubToggles() {
-	document.querySelectorAll('.top-bar li').forEach(function (li) {
-		var sub = li.querySelector(':scope > ul.sub-menu');
-		var link = li.querySelector(':scope > a');
-		if (!sub || !link || li.querySelector(':scope > .ksr-subtoggle')) { return; }
-		li.classList.add('ksr-parent');
-		var name = link.textContent.replace(/\s*\d+\s*$/, '').trim();
-		var btn = document.createElement('button');
-		btn.type = 'button';
-		btn.className = 'ksr-subtoggle';
-		btn.setAttribute('aria-expanded', 'false');
-		btn.setAttribute('aria-label', 'Show ' + name + ' pages');
-		btn.addEventListener('click', function (e) {
-			e.preventDefault();
-			e.stopPropagation();
-			var open = li.classList.toggle('ksr-open');
-			btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+	// Safe to take the tap because every parent's submenu repeats the parent
+	// as its own first child, verified against all four: Autocross, RallyCross,
+	// Road Racing/Time Trials and Track Events each list their own page first.
+	// So the discipline page stays one tap away inside the open submenu, and
+	// with JS off the row is still a plain link straight to it.
+	//
+	// Runs more than once on purpose. Foundation's top bar rebuilds this markup
+	// during its own init, after this inline script, discarding anything
+	// already applied. The data flag makes repeat calls harmless.
+	function ksrBindSubRows() {
+		document.querySelectorAll('.top-bar li').forEach(function (li) {
+			var sub = li.querySelector(':scope > ul.sub-menu');
+			var link = li.querySelector(':scope > a');
+			if (!sub || !link || link.dataset.ksrRow) { return; }
+			link.dataset.ksrRow = '1';
+			li.classList.add('ksr-parent');
+			link.setAttribute('role', 'button');
+			link.setAttribute('aria-expanded', 'false');
+			link.addEventListener('click', function (e) {
+				e.preventDefault();
+				var open = li.classList.toggle('ksr-open');
+				link.setAttribute('aria-expanded', open ? 'true' : 'false');
+			});
 		});
-		li.appendChild(btn);
-	});
 	}
-	ksrAddSubToggles();
-	window.addEventListener('load', ksrAddSubToggles);
-	setTimeout(ksrAddSubToggles, 600);
+	ksrBindSubRows();
+	window.addEventListener('load', ksrBindSubRows);
+	setTimeout(ksrBindSubRows, 600);
 })();
 </script>
 		<?php
