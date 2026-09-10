@@ -14,3 +14,6 @@ tmp/
 # OS cruft
 .DS_Store
 Thumbs.db
+results/staged/
+__pycache__/
+*.pyc

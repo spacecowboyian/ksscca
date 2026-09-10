@@ -1,0 +1,279 @@
+#!/usr/bin/env python3
+"""Automate posting a results event to ksscca.org.
+
+SUPERSEDED (2026-09-04): pages 898 and 996 are now generated from
+results/*.json by bin/build-results-page (see CLAUDE.md, "Results pages are
+generated"). This script still writes the old "CLICK HERE" list format and
+would prepend it above the generated markup. Kept for reference only.
+
+Uploads timing-software exports (.htm files) to the Media Library, then
+prepends a new event block to the relevant results page (Autocross Results,
+ID 898, or RallyCross Results, ID 996) in the exact format those pages
+already use -- so a posted event looks the same as every event already on
+the page.
+
+This is deliberately manifest-driven rather than guessing event structure
+from filenames: the historical files use several different naming schemes
+(jul6_fin.htm vs ksrx-december-2025_fin.htm vs may4_d1_pax.htm), and
+guessing wrong would post a wrong or mislabeled link to a public page.
+Spell out exactly what each file is and what to call it.
+
+Usage:
+    bin/post-results --manifest event.json --dry-run
+    bin/post-results --manifest event.json
+
+Manifest (JSON):
+    {
+      "discipline": "rallycross",             // or "autocross"
+      "page_id": 996,                          // optional, else derived from discipline
+      "season_heading": "2026 RallyCross Results",   // only used if that season's
+                                                        // heading isn't already on the page
+      "event_heading": "RallyCross Winter Bash December 13, 2026",
+      "files": [
+        {"path": "./exports/dec13_fin.htm", "label": "Class Results"},
+        {"path": "./exports/dec13_raw.htm", "label": "Raw Results"}
+      ]
+    }
+
+For a multi-day autocross weekend, list every file with its own label --
+"Day 1 Class Results", "Day 1 PAX Results", "Day 1 Raw Results", then the
+Day 2 equivalents -- in the order they should appear, and set
+"event_heading" to the human date range (e.g. "July 6-7, 2024").
+
+--dry-run prints the exact HTML that would be inserted, and where, without
+uploading anything or writing to the site. Always run this first.
+"""
+
+import argparse
+import base64
+import html
+import json
+import os
+import re
+import sys
+import urllib.request
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+SITE = os.environ.get("WP_SITE", "https://www.ksscca.org")
+WP_USER = os.environ.get("WP_USER", "Ian@futurehat.com")
+
+PAGE_IDS = {
+    "autocross": 898,
+    "rallycross": 996,
+}
+
+
+def load_app_password():
+    env_file = Path(os.environ.get("WP_ENV_FILE", REPO_ROOT / ".env"))
+    if not env_file.exists():
+        env_file = REPO_ROOT / "env.org"
+    if not env_file.exists():
+        sys.exit(f"error: no .env (or env.org) found at {REPO_ROOT}")
+
+    for line in env_file.read_text().splitlines():
+        if line.startswith("WP_APP_PASS="):
+            value = line[len("WP_APP_PASS="):].strip()
+            value = value.strip("'\"")
+            if not value:
+                break
+            return value
+
+    sys.exit(
+        "error: WP_APP_PASS is not set in .env\n\n"
+        "Create one in WordPress: Users -> Profile -> Application Passwords\n"
+        "Then paste the generated value into .env as:\n"
+        "  WP_APP_PASS=xxxx xxxx xxxx xxxx xxxx xxxx"
+    )
+
+
+def rest_request(method, path, app_password, data=None, headers=None):
+    url = f"{SITE}/wp-json{path}"
+    req = urllib.request.Request(url, method=method)
+    token = base64.b64encode(f"{WP_USER}:{app_password}".encode()).decode()
+    req.add_header("Authorization", f"Basic {token}")
+    for key, value in (headers or {}).items():
+        req.add_header(key, value)
+    if data is not None:
+        req.data = data if isinstance(data, bytes) else json.dumps(data).encode()
+        if "Content-Type" not in (headers or {}):
+            req.add_header("Content-Type", "application/json")
+
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        return json.loads(resp.read().decode())
+
+
+def upload_media(file_path, app_password):
+    """Uploads one file to the Media Library, returns its root-relative URL.
+
+    WordPress restricts uploadable file types by default; .htm/.html is not
+    always in the allowed list depending on site configuration. If this
+    fails with a 'disallowed file type' error, the fix is server-side (a
+    mime_types filter), not something this script can work around.
+    """
+    filename = file_path.name
+    with open(file_path, "rb") as f:
+        body = f.read()
+
+    result = rest_request(
+        "POST",
+        "/wp/v2/media",
+        app_password,
+        data=body,
+        headers={
+            "Content-Type": "text/html",
+            "Content-Disposition": f'attachment; filename="{filename}"',
+        },
+    )
+    source_url = result["source_url"]
+    # Convert to root-relative, matching the site convention (issue #24) --
+    # host- and scheme-agnostic, doesn't rot if siteurl is ever fixed.
+    return re.sub(r"^https?://[^/]+", "", source_url)
+
+
+def build_autocross_block(manifest):
+    heading = html.escape(manifest["event_heading"])
+    lines = [f'<h3 style="text-align: left;"><span style="font-size: 16px;">{heading}</span></h3>']
+    prev_day = None
+    for f in manifest["files"]:
+        day = f["label"].split()[0:2]  # "Day 1" / "Day 2" prefix, if present
+        day_key = " ".join(day) if f["label"].startswith("Day") else None
+        if prev_day is not None and day_key != prev_day:
+            lines.append("")  # blank line between Day 1 / Day 2 groups
+        prev_day = day_key
+        lines.append(f'{html.escape(f["label"])}: <a href="{f["url"]}">CLICK HERE</a>')
+    return "\r\n".join(lines)
+
+
+def build_rallycross_block(manifest):
+    heading = html.escape(manifest["event_heading"])
+    link_lines = "\r\n".join(
+        f'{html.escape(f["label"])}- <a href="{f["url"]}">Click Here</a>'
+        for f in manifest["files"]
+    )
+    return (
+        f'<h4 style="text-align: center;">{heading}</h4>\r\n'
+        f'<p style="text-align: center;">{link_lines}</p>'
+    )
+
+
+def find_insertion_point(content, discipline, season_heading):
+    """Returns (index_to_insert_at, needs_new_season_heading).
+
+    Looks for the given season heading already present in the page (an h3).
+    If found, the new event goes right after it, above the current top
+    event. If not found (a new season hasn't started on the page yet), the
+    new season heading plus event goes at the very top of the content.
+    """
+    if season_heading:
+        pattern = re.escape(html.escape(season_heading))
+        m = re.search(rf"<h3[^>]*>.*?{pattern}.*?</h3>", content, re.S)
+        if m:
+            return m.end(), False
+    return 0, True
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--manifest", required=True, type=Path)
+    parser.add_argument("--dry-run", action="store_true")
+    args = parser.parse_args()
+
+    manifest = json.loads(args.manifest.read_text())
+    discipline = manifest["discipline"]
+    if discipline not in PAGE_IDS:
+        sys.exit(f"error: discipline must be 'autocross' or 'rallycross', got {discipline!r}")
+
+    page_id = manifest.get("page_id", PAGE_IDS[discipline])
+    manifest_dir = args.manifest.parent
+
+    for f in manifest["files"]:
+        path = (manifest_dir / f["path"]).resolve()
+        if not path.exists():
+            sys.exit(f"error: file not found: {path}")
+        f["_local_path"] = path
+
+    # Reading the exact stored content (content.raw) needs edit-context auth
+    # even for a dry run -- the public REST API only exposes rendered HTML,
+    # which has already been through do_shortcode()/wpautop() and wouldn't
+    # match what's actually stored. Only the upload and the final write are
+    # skipped in dry-run mode.
+    app_password = load_app_password()
+
+    print(f"Discipline: {discipline}  ->  page {page_id}")
+    print(f"Event: {manifest['event_heading']}")
+    print(f"Files ({len(manifest['files'])}):")
+    for f in manifest["files"]:
+        print(f"  {f['label']:<24} {f['_local_path'].name}")
+    print()
+
+    if args.dry_run:
+        # Fake root-relative URLs so the preview shows realistic output
+        # without uploading anything.
+        for f in manifest["files"]:
+            f["url"] = f"/wp-content/uploads/PREVIEW/{f['_local_path'].name}"
+    else:
+        print("Uploading files...")
+        for f in manifest["files"]:
+            f["url"] = upload_media(f["_local_path"], app_password)
+            print(f"  uploaded {f['_local_path'].name} -> {f['url']}")
+        print()
+
+    if discipline == "autocross":
+        new_block = build_autocross_block(manifest)
+    else:
+        new_block = build_rallycross_block(manifest)
+
+    print("Fetching current page content...")
+    current = rest_request("GET", f"/wp/v2/pages/{page_id}?context=edit", app_password)["content"]["raw"]
+
+    insert_at, needs_season = find_insertion_point(current, discipline, manifest.get("season_heading"))
+
+    if needs_season and not manifest.get("season_heading"):
+        sys.exit(
+            "error: this page doesn't already have a heading matching a season, "
+            "and no 'season_heading' was given in the manifest to create one."
+        )
+
+    if needs_season:
+        season = html.escape(manifest["season_heading"])
+        if discipline == "autocross":
+            season_html = f'<h3 style="text-align: center;"><strong>{season}</strong></h3>\r\n'
+        else:
+            season_html = f'<h3 style="text-align: center;">{season}</h3>\r\n'
+        prefix = season_html
+    else:
+        prefix = ""
+
+    new_content = current[:insert_at] + "\r\n" + prefix + new_block + "\r\n" + current[insert_at:]
+
+    print("=" * 70)
+    print("HTML BLOCK TO BE INSERTED" + (" (new season heading included)" if needs_season else ""))
+    print("=" * 70)
+    print((prefix + new_block).strip())
+    print("=" * 70)
+
+    if args.dry_run:
+        print()
+        print("Dry run only -- nothing uploaded, nothing written.")
+        print(f"Page content would grow from {len(current)} to {len(new_content)} characters.")
+        return
+
+    confirm = input(f"\nWrite this to page {page_id} on the live site? [y/N] ")
+    if confirm.strip().lower() != "y":
+        print("Aborted -- files were already uploaded to the Media Library above, "
+              "but the page was not changed. Delete the uploads by hand if you don't "
+              "want them kept.")
+        return
+
+    rest_request(
+        "POST",
+        f"/wp/v2/pages/{page_id}",
+        app_password,
+        data={"content": new_content},
+    )
+    print(f"Done. https://www.ksscca.org/?page_id={page_id}")
+
+
+if __name__ == "__main__":
+    main()

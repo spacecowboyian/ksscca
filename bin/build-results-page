@@ -1,0 +1,189 @@
+#!/usr/bin/env python3
+"""Render a results archive page (year sidebar + per-season event rows) from a JSON file.
+
+    bin/build-results-page results/autocross.json > results/build/autocross.html
+
+The JSON shape is documented by example in results/autocross.json and
+results/rallycross.json:
+
+    {"page_id": 898, "title": "...", "discipline": "Solo", "intro": "...",
+     "seasons": {"2024": [{"title": "...", "date": "...", "links": [["Class", "/..."], ...]}, ...]}}
+
+Seasons render newest first in the sidebar; rows render in the order given
+(calendar order, earliest first). Everything is emitted on one line per row
+because WordPress's wpautop() wraps an inline element followed by a block in an
+empty <p>, which the theme then gives a margin (cost real time once).
+
+The output is the full post_content for the page: <style>, heading, intro,
+markup and the small script that switches years. Publish it with
+wp_update_page (or bin/wp-rest); it is a plain full-content replacement.
+"""
+
+import html
+import json
+import sys
+from pathlib import Path
+
+STYLE = """<style>/* Results archive styles. This comment stays on the same line as the tag on
+purpose: a newline straight after <style> lets wpautop insert a <p> that swallows
+whatever rule comes first, so the first line is kept expendable. The fonts these
+rules use are enqueued in the document head by the ksscca-fonts snippet (#36),
+not imported here. */
+#ksr-results{font-family:'Inter',Verdana,Arial,sans-serif;color:#e7e5df;min-width:0;}
+#ksr-results p:empty{display:none;margin:0;}
+/* The theme repeats the page title above the content; our H1 replaces it.
+   No literal tags in these comments: WordPress parses them as real markup. */
+body.page-id-PAGE_ID .row.header .title-page{display:none;}
+#ksr-results .ksr-layout{display:grid;grid-template-columns:160px 1fr;border:1px solid #2d2d2d;min-width:0;}
+#ksr-results .ksr-years{background:transparent;border-right:1px solid #2d2d2d;}
+#ksr-results .ksr-year-btn{display:block;width:100%;text-align:left;padding:14px 18px;background:none;border:none;border-bottom:1px solid #2d2d2d;color:#99978f;font-family:'PT Sans Narrow',Verdana,Arial,sans-serif;font-size:19px;font-weight:700;letter-spacing:.02em;cursor:pointer;}
+#ksr-results .ksr-year-btn:last-child{border-bottom:none;}
+#ksr-results .ksr-year-btn.active{color:#e7e5df;background:#161616;box-shadow:inset 3px 0 0 #6cc98d;}
+#ksr-results .ksr-year-btn:not(.active):hover{color:#e7e5df;background:#161616;}
+#ksr-results .ksr-panel{padding:0;min-width:0;}
+#ksr-results .ksr-season{display:none;}
+#ksr-results .ksr-season.active{display:block;}
+#ksr-results .ksr-season-head{padding:16px 20px;border-bottom:1px solid #2d2d2d;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#99978f;}
+#ksr-results .ksr-col-head{display:flex;justify-content:space-between;padding:10px 20px;border-bottom:1px solid #2d2d2d;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#99978f;}
+#ksr-results .ksr-row{display:block;padding:12px 20px;border-bottom:1px solid #2d2d2d;}
+#ksr-results .ksr-row:last-child{border-bottom:none;}
+#ksr-results .ksr-row:hover{background:#161616;}
+#ksr-results .ksr-event-name{display:block;font-weight:600;font-size:14.5px;color:#e7e5df;line-height:1.2;margin:0;padding:0;}
+#ksr-results .ksr-meta{display:flex;justify-content:space-between;align-items:baseline;gap:14px;margin-top:1px;line-height:1.2;}
+#ksr-results .ksr-event-sub{font-size:12.5px;color:#99978f;min-width:0;}
+#ksr-results .ksr-links{font-size:13px;white-space:nowrap;flex:none;margin-left:auto;}
+#ksr-results .ksr-link{color:#e2c47c;text-decoration:none;font-weight:600;}
+#ksr-results .ksr-link:hover{color:#f2d999;text-decoration:underline;}
+#ksr-results .ksr-sep{color:#4a4a4a;}
+#ksr-results .ksr-eyebrow{font-family:'Inter',Verdana,Arial,sans-serif !important;font-size:12px !important;line-height:1.4;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#99978f;margin:0 0 6px;text-align:left;}
+#ksr-results .ksr-h{text-align:left;font-weight:700;margin:0 0 12px;}
+#ksr-results .ksr-intro{text-align:left;color:#99978f;font-size:13px;margin:0 0 18px;}
+#ksr-results .ksr-current{border:1px solid #2d2d2d;margin-bottom:34px;}
+#ksr-results .ksr-na{padding:14px 20px;font-size:13px;color:#99978f;}
+#ksr-results .ksr-pending{color:#99978f;font-weight:400;font-style:italic;}
+@media (max-width:700px){
+#ksr-results .ksr-layout{grid-template-columns:1fr;}
+#ksr-results .ksr-years{display:flex;overflow-x:auto;border-right:none;border-bottom:1px solid #2d2d2d;-webkit-overflow-scrolling:touch;}
+#ksr-results .ksr-year-btn{width:auto;flex:none;padding:12px 16px;border-bottom:none;border-right:1px solid #2d2d2d;white-space:nowrap;font-size:17px;}
+#ksr-results .ksr-year-btn:last-child{border-right:none;}
+#ksr-results .ksr-year-btn.active{box-shadow:inset 0 -3px 0 #6cc98d;}
+#ksr-results .ksr-season-head,#ksr-results .ksr-col-head{padding-left:14px;padding-right:14px;}
+#ksr-results .ksr-row{padding:10px 14px;}
+#ksr-results .ksr-event-name{font-size:14px;}
+#ksr-results .ksr-event-sub{font-size:12px;}
+#ksr-results .ksr-links{font-size:12.5px;}
+}
+</style>
+<noscript><style>#ksr-results .ksr-season{display:block;}#ksr-results .ksr-years{display:none;}</style></noscript>"""
+
+SCRIPT = """<script>
+(function(){
+var root=document.getElementById('ksr-results');if(!root)return;
+var btns=root.querySelectorAll('.ksr-year-btn'),panels=root.querySelectorAll('.ksr-season');
+function show(y,push){
+var found=false;
+panels.forEach(function(p){var on=p.getAttribute('data-year')===y;p.classList.toggle('active',on);if(on)found=true;});
+if(!found)return false;
+btns.forEach(function(b){b.classList.toggle('active',b.getAttribute('data-year')===y);b.setAttribute('aria-selected',b.getAttribute('data-year')===y?'true':'false');});
+if(push&&history.replaceState){history.replaceState(null,'','#'+y);}
+var ab=root.querySelector('.ksr-year-btn.active');if(ab&&ab.scrollIntoView){ab.scrollIntoView({block:'nearest',inline:'nearest'});}
+return true;
+}
+btns.forEach(function(b){b.addEventListener('click',function(){show(b.getAttribute('data-year'),true);});});
+var h=(location.hash||'').replace('#','');
+if(!(h&&show(h,false))){show(btns[0].getAttribute('data-year'),false);}
+window.addEventListener('hashchange',function(){var y=(location.hash||'').replace('#','');if(y)show(y,false);});
+})();
+</script>"""
+
+
+def esc(s):
+    return html.escape(s, quote=True)
+
+
+def render_row(row):
+    """One event row. A row with no links is an event that has happened but
+    whose results are not posted yet -- it still gets a row, marked pending,
+    so the season reads as complete."""
+    if not row["links"]:
+        links_html = '<span class="ksr-pending">Results pending</span>'
+        return (
+            f'<div class="ksr-row"><div class="ksr-event-name">{esc(row["title"])}</div>'
+            f'<div class="ksr-meta"><div class="ksr-event-sub">{esc(row.get("date", ""))}</div>'
+            f'<div class="ksr-links">{links_html}</div></div></div>'
+        )
+    links = []
+    for i, (label, href) in enumerate(row["links"]):
+        if i:
+            links.append('<span class="ksr-sep"> &middot; </span>')
+        ext = ' target="_blank" rel="noopener"' if href.startswith("http") else ""
+        links.append(f'<a class="ksr-link" href="{esc(href)}"{ext}>{esc(label)}</a>')
+    sub = f'<div class="ksr-event-sub">{esc(row["date"])}</div>' if row.get("date") else '<div class="ksr-event-sub"></div>'
+    return (
+        f'<div class="ksr-row"><div class="ksr-event-name">{esc(row["title"])}</div>'
+        f'<div class="ksr-meta">{sub}<div class="ksr-links">{"".join(links)}</div></div></div>'
+    )
+
+
+def render(data):
+    years = sorted(data["seasons"].keys(), reverse=True)
+    disc = data["discipline"]
+    out = [STYLE.replace("PAGE_ID", str(data["page_id"])), ""]
+    out.append('<div id="ksr-results">')
+    # Small eyebrow line carries the full page name (it is the page's H1 for
+    # search engines, styled at H6 size); the visible section headings are H2s
+    # with the same inline treatment as the homepage's "Upcoming Events" H1.
+    out.append(f'<h1 class="ksr-eyebrow">{esc(data["title"])}</h1>')
+    if data.get("intro"):
+        out.append(f'<p class="ksr-intro">{esc(data["intro"])}</p>')
+
+    current = data.get("current") or {}
+    season = current.get("season", "")
+    rows = current.get("rows") or []
+    out.append('<h2 class="ksr-h">Current Results</h2>')
+    out.append('<div class="ksr-current">')
+    n = len(rows)
+    label = f'{n} event{"s" if n != 1 else ""}' if n else "no results posted yet"
+    out.append(f'<div class="ksr-season-head">{esc(season)} {esc(disc)} Season &middot; {label}</div>')
+    if rows:
+        out.append('<div class="ksr-col-head"><span>Event</span><span>Results</span></div>')
+        # Current season reads newest first -- the most recent event is what a
+        # visitor came for. The archive below stays in calendar order.
+        for r in reversed(rows):
+            out.append(render_row(r))
+    else:
+        out.append('<div class="ksr-na">NA</div>')
+    out.append("</div>")
+
+    out.append('<h2 class="ksr-h">Results Archive</h2>')
+    out.append('<div class="ksr-layout">')
+    nav = "".join(
+        f'<button type="button" class="ksr-year-btn{" active" if i == 0 else ""}" data-year="{y}" role="tab" aria-selected="{"true" if i == 0 else "false"}">{y}</button>'
+        for i, y in enumerate(years)
+    )
+    out.append(f'<nav class="ksr-years" role="tablist" aria-label="Season">{nav}</nav>')
+    out.append('<div class="ksr-panel">')
+    for i, y in enumerate(years):
+        rows = data["seasons"][y]
+        n = sum(1 for r in rows if r["title"] != "Season Points")
+        out.append(f'<section class="ksr-season{" active" if i == 0 else ""}" data-year="{y}" id="season-{y}" role="tabpanel">')
+        out.append(f'<div class="ksr-season-head">{y} {esc(disc)} Results &middot; {n} event{"s" if n != 1 else ""}</div>')
+        out.append('<div class="ksr-col-head"><span>Event</span><span>Results</span></div>')
+        for r in rows:
+            out.append(render_row(r))
+        out.append("</section>")
+    out.append("</div></div>")  # .ksr-panel, .ksr-layout
+    out.append("</div>")  # #ksr-results
+    out.append(SCRIPT)
+    return "\n".join(out) + "\n"
+
+
+def main():
+    if len(sys.argv) != 2:
+        sys.exit(__doc__)
+    data = json.loads(Path(sys.argv[1]).read_text())
+    sys.stdout.write(render(data))
+
+
+if __name__ == "__main__":
+    main()

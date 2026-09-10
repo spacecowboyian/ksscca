@@ -1,0 +1,200 @@
+#!/usr/bin/env python3
+"""Prepare a results event for posting: fix the export metadata, stage the
+uploads, and patch the results JSON.
+
+    bin/prep-results --manifest event.json --dry-run
+    bin/prep-results --manifest event.json
+
+This replaces the upload-and-prepend approach in bin/post-results, which
+built the old "CLICK HERE" list format and would now prepend that above
+the generated markup. Pages 898 and 996 are rendered from results/*.json
+by bin/build-results-page, so posting an event means adding a row to that
+JSON, not editing a page.
+
+What this does, all locally:
+
+  1. Rewrites each export's <head>. The timing software ships every file
+     with <title>Final Results</title> and a description crediting a
+     different region, which is what search engines index (issue #28).
+     Each file gets a real title and description built from the event
+     metadata, plus a canonical link back to the archive page.
+  2. Writes the corrected copies to results/staged/ ready to upload.
+  3. Prints the JSON row to add to results/<discipline>.json, in the
+     right place, with the URLs the files will have once uploaded.
+
+What it deliberately does not do: upload anything or touch the live site.
+Uploading needs credentials this script does not have; see the issue #3
+thread for the two available routes. Run the upload, then paste the
+printed row into the JSON, then rebuild:
+
+    bin/build-results-page results/autocross.json > results/build/autocross.html
+
+Manifest (JSON):
+
+    {
+      "discipline": "rallycross",
+      "season": "2026",
+      "title": "RallyCross Endurocross",
+      "date": "April 19, 2026",
+      "current": true,
+      "files": [
+        {"path": "./exports/ksrx-april-2026_fin.htm", "label": "Class"},
+        {"path": "./exports/ksrx-april-2026_raw.htm", "label": "Raw"}
+      ]
+    }
+
+"current" true puts the row in the current-season block (newest first);
+false or absent puts it in the archive under "season" (calendar order).
+"""
+
+import argparse
+import json
+import re
+import sys
+from datetime import datetime
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+STAGED = REPO_ROOT / "results" / "staged"
+
+DISCIPLINES = {
+    "autocross": {"json": "autocross.json", "page": "/autocross-results/", "noun": "autocross"},
+    "rallycross": {"json": "rallycross.json", "page": "/rallycross-results-2/", "noun": "RallyCross"},
+}
+
+# What each label means, spelled out for the meta description.
+LABEL_TEXT = {
+    "Class": "Class results",
+    "PAX": "PAX (index) results",
+    "Raw": "Raw times",
+    "Results": "Results",
+    "Points": "Season points",
+}
+
+
+def rewrite_head(html, title, description, canonical):
+    """Replace the timing software's boilerplate head with our own.
+
+    The exports are latin-1 and use uppercase tags. Matching is
+    case-insensitive and the original encoding is preserved on write, so
+    the results tables themselves are untouched -- only the head changes.
+
+    Deliberately NOT rewritten: the organisation line printed inside the
+    results table, e.g. "Wichita Region SCCA - #9 - Wichita Autocross #9 -
+    Sat 07-06-2024". That is not boilerplate, it is the authoritative
+    record of who ran and timed the event, and it is the source the
+    archive's own event numbering is read from. Co-hosted rounds really
+    were timed on another region's system and the line should keep saying
+    so. Only the head is boilerplate.
+    """
+    html = re.sub(
+        r"<title>.*?</title>",
+        "<title>%s</title>" % title,
+        html,
+        count=1,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+    html = re.sub(
+        r'<meta\s+name="description"[^>]*>',
+        '<meta name="description" content="%s">' % description,
+        html,
+        count=1,
+        flags=re.IGNORECASE,
+    )
+    html = re.sub(
+        r'<meta\s+name="keywords"[^>]*>',
+        '<meta name="keywords" content="autocross, rallycross, results, Kansas Region SCCA">',
+        html,
+        count=1,
+        flags=re.IGNORECASE,
+    )
+    link = '<link rel="canonical" href="%s">' % canonical
+    if not re.search(r"<link rel=\"canonical\"", html, re.IGNORECASE):
+        html = re.sub(r"</head>", link + "\n</head>", html, count=1, flags=re.IGNORECASE)
+    return html
+
+
+def upload_path(date_str, filename):
+    """Where WordPress will put the file: uploads/<year>/<month>/<name>."""
+    for fmt in ("%B %d, %Y", "%b %d, %Y"):
+        try:
+            d = datetime.strptime(date_str, fmt)
+            return "/wp-content/uploads/%04d/%02d/%s" % (d.year, d.month, filename)
+        except ValueError:
+            continue
+    sys.exit(
+        "error: could not parse date %r. Use a form like 'April 19, 2026' so the\n"
+        "upload path (uploads/<year>/<month>/) can be derived." % date_str
+    )
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("--manifest", required=True, type=Path)
+    p.add_argument("--dry-run", action="store_true", help="print what would be written, write nothing")
+    args = p.parse_args()
+
+    m = json.loads(args.manifest.read_text())
+    disc = m["discipline"]
+    if disc not in DISCIPLINES:
+        sys.exit("error: discipline must be one of %s" % ", ".join(DISCIPLINES))
+    cfg = DISCIPLINES[disc]
+    canonical = "https://www.ksscca.org" + cfg["page"]
+
+    manifest_dir = args.manifest.parent
+    links = []
+    staged = []
+
+    for f in m["files"]:
+        src = (manifest_dir / f["path"]).resolve()
+        if not src.exists():
+            sys.exit("error: file not found: %s" % src)
+
+        label = f["label"]
+        title = "Kansas Region SCCA %s, %s, %s" % (
+            cfg["noun"],
+            m["date"],
+            LABEL_TEXT.get(label, label).lower(),
+        )
+        description = "%s for the Kansas Region SCCA %s held %s. Driver, car number, class and run times." % (
+            LABEL_TEXT.get(label, label),
+            cfg["noun"],
+            m["date"],
+        )
+
+        html = src.read_text(encoding="latin-1")
+        fixed = rewrite_head(html, title, description, canonical)
+        out = STAGED / src.name
+        staged.append((out, fixed, title))
+        links.append([label, upload_path(m["date"], src.name)])
+
+    row = {"title": m["title"], "date": m["date"], "links": links}
+
+    print("Event : %s  (%s)" % (m["title"], m["date"]))
+    print("Target: results/%s  ->  %s" % (cfg["json"], "current season" if m.get("current") else "season " + str(m.get("season", "?"))))
+    print()
+    print("Files staged for upload:")
+    for out, _, title in staged:
+        print("  %s" % out.relative_to(REPO_ROOT))
+        print("      title: %s" % title)
+    print()
+    print("JSON row to add:")
+    print(json.dumps(row, indent=1, ensure_ascii=False))
+    print()
+
+    if args.dry_run:
+        print("Dry run. Nothing written.")
+        return
+
+    STAGED.mkdir(parents=True, exist_ok=True)
+    for out, fixed, _ in staged:
+        out.write_text(fixed, encoding="latin-1")
+    print("Wrote %d file(s) to %s" % (len(staged), STAGED.relative_to(REPO_ROOT)))
+    print()
+    print("Next: upload those files to the Media Library, add the row above to")
+    print("results/%s, then rebuild:" % cfg["json"])
+    print("  bin/build-results-page results/%s > results/build/%s" % (cfg["json"], cfg["json"].replace(".json", ".html")))
+
+
+if __name__ == "__main__":
+    main()
