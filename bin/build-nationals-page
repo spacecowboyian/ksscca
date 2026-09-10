@@ -1,0 +1,549 @@
+#!/usr/bin/env python3
+"""Rebuild the Solo Nationals page body from the live timing site.
+
+    bin/build-nationals-page --offline            # use the cache, fetch nothing
+    bin/build-nationals-page --fetch              # polite refresh, then build
+    bin/build-nationals-page --fetch --out nationals/build/
+
+Writes the page body to stdout, or with --out writes shell.html plus
+p1..pN.html chunks ready to paste into WordPress page 1882 (see
+"Posting" below).
+
+Why a seed file
+---------------
+nationals/roster-seed.json fixes WHO is on the page: the 70 Kansas-area
+drivers, their class, car, home town, region of record, and their run
+group. None of that changes during the event, and the group code is not
+recoverable from the class pages alone, so it is recorded once rather
+than re-derived. Each refresh only updates what actually moves:
+positions, run times and class sizes.
+
+Being a good guest
+------------------
+On 2026-09-10 this repo's IP was blocked by sololive.scca.com after ~80
+fast requests. The site was never down; we were banned. See
+nationals/README.md. So:
+
+  * only the 28 classes that actually contain our drivers are fetched,
+    not all 80
+  * DELAY seconds between requests, serially, never in parallel
+  * If-Modified-Since from the cached copy, so an unchanged class costs
+    them a 304
+  * the first timeout aborts the run rather than retrying into a wall
+
+If you are blocked, do not route around it through a proxy or another
+IP. Wait it out and run --offline in the meantime.
+"""
+
+import argparse
+import html as htmllib
+import json
+import os
+import re
+import sys
+import time
+import urllib.error
+import urllib.request
+from datetime import datetime, timezone
+from email.utils import formatdate, parsedate_to_datetime
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+SEED = ROOT / "nationals" / "roster-seed.json"
+CACHE = ROOT / "nationals" / "cache"
+
+DELAY = 2.5          # seconds between requests
+TIMEOUT = 15
+UA = "ksscca.org results builder (+https://www.ksscca.org/)"
+
+
+# --------------------------------------------------------------------------
+# fetching
+
+
+def fetch_class(code, base, force=False):
+    """Fetch one class page into the cache. Returns (text, status)."""
+    CACHE.mkdir(parents=True, exist_ok=True)
+    path = CACHE / ("%s.html" % code)
+    req = urllib.request.Request(base + code + ".php", headers={"User-Agent": UA})
+
+    if path.exists() and not force:
+        stamp = datetime.fromtimestamp(path.stat().st_mtime, timezone.utc)
+        req.add_header("If-Modified-Since", formatdate(stamp.timestamp(), usegmt=True))
+
+    try:
+        with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
+            body = r.read().decode("cp1252", "replace")
+            path.write_text(body, encoding="utf-8")
+            return body, "fetched"
+    except urllib.error.HTTPError as e:
+        if e.code == 304:
+            return path.read_text(encoding="utf-8"), "unchanged"
+        raise
+    except (urllib.error.URLError, TimeoutError, OSError) as e:
+        raise SystemExit(
+            "aborting at %s: %s\n"
+            "If this is a connection timeout, we are most likely IP blocked "
+            "again. Do not retry in a loop and do not switch IPs. Run with "
+            "--offline and try later." % (code, e)
+        )
+
+
+def load_class(code, base, mode):
+    path = CACHE / ("%s.html" % code)
+    if mode == "offline":
+        if not path.exists():
+            return None, "missing"
+        return path.read_text(encoding="utf-8"), "cached"
+    body, status = fetch_class(code, base)
+    time.sleep(DELAY)
+    return body, status
+
+
+# --------------------------------------------------------------------------
+# parsing
+
+TR_RE = re.compile(r"<TR\b.*?</TR>", re.I | re.S)
+TD_RE = re.compile(r"<TD([^>]*)>(.*?)</TD>", re.I | re.S)
+SIZE_RE = re.compile(r"Class standings for\s+(\S+)\s+\[(\d+)\s+Cars\]", re.I)
+STAMP_RE = re.compile(r"Class standings for.*?\((\d\d:\d\d:\d\d\s*[AP]M)\)", re.I)
+
+
+def text_of(fragment):
+    t = re.sub(r"<[^>]+>", "", fragment)
+    return htmllib.unescape(t).replace("\xa0", " ").strip()
+
+
+def parse_class(body):
+    """Return {name_key: driver dict} plus class size and timestamp."""
+    size = 0
+    m = SIZE_RE.search(body)
+    if m:
+        size = int(m.group(2))
+    stamp = ""
+    m = STAMP_RE.search(body)
+    if m:
+        stamp = m.group(1).strip()
+
+    trs = TR_RE.findall(body)
+    out = {}
+    for i, tr in enumerate(trs):
+        if 'id="inforow"' not in tr:
+            continue
+        if i == 0 or i + 1 >= len(trs):
+            continue
+
+        main = TD_RE.findall(trs[i - 1])
+        info = TD_RE.findall(tr)
+        runs = TD_RE.findall(trs[i + 1])
+
+        if len(main) < 5:
+            continue
+
+        cells = [text_of(c) for _, c in main]
+        pos, num, name = cells[1], cells[2], cells[3]
+        # First column carries "T" on every trophy position. Solo Nationals
+        # scales trophy depth with class size, so this is the only honest
+        # source for where the cut falls -- 13 deep in EST, 2 in GSL.
+        trophy = cells[0].strip().upper() == "T"
+        total = cells[-1]
+        if not name:
+            continue
+
+        courses = {"course1": [], "course2": []}
+        for attrs, cell in runs:
+            which = "course1" if "course1" in attrs else ("course2" if "course2" in attrs else None)
+            if which is None:
+                continue
+            raw = text_of(cell)
+            if not raw or raw == "&nbsp;":
+                continue
+            courses[which].append(
+                {
+                    "time": raw,
+                    "counted": "<b>" in cell.lower(),
+                    "struck": "<s>" in cell.lower(),
+                }
+            )
+
+        home = text_of(info[1][1]) if len(info) > 1 else ""
+        out[name.lower()] = {
+            "pos": pos,
+            "num": num,
+            "name": name,
+            "total": total,
+            "home": home,
+            "size": size,
+            "stamp": stamp,
+            "courses": courses,
+            "trophy": trophy,
+        }
+    return out
+
+
+# --------------------------------------------------------------------------
+# shaping
+
+
+def split_courses(driver, seed):
+    """Map the page's course1/course2 onto East and West for this driver.
+
+    seed['days'] is [day1, course1_name, day2, course2_name] -- e.g.
+    ["Tuesday", "West", "Wednesday", "East"] means this driver ran the
+    West course on Tuesday as their course 1.
+    """
+    d1, c1name, d2, c2name = seed["days"]
+    side = {c1name.lower(): ("course1", d1), c2name.lower(): ("course2", d2)}
+
+    result = {}
+    for label in ("east", "west"):
+        key, day = side[label]
+        runs = driver["courses"][key]
+        best = next((r["time"] for r in runs if r["counted"]), None)
+        result[label] = {"day": day, "runs": runs, "time": best}
+    return result
+
+
+def numeric(t):
+    if not t:
+        return None
+    m = re.match(r"(\d+(?:\.\d+)?)", t)
+    return float(m.group(1)) if m else None
+
+
+def state_of(row):
+    """running / done / notrun, from run counts on the current course."""
+    e, w = row["east"], row["west"]
+    counts = [len(e["runs"]), len(w["runs"])]
+    if counts == [0, 0]:
+        return "notrun"
+    if e["time"] and w["time"]:
+        return "done"
+    live = max(counts)
+    return "running" if 1 <= live < 3 else "partial"
+
+
+def build_rows(seed_data, pages):
+    rows = []
+    for s in seed_data["drivers"]:
+        page = pages.get(s["cls"])
+        if not page:
+            continue
+        d = page.get(s["name"].lower())
+        if not d:
+            continue
+        row = dict(s)
+        row.update({"pos": d["pos"], "size": d["size"], "total_raw": d["total"],
+                    "trophy": d.get("trophy", False)})
+        row.update(split_courses(d, s))
+        row["state"] = state_of(row)
+        e, w = numeric(row["east"]["time"]), numeric(row["west"]["time"])
+        # A course that was attempted but produced no counted time (all DNS
+        # or all cones) is not the same as a course not yet run. The first
+        # means there is no total to have; the second means the total so far
+        # is just the one course.
+        blown = any(row[c]["runs"] and not row[c]["time"] for c in ("east", "west"))
+        row["complete"] = bool(e and w)
+        if row["complete"]:
+            row["total"] = round(e + w, 3)
+        elif blown:
+            row["total"] = None
+            row["no_time"] = True
+        else:
+            row["total"] = e or w
+        rows.append(row)
+    return rows
+
+
+def sort_key(row):
+    """Surname, keeping particles (von, de, Flores) with the surname."""
+    parts = row["name"].split()
+    if len(parts) < 2:
+        return (row["name"].lower(), "")
+    particles = {"von", "van", "de", "del", "della", "di", "da", "la", "le", "st", "st."}
+    i = len(parts) - 1
+    while i > 1 and parts[i - 1].lower().strip(".") in particles:
+        i -= 1
+    # A middle token like "Jr." belongs after the surname, not in it.
+    surname = " ".join(parts[i:])
+    return (surname.lower(), " ".join(parts[:i]).lower())
+
+
+def field_sort_key(row):
+    """Class A-Z, then position within the class, then surname.
+
+    Someone with no time carries the timing system's running order rather
+    than a standing, so they sort to the end of their class instead of
+    being interleaved with real positions.
+    """
+    p = str(row["pos"]).strip()
+    ranked = row["total"] is not None and p.isdigit()
+    return (
+        row["cls"].upper(),
+        0 if ranked else 1,
+        int(p) if p.isdigit() else 10 ** 6,
+        sort_key(row),
+    )
+
+
+# --------------------------------------------------------------------------
+# rendering
+#
+# The markup is deliberately unfashionable: every row is a native
+# <details>/<summary>, so expanding a driver works with JavaScript off.
+# The only script on the page is the pager.
+#
+# Two wpautop traps are designed around here and must stay designed
+# around (see CLAUDE.md): an inline element followed by a block inside a
+# container gets wrapped in an empty <p> that the theme gives a margin
+# to, and a newline after <style> lets WordPress insert a <p> that the
+# CSS parser then eats along with the following rule. Hence: every
+# sibling is a block element, each row is emitted on ONE line, and the
+# style block opens with a throwaway guard rule.
+
+E = htmllib.escape
+
+
+def dash(v, cls="m"):
+    return '<span class="%s">&mdash;</span>' % cls if not v else E(str(v))
+
+
+def fmt_total(row):
+    if row["total"] is None:
+        if row.get("no_time"):
+            return '<span class="m">no time</span>'
+        return '<span class="m">not yet run</span>'
+    return '<span class="g">%s</span>' % ("%.3f" % row["total"])
+
+
+def run_cells(runs):
+    out = []
+    for i in range(3):
+        if i < len(runs):
+            r = runs[i]
+            cell = '<td class="b">%s</td>' if r["counted"] else "<td>%s</td>"
+            out.append(cell % E(r["time"]))
+        else:
+            out.append('<td class="n">&mdash;</td>')
+    return "".join(out)
+
+
+def render_body(row):
+    parts = ['<div class="ksn-body"><table class="ksn-rt"><thead><tr><th>Course</th>'
+             '<th>Day</th><th>Run 1</th><th>Run 2</th><th>Run 3</th>'
+             '<th class="c">Best</th></tr></thead><tbody>']
+    for label in ("east", "west"):
+        c = row[label]
+        best = ('<td class="c b">%s</td>' % E(c["time"])) if c["time"] else '<td class="c n">&mdash;</td>'
+        parts.append(
+            '<tr><th scope="row">%s course</th><td class="d">%s</td>%s%s</tr>'
+            % (label.capitalize(), E(c["day"]), run_cells(c["runs"]), best)
+        )
+    parts.append("</tbody></table>")
+    parts.append(
+        '<dl class="ksn-info"><dt>From</dt><dd>%s</dd><dt>Runs with</dt><dd>%s</dd>'
+        '<dt>Car number</dt><dd>%s</dd><dt>Car</dt><dd>%s</dd></dl></div>'
+        % (E(row["home"]), E(row["region"]), E(row["num"]), E(row["car"]))
+    )
+    return "".join(parts)
+
+
+def ordinal(n):
+    """1st, 2nd, 3rd, 4th ... 11th, 12th, 13th."""
+    if 10 <= n % 100 <= 20:
+        return "%dth" % n
+    return "%d%s" % (n, {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th"))
+
+
+def is_done(row):
+    """Both courses run. Not the same as having a total: a driver can
+    finish the event with nothing to show for a course."""
+    return bool(row["east"]["runs"]) and bool(row["west"]["runs"])
+
+
+def render_row(row, open_by_default=False, medal=None):
+    pos = row["pos"]
+    # A position for someone with no time is the timing system's running
+    # order, not a standing. Show it, but do not dress it up as a result.
+    if row["total"] is None:
+        pos_html = '<span class="m">%s of %s</span>' % (E(pos), row["size"])
+    else:
+        pos_html = "<b>%s</b> of %s" % (E(pos), row["size"])
+
+    name = E(row["name"])
+    if medal:
+        name = '<span class="md">%s</span>%s' % (ordinal(medal), name)
+
+    return (
+        '<details class="ksn-row%s"%s><summary><span class="nm">%s</span>'
+        '<span class="cl">%s</span><span class="ps">%s</span>'
+        '<span class="t">%s</span><span class="t">%s</span>'
+        '<span class="t">%s</span></summary>%s</details>'
+        % (
+            " done" if is_done(row) else "",
+            " open" if open_by_default else "",
+            name,
+            E(row["cls"]),
+            pos_html,
+            dash(row["east"]["time"]),
+            dash(row["west"]["time"]),
+            fmt_total(row),
+            render_body(row),
+        )
+    )
+
+
+HDR = ('<div class="ksn-hdr"><span>Driver</span><span>Class</span><span>Pos</span>'
+       '<span class="t">East</span><span class="t">West</span>'
+       '<span class="t">Total</span></div>')
+
+
+def module(title, note, rows_html, pager=""):
+    return (
+        '<div class="ksn-mod"><div class="ksn-mh"><div class="ksn-mt">%s</div>'
+        '<div class="ksn-mn">%s</div></div>%s%s%s</div>'
+        % (E(title), E(note), HDR, rows_html, pager)
+    )
+
+
+def build_page(rows, page_id, snapshot, coverage):
+    # Three tables, in the order they matter to a reader from Kansas:
+    # who is on the trophy, who still has running left to do, who is done.
+    #
+    # "Still running" is not a guess about who is staged right now -- that
+    # was tried and removed, because the feed cannot tell us. It means
+    # something we can actually see: one of this driver's two courses has
+    # no runs recorded against it at all, so their event is not over.
+    def on_pace(row):
+        """Is this driver currently on a trophy?
+
+        The class page marks every trophy position with a "T" in its first
+        column, and the depth scales with class size, so that flag is read
+        rather than a depth being assumed. Still guarded by having a total:
+        the timing system prints a position for everyone, including drivers
+        who have not turned a wheel, and that number is their run order.
+        """
+        return bool(row.get("trophy")) and row["total"] is not None
+
+    # Two tables, not three. Splitting "still running" from "finished"
+    # ranked people by how far through the event they happened to be,
+    # which is not an achievement and read as a pecking order. One
+    # list of everyone, with the green row doing the work of saying
+    # who is done.
+    trophy = [r for r in rows if on_pace(r)]
+    field = [r for r in rows if r not in trophy]
+
+    trophy.sort(key=lambda r: (int(str(r["pos"]).strip()), sort_key(r)))
+    field.sort(key=field_sort_key)
+
+    style = (ROOT / "nationals" / "template-style.html").read_text()
+    style = style.replace("page-id-PAGEID", "page-id-%s" % page_id)
+
+    out = [style]
+    out.append('<h1 style="text-align: left; font-weight: 700;">'
+               'KS Region at the 2026 SCCA Solo Nationals</h1>')
+    out.append('<div id="ksn">')
+    out.append(
+        '<p class="ksn-lede">The Tire Rack SCCA Solo National Championships run '
+        '7 to 11 September 2026. This page tracks Kansas Region drivers and the '
+        "surrounding regions, pulled from the event's "
+        '<a href="https://sololive.scca.com/26NATSGEN/index.php" rel="noopener">'
+        'live timing</a>. Times here are updated at noon and 6 PM.</p>')
+
+    # No preamble block. It explained the scoring, the selection rule and the
+    # refresh schedule in three paragraphs that pushed the actual results
+    # below the fold. The table headings and the row contents carry that
+    # information well enough; the one caveat worth keeping is at the bottom.
+
+    # The green row means the same thing in both tables, so the legend goes
+    # on whichever table comes first rather than being repeated or stranded
+    # at the bottom.
+    legend = "a green row is a final result"
+    if trophy:
+        out.append(module(
+            "Trophy positions",
+            "On a trophy in class \u00b7 %d drivers \u00b7 %s" % (len(trophy), legend),
+            "".join(render_row(r, medal=int(str(r["pos"]).strip())) for r in trophy),
+        ))
+
+    if field:
+        note = "%d drivers, by class" % len(field)
+        if not trophy:
+            note += " \u00b7 %s" % legend
+        out.append(module("The field", note,
+                          "".join(render_row(r) for r in field)))
+
+    notes = ['<div class="ksn-note">']
+    notes.append('<p><b>Trophy positions are the timing system\u2019s own.</b> Solo '
+                 'Nationals scales trophy depth with class size, and the class pages mark '
+                 'each trophy position, so the cut here is read from the source rather '
+                 'than assumed. Standings are provisional until the class finishes.</p>')
+    if coverage:
+        notes.append("<p><b>Coverage.</b> %s</p>" % E(coverage))
+    notes.append("</div>")
+    out.append("".join(notes))
+    out.append("</div>")
+    return "\n".join(out)
+
+
+# --------------------------------------------------------------------------
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__,
+                                formatter_class=argparse.RawDescriptionHelpFormatter)
+    g = p.add_mutually_exclusive_group()
+    g.add_argument("--fetch", action="store_true", help="refresh from the timing site")
+    g.add_argument("--offline", action="store_true", help="build from the cache only")
+    p.add_argument("--page-id", default="1882")
+    p.add_argument("--snapshot", default="",
+                   help='text for the source bar, e.g. "6 PM, 10 September"')
+    p.add_argument("--out", type=Path,
+                   help="write shell.html + pN.html chunks here instead of stdout")
+    args = p.parse_args()
+
+    seed = json.loads(SEED.read_text())
+    classes = sorted({d["cls"] for d in seed["drivers"]})
+    mode = "fetch" if args.fetch else "offline"
+
+    pages, missing, statuses = {}, [], {}
+    for code in classes:
+        body, status = load_class(code, seed["base"], mode)
+        statuses[code] = status
+        if body is None:
+            missing.append(code)
+            continue
+        pages[code] = parse_class(body)
+
+    rows = build_rows(seed, pages)
+
+    coverage = ""
+    if missing:
+        coverage = ("Built from %d of %d classes. %s would not load, so drivers in "
+                    "those are missing." % (len(classes) - len(missing), len(classes),
+                                            ", ".join(missing)))
+
+    snapshot = args.snapshot or datetime.now().strftime("%-I:%M %p, %-d %B")
+    page = build_page(rows, args.page_id, snapshot, coverage)
+
+    sys.stderr.write(
+        "classes: %d (%s)\ndrivers: %d of %d seeded\n"
+        % (len(classes),
+           ", ".join("%s=%s" % (k, v) for k, v in sorted(statuses.items())),
+           len(rows), len(seed["drivers"])))
+
+    if args.out:
+        args.out.mkdir(parents=True, exist_ok=True)
+        # The page is one block now that the field is not paginated, so there
+        # is nothing to chunk. Clear the old shell/chunk set so a stale p*.html
+        # cannot be posted after this one.
+        for stale in list(args.out.glob("p*.html")) + list(args.out.glob("shell.html")):
+            stale.unlink()
+        (args.out / "page.html").write_text(page)
+        sys.stderr.write("wrote %s/page.html (%d bytes)\n" % (args.out, len(page)))
+    else:
+        sys.stdout.write(page)
+
+
+if __name__ == "__main__":
+    main()
