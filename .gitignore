@@ -17,3 +17,5 @@ Thumbs.db
 results/staged/
 __pycache__/
 *.pyc
+nationals/cache/
+nationals/build/
