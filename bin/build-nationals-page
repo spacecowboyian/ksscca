@@ -448,7 +448,7 @@ def build_page(rows, page_id, snapshot, coverage):
         '7 to 11 September 2026. This page tracks Kansas Region drivers and the '
         "surrounding regions, pulled from the event's "
         '<a href="https://sololive.scca.com/26NATSGEN/index.php" rel="noopener">'
-        'live timing</a>. Times here are updated at noon and 6 PM.</p>')
+        'live timing</a>. Times here are updated every half hour from 8 AM to 6 PM.</p>')
 
     # No preamble block. It explained the scoring, the selection rule and the
     # refresh schedule in three paragraphs that pushed the actual results
@@ -461,7 +461,7 @@ def build_page(rows, page_id, snapshot, coverage):
     legend = "a green row is a final result"
     if trophy:
         out.append(module(
-            "Trophy positions",
+            "Trophy winners",
             "On a trophy in class \u00b7 %d drivers \u00b7 %s" % (len(trophy), legend),
             "".join(render_row(r, medal=int(str(r["pos"]).strip())) for r in trophy),
         ))

@@ -1,0 +1,297 @@
+#!/usr/bin/env python3
+"""Poll a Pronto Timing System live-results site and keep a driver roster in
+sync with it.
+
+    bin/pronto-live sync  --event pronto/events/26nats.json
+    bin/pronto-live sync  --event pronto/events/26nats.json --offline
+    bin/pronto-live watch --event pronto/events/26nats.json --every 300
+
+Pronto ("www.ProntoTimingSystem.com") runs the live results for SCCA Solo
+Nationals, ProSolo and a good many divisional and regional events. They all
+share the same page shapes, so this is written against the format rather
+than against one event: point the event JSON at a different `base` and it
+works unchanged.
+
+WHY THIS EXISTS, beyond politeness
+----------------------------------
+The first version of this pipeline read a hand-built roster file. Nine
+class pages failed to load the day it was built, so XA, XB and XBL were
+silently absent, and no amount of rebuilding could ever surface them --
+a driver missing from the seed can never appear. Deriving the roster from
+the live site every sweep makes that class of bug impossible: a class that
+was unreachable last time is simply picked up next time.
+
+BEING A GOOD GUEST
+------------------
+This is a live-timing site: it exists to be polled, and a spectator with a
+class page open on a 10-second auto-refresh generates six requests a
+minute on their own. A full sweep here is one request per class, three
+seconds apart, conditional, and classes that have posted FINAL RESULTS
+drop to an occasional recheck. A 31-class sweep every five minutes
+averages roughly one request a minute, most of them 304s.
+
+What it will not do: retry into a wall, or run without identifying itself.
+The User-Agent names the region and carries a contact URL so the operator
+can find a human instead of guessing. There is a hard daily request cap,
+and the first connection timeout ends the sweep.
+"""
+
+import argparse, html, json, os, re, sys, time, urllib.error, urllib.request
+from datetime import date, datetime, timezone
+from email.utils import formatdate
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+
+TR = re.compile(r"<TR\b.*?</TR>", re.I | re.S)
+TD = re.compile(r"<TD[^>]*>(.*?)</TD>", re.I | re.S)
+SIZE = re.compile(r"Class standings for\s+(\S+)\s+\[(\d+)\s+Cars\]", re.I)
+# Pronto marks a finished class with <div class='FINAL'>FINAL<br>RESULTS</div>.
+# Match the class attribute, not the words: there is a <br> between them.
+FINAL = re.compile(r"class=['\"]FINAL['\"]", re.I)
+# Panel ids drop the H from the group code: collapseTEFW is 26THEFW.
+PANEL = re.compile(r"id=['\"]collapse([A-Z]{4})['\"]", re.I)
+HEADING = re.compile(
+    r"(Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\s+(East|West)\s*/\s*"
+    r"(Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\s+(East|West)", re.I)
+
+
+def txt(s):
+    return html.unescape(re.sub(r"<[^>]+>", "", s)).replace("\xa0", " ").strip()
+
+
+class Fetcher:
+    """Conditional, rate-limited, self-identifying, capped."""
+
+    def __init__(self, cfg, state, offline=False):
+        self.base = cfg["base"]
+        self.cache = ROOT / cfg["cache_dir"]
+        self.cache.mkdir(parents=True, exist_ok=True)
+        p = cfg.get("politeness", {})
+        self.gap = p.get("min_gap_seconds", 3)
+        self.timeout = p.get("timeout_seconds", 15)
+        self.cap = p.get("daily_request_cap", 3000)
+        self.ua = "%s results builder (+%s)" % (
+            cfg.get("name", "pronto-live")[:60], cfg.get("contact", "no contact given"))
+        self.state, self.offline = state, offline
+        self.sent = 0
+        self.last = 0.0
+        today = date.today().isoformat()
+        if state.get("cap_day") != today:
+            state["cap_day"], state["cap_used"] = today, 0
+
+    def get(self, name):
+        """Return (text, status). status: fetched | unchanged | cached | capped."""
+        path = self.cache / (name + ".html")
+        if self.offline:
+            return (path.read_text(encoding="utf-8"), "cached") if path.exists() else (None, "missing")
+        if self.state["cap_used"] >= self.cap:
+            return (path.read_text(encoding="utf-8") if path.exists() else None), "capped"
+
+        gap = self.gap - (time.time() - self.last)
+        if gap > 0:
+            time.sleep(gap)
+
+        req = urllib.request.Request(self.base + name + ".php", headers={"User-Agent": self.ua})
+        meta = self.state.setdefault("http", {}).get(name, {})
+        if path.exists():
+            if meta.get("etag"):
+                req.add_header("If-None-Match", meta["etag"])
+            req.add_header("If-Modified-Since", meta.get("last_modified") or
+                           formatdate(path.stat().st_mtime, usegmt=True))
+        try:
+            with urllib.request.urlopen(req, timeout=self.timeout) as r:
+                body = r.read().decode("cp1252", "replace")
+                path.write_text(body, encoding="utf-8")
+                self.state["http"][name] = {"etag": r.headers.get("ETag"),
+                                            "last_modified": r.headers.get("Last-Modified")}
+                status = "fetched"
+        except urllib.error.HTTPError as e:
+            if e.code != 304:
+                raise
+            body, status = path.read_text(encoding="utf-8"), "unchanged"
+        except (urllib.error.URLError, TimeoutError, OSError) as e:
+            raise SystemExit(
+                "aborting at %s: %s\n"
+                "A connection timeout here usually means this IP is rate limited.\n"
+                "Do not retry in a loop and do not switch IPs to get around it:\n"
+                "slow the sweep down, or stop until it clears." % (name, e))
+        finally:
+            self.last = time.time()
+        self.sent += 1
+        self.state["cap_used"] += 1
+        return body, status
+
+
+def parse_index(body):
+    """Class codes, and which run group each belongs to."""
+    classes, groups, days = [], {}, {}
+    for m in re.finditer(r'href=["\']?([A-Za-z0-9]+)\.php', body, re.I):
+        c = m.group(1)
+        if c.lower() not in ("index", "announce") and c not in classes:
+            classes.append(c)
+    panels = sorted((m.start(), m.group(1).upper()) for m in PANEL.finditer(body))
+    for i, (start, pid) in enumerate(panels):
+        end = panels[i + 1][0] if i + 1 < len(panels) else len(body)
+        chunk = body[start:end]
+        head = body[max(0, start - 400):start]
+        h = HEADING.search(head)
+        code, seq = pid, None
+        if h:
+            d1, c1, d2, c2 = (g.capitalize() for g in h.groups())
+            seq = [d1, c1, d2, c2]
+            # The heading prints the event's own code, e.g. "(26THEFW)". Use
+            # theirs rather than synthesising one: Tuesday abbreviates to T
+            # and Thursday to TH, which is not derivable from the day name.
+            lit = re.search(r"\(\s*\d*([A-Z]{4,6})\s*\)", head)
+            if lit:
+                code = lit.group(1)
+        for c in re.findall(r'href=["\']?([A-Za-z0-9]+)\.php', chunk, re.I):
+            if c.lower() in ("index", "announce"):
+                continue
+            groups.setdefault(c, code)
+            if seq:
+                days.setdefault(c, seq)
+    return classes, groups, days
+
+
+def parse_class(body, code):
+    m = SIZE.search(body)
+    size = int(m.group(2)) if m else 0
+    final = bool(FINAL.search(body))
+    trs = TR.findall(body)
+    out = []
+    for i, tr in enumerate(trs):
+        if 'id="inforow"' not in tr or i == 0 or i + 1 >= len(trs):
+            continue
+        main = [txt(c) for c in TD.findall(trs[i - 1])]
+        info = [txt(c) for c in TD.findall(tr)]
+        if len(main) < 5 or len(info) < 2 or not main[3]:
+            continue
+        out.append({"cls": code, "size": size, "trophy": main[0].strip().upper() == "T",
+                    "pos": main[1], "num": main[2], "name": main[3], "car": main[4],
+                    "region": info[0], "home": info[1]})
+    return out, final, size
+
+
+def home_state(home):
+    """Trailing state token. Parsed rather than substring-matched: 'kansas'
+    is also inside ARkansas, which wrongly pulled in three drivers once."""
+    tail = re.sub(r"[^A-Za-z]", "", home.split(",")[-1]).upper()
+    return "KS" if tail in ("KS", "KANSAS") else tail
+
+
+def selects(d, sel):
+    region = d["region"].split("/")[0].strip()
+    if region.lower() in {r.lower() for r in sel.get("regions", [])}:
+        return "region: " + region
+    if home_state(d["home"]) in {s.upper() for s in sel.get("home_states", [])}:
+        return "hometown"
+    return None
+
+
+def sync(cfg, state, offline=False, verbose=True):
+    f = Fetcher(cfg, state, offline)
+    index, _ = f.get("index")
+    if index is None:
+        sys.exit("no index page available (try without --offline)")
+    classes, groups, days = parse_index(index)
+
+    finals = state.setdefault("final", {})
+    nth = state.get("sweep", 0)
+    recheck = cfg.get("politeness", {}).get("final_recheck_every", 12)
+
+    roster, skipped, stats = [], 0, {"fetched": 0, "unchanged": 0, "cached": 0, "capped": 0, "missing": 0}
+    for c in classes:
+        # a class that has posted FINAL RESULTS will not change again; look in
+        # on it occasionally in case of a protest or a correction
+        if finals.get(c) and nth % recheck:
+            cached = f.cache / (c + ".html")
+            body = cached.read_text(encoding="utf-8") if cached.exists() else None
+            status = "cached"
+            skipped += 1
+        else:
+            body, status = f.get(c)
+        stats[status] = stats.get(status, 0) + 1
+        if body is None:
+            continue
+        drivers, final, _ = parse_class(body, c)
+        if final:
+            finals[c] = True
+        for d in drivers:
+            why = selects(d, cfg["select"])
+            if not why:
+                continue
+            g = groups.get(c)
+            row = {"cls": c, "num": d["num"], "name": d["name"], "car": d["car"],
+                   "region": d["region"], "home": d["home"], "group": g,
+                   "days": days.get(c, [])}
+            roster.append(row)
+
+    state["sweep"] = nth + 1
+    roster.sort(key=lambda r: (r["cls"], r["name"]))
+    if verbose:
+        print("classes      : %d" % len(classes))
+        print("requests     : %d sent (%s), %d final classes skipped"
+              % (f.sent, ", ".join("%s %d" % (k, v) for k, v in stats.items() if v), skipped))
+        print("cap          : %d/%d used today" % (state["cap_used"], f.cap))
+        print("roster       : %d drivers in %d classes"
+              % (len(roster), len({r["cls"] for r in roster})))
+    return roster
+
+
+def write_roster(cfg, roster, name):
+    out = ROOT / cfg["roster_out"]
+    prev = json.loads(out.read_text())if out.exists() else {"drivers": []}
+    before = {(d["cls"], d["name"]) for d in prev.get("drivers", [])}
+    now = {(d["cls"], d["name"]) for d in roster}
+    added, dropped = sorted(now - before), sorted(before - now)
+    # never silently shrink the roster on a partial sweep
+    if dropped and len(roster) < len(prev.get("drivers", [])) * 0.9:
+        print("REFUSING to write: roster shrank from %d to %d. Partial sweep?"
+              % (len(prev["drivers"]), len(roster)))
+        return added, dropped, False
+    payload = dict(prev)
+    payload.update({"event": name, "base": cfg["base"], "drivers": roster})
+    out.write_text(json.dumps(payload, indent=1, ensure_ascii=False))
+    if added:
+        print("added        : " + ", ".join("%s %s" % a for a in added))
+    if dropped:
+        print("dropped      : " + ", ".join("%s %s" % d for d in dropped))
+    return added, dropped, True
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("mode", choices=["sync", "watch"])
+    ap.add_argument("--event", required=True, type=Path)
+    ap.add_argument("--offline", action="store_true")
+    ap.add_argument("--every", type=int, default=300, help="watch: seconds between sweeps")
+    a = ap.parse_args()
+
+    cfg = json.loads(a.event.read_text())
+    spath = ROOT / "pronto" / "state" / (cfg["slug"] + ".json")
+    spath.parent.mkdir(parents=True, exist_ok=True)
+    state = json.loads(spath.read_text()) if spath.exists() else {}
+
+    def once():
+        roster = sync(cfg, state, a.offline)
+        write_roster(cfg, roster, cfg.get("name", ""))
+        spath.write_text(json.dumps(state, indent=1))
+
+    if a.mode == "sync":
+        once()
+        return
+    ends = cfg.get("ends")
+    while True:
+        if ends and date.today().isoformat() > ends:
+            print("event ended %s; nothing to poll." % ends)
+            return
+        print("--- sweep at %s" % datetime.now().strftime("%H:%M:%S"))
+        once()
+        time.sleep(a.every)
+
+
+if __name__ == "__main__":
+    main()
