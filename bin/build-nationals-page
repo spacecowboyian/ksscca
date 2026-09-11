@@ -343,20 +343,13 @@ def render_body(row):
     return "".join(parts)
 
 
-def ordinal(n):
-    """1st, 2nd, 3rd, 4th ... 11th, 12th, 13th."""
-    if 10 <= n % 100 <= 20:
-        return "%dth" % n
-    return "%d%s" % (n, {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th"))
-
-
 def is_done(row):
     """Both courses run. Not the same as having a total: a driver can
     finish the event with nothing to show for a course."""
     return bool(row["east"]["runs"]) and bool(row["west"]["runs"])
 
 
-def render_row(row, open_by_default=False, medal=None, oc=0, on=0):
+def render_row(row, open_by_default=False, oc=0, on=0):
     pos = row["pos"]
     # A position for someone with no time is the timing system's running
     # order, not a standing. Show it, but do not dress it up as a result.
@@ -365,9 +358,10 @@ def render_row(row, open_by_default=False, medal=None, oc=0, on=0):
     else:
         pos_html = "<b>%s</b> of %s" % (E(pos), row["size"])
 
+    # No standing in front of the name. The Pos column already says it,
+    # and an ordinal of varying width left every name in the trophy table
+    # starting at a different place.
     name = E(row["name"])
-    if medal:
-        name = '<span class="md">%s</span>%s' % (ordinal(medal), name)
 
     return (
         # Class leads the row. Under the by-class sort it is hidden, because
@@ -509,8 +503,7 @@ def build_page(rows, page_id, snapshot, coverage):
         out.append(module(
             "In the trophies",
             "On a trophy in class \u00b7 %d drivers \u00b7 %s" % (len(trophy), legend),
-            sectioned(trophy, lambda r, oc, on: render_row(
-                r, medal=int(str(r["pos"]).strip()), oc=oc, on=on)),
+            sectioned(trophy, lambda r, oc, on: render_row(r, oc=oc, on=on)),
         ))
 
     if field:
