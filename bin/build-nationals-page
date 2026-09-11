@@ -471,7 +471,7 @@ def build_page(rows, page_id, snapshot, coverage):
         '7 to 11 September 2026. This page tracks Kansas Region drivers and the '
         "surrounding regions, pulled from the event's "
         '<a href="https://sololive.scca.com/26NATSGEN/index.php" rel="noopener">'
-        'live timing</a>. Times here are updated every half hour from 8 AM to 6 PM.</p>')
+        'live timing</a>. Times here are updated every five minutes from 8 AM to 6 PM.</p>')
 
     # No preamble block. It explained the scoring, the selection rule and the
     # refresh schedule in three paragraphs that pushed the actual results
