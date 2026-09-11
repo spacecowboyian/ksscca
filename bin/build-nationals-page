@@ -400,6 +400,24 @@ HDR = ('<div class="ksn-hdr"><span>Class</span><span>Driver</span><span>Pos</spa
        '<span class="t">Total</span></div>')
 
 
+def sectioned(rows):
+    """Split a table into "Still running" then "Finished".
+
+    Both groups keep the table's own ordering, so class stays A-Z inside
+    each. A heading is only emitted for a group with anyone in it: a lone
+    "Finished" over every row is still worth saying, an empty one is noise.
+    """
+    running = [r for r in rows if not is_done(r)]
+    finished = [r for r in rows if is_done(r)]
+    out = []
+    for label, group in (("Still running", running), ("Finished", finished)):
+        if not group:
+            continue
+        out.append('<div class="ksn-sub">%s<span>%d</span></div>' % (label, len(group)))
+        out.extend(group)
+    return out
+
+
 def module(title, note, rows_html, pager=""):
     return (
         '<div class="ksn-mod"><div class="ksn-mh"><div class="ksn-mt">%s</div>'
@@ -468,7 +486,8 @@ def build_page(rows, page_id, snapshot, coverage):
         out.append(module(
             "In the trophies",
             "On a trophy in class \u00b7 %d drivers \u00b7 %s" % (len(trophy), legend),
-            "".join(render_row(r, medal=int(str(r["pos"]).strip())) for r in trophy),
+            "".join(x if isinstance(x, str) else render_row(x, medal=int(str(x["pos"]).strip()))
+                    for x in sectioned(trophy)),
         ))
 
     if field:
@@ -476,7 +495,8 @@ def build_page(rows, page_id, snapshot, coverage):
         if not trophy:
             note += " \u00b7 %s" % legend
         out.append(module("The field", note,
-                          "".join(render_row(r) for r in field)))
+                          "".join(x if isinstance(x, str) else render_row(x)
+                                  for x in sectioned(field))))
 
     notes = ['<div class="ksn-note">']
     notes.append('<p><b>Trophy positions are the timing system\u2019s own.</b> Solo '
