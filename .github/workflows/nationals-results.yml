@@ -60,6 +60,11 @@ jobs:
 
       - name: Sync roster from live timing
         if: steps.guard.outputs.over == 'false'
+        # A timeout here means the timing site is rate limiting us, and the
+        # tool stops rather than hammering it. That is not a reason to skip
+        # the publish: the cache still holds the last good sweep, and the
+        # page template may have changed since it was last rendered.
+        continue-on-error: true
         run: bin/pronto-live sync --event pronto/events/26nats.json
 
       - name: Build the page
