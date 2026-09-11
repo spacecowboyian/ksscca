@@ -45,6 +45,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 TR = re.compile(r"<TR\b.*?</TR>", re.I | re.S)
 TD = re.compile(r"<TD[^>]*>(.*?)</TD>", re.I | re.S)
+TDA = re.compile(r"<TD([^>]*)>(.*?)</TD>", re.I | re.S)
 SIZE = re.compile(r"Class standings for\s+(\S+)\s+\[(\d+)\s+Cars\]", re.I)
 # Pronto marks a finished class with <div class='FINAL'>FINAL<br>RESULTS</div>.
 # Match the class attribute, not the words: there is a <br> between them.
@@ -158,9 +159,16 @@ def parse_index(body):
 def parse_class(body, code):
     m = SIZE.search(body)
     size = int(m.group(2)) if m else 0
-    final = bool(FINAL.search(body))
+    # The "FINAL RESULTS" banner marks a finalised SESSION, not a finished
+    # class: CAMT carried it all Thursday while every driver still had
+    # Friday's course to run. Trusting it retires a class that is still
+    # running and its remaining results never appear. So the banner is only
+    # half the test -- the other half is that every driver has actually been
+    # down both courses.
+    banner = bool(FINAL.search(body))
     trs = TR.findall(body)
     out = []
+    both = True
     for i, tr in enumerate(trs):
         if 'id="inforow"' not in tr or i == 0 or i + 1 >= len(trs):
             continue
@@ -168,10 +176,15 @@ def parse_class(body, code):
         info = [txt(c) for c in TD.findall(tr)]
         if len(main) < 5 or len(info) < 2 or not main[3]:
             continue
+        runs = TDA.findall(trs[i + 1]) if i + 1 < len(trs) else []
+        c1 = [txt(v) for a, v in runs if "course1" in a and txt(v)]
+        c2 = [txt(v) for a, v in runs if "course2" in a and txt(v)]
+        if not c1 or not c2:
+            both = False
         out.append({"cls": code, "size": size, "trophy": main[0].strip().upper() == "T",
                     "pos": main[1], "num": main[2], "name": main[3], "car": main[4],
                     "region": info[0], "home": info[1]})
-    return out, final, size
+    return out, (banner and both and bool(out)), size
 
 
 def home_state(home):
@@ -197,27 +210,47 @@ def sync(cfg, state, offline=False, verbose=True):
         sys.exit("no index page available (try without --offline)")
     classes, groups, days = parse_index(index)
 
+    if state.get("final_rule") != 2:
+        # state written under the banner-only rule cannot be trusted
+        state["final"], state["final_rule"] = {}, 2
     finals = state.setdefault("final", {})
     nth = state.get("sweep", 0)
     recheck = cfg.get("politeness", {}).get("final_recheck_every", 12)
 
-    roster, skipped, stats = [], 0, {"fetched": 0, "unchanged": 0, "cached": 0, "capped": 0, "missing": 0}
+    # Most sweeps only refetch classes that (a) still have running to do and
+    # (b) actually contain one of our drivers -- 16 of 80 late in an event,
+    # rather than 37. Every `discover_every` sweeps it widens to everything,
+    # so a driver appearing in a class we do not yet track is still found.
+    # Classes not refetched are still parsed from cache, so the roster stays
+    # whole and cannot shrink.
+    known = set()
+    rpath = ROOT / cfg["roster_out"]
+    if rpath.exists():
+        known = {d["cls"] for d in json.loads(rpath.read_text()).get("drivers", [])}
+    discover_every = cfg.get("politeness", {}).get("discover_every", 6)
+    discovering = (not known) or (nth % discover_every == 0)
+
+    roster, skipped, skipped_scope, stats = [], 0, 0, {"fetched": 0, "unchanged": 0, "cached": 0, "capped": 0, "missing": 0}
     for c in classes:
         # a class that has posted FINAL RESULTS will not change again; look in
         # on it occasionally in case of a protest or a correction
-        if finals.get(c) and nth % recheck:
+        interesting = discovering or c in known
+        stale_ok = bool(finals.get(c)) and bool(nth % recheck)
+        if stale_ok or not interesting:
+            if stale_ok:
+                skipped += 1
+            else:
+                skipped_scope += 1
             cached = f.cache / (c + ".html")
             body = cached.read_text(encoding="utf-8") if cached.exists() else None
             status = "cached"
-            skipped += 1
         else:
             body, status = f.get(c)
         stats[status] = stats.get(status, 0) + 1
         if body is None:
             continue
         drivers, final, _ = parse_class(body, c)
-        if final:
-            finals[c] = True
+        finals[c] = bool(final)
         for d in drivers:
             why = selects(d, cfg["select"])
             if not why:
@@ -231,9 +264,10 @@ def sync(cfg, state, offline=False, verbose=True):
     state["sweep"] = nth + 1
     roster.sort(key=lambda r: (r["cls"], r["name"]))
     if verbose:
-        print("classes      : %d" % len(classes))
-        print("requests     : %d sent (%s), %d final classes skipped"
-              % (f.sent, ", ".join("%s %d" % (k, v) for k, v in stats.items() if v), skipped))
+        print("classes      : %d%s" % (len(classes), " (discovery sweep)" if discovering else ""))
+        print("requests     : %d sent (%s); skipped %d finished, %d not ours"
+              % (f.sent, ", ".join("%s %d" % (k, v) for k, v in stats.items() if v),
+                 skipped, skipped_scope))
         print("cap          : %d/%d used today" % (state["cap_used"], f.cap))
         print("roster       : %d drivers in %d classes"
               % (len(roster), len({r["cls"] for r in roster})))
