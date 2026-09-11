@@ -533,6 +533,16 @@ def build_page(rows, page_id, snapshot, coverage):
         "s.addEventListener('change',function(){r.setAttribute('data-sort',s.value);"
         "try{localStorage.setItem('ksn-sort',s.value);}catch(e){}});})();</script>"
     )
+    # Times change under the reader while they sit here, so the page
+    # reloads itself once a minute. Two things hold it off: a row the
+    # reader has opened, and a tab that is not in front. Both are
+    # rechecked on the next tick rather than cancelling the refresh.
+    out.append(
+        "<script>(function(){setInterval(function(){"
+        "if(document.hidden){return;}"
+        "if(document.querySelector('#ksn details[open]')){return;}"
+        "location.reload();},60000);})();</script>"
+    )
     out.append("</div>")
     return "\n".join(out)
 
