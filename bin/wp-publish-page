@@ -1,0 +1,91 @@
+#!/usr/bin/env python3
+"""Publish a file as the full content of a WordPress page.
+
+    bin/wp-publish-page --page 1882 --file nationals/build/page.html
+    bin/wp-publish-page --page 1882 --file page.html --dry-run
+
+Exists because the body is ~85 KB: too big to pass as a shell argument to
+bin/wp-rest without quoting misery, and too big to paste through a chat
+session. Reads WP_APP_PASS from .env (or $WP_ENV_FILE), never echoes it,
+and never accepts it on the command line where it would land in shell
+history and the process table.
+"""
+import argparse, base64, json, os, re, sys, urllib.error, urllib.request
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+SITE = os.environ.get("WP_SITE", "https://www.ksscca.org")
+USER = os.environ.get("WP_USER", "Ian@futurehat.com")
+
+
+def app_password():
+    # CI passes it as a secret in the environment; a workstation keeps it in
+    # .env. Never as an argument: that lands in shell history and `ps`.
+    if os.environ.get("WP_APP_PASS"):
+        return os.environ["WP_APP_PASS"]
+    for p in (os.environ.get("WP_ENV_FILE"), ROOT / ".env",
+              Path.home() / "repos/ksscca.org/.env"):
+        if not p:
+            continue
+        p = Path(p)
+        if not p.is_file():
+            continue
+        for line in p.read_text().splitlines():
+            if line.startswith("WP_APP_PASS="):
+                v = line.split("=", 1)[1].strip().strip('"').strip("'")
+                if v:
+                    return v
+    sys.exit("no WP_APP_PASS found. Set WP_ENV_FILE to an .env that has one.\n"
+             "Create one in WordPress: Users -> Profile -> Application Passwords.")
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--page", required=True)
+    ap.add_argument("--file", required=True, type=Path)
+    ap.add_argument("--dry-run", action="store_true")
+    a = ap.parse_args()
+
+    body = a.file.read_text()
+    if len(body) < 2000:
+        sys.exit("refusing to publish %d bytes; that does not look like a built page."
+                 % len(body))
+
+    if a.dry_run:
+        print("would POST %d bytes to page %s" % (len(body), a.page))
+        return
+
+    auth = base64.b64encode(("%s:%s" % (USER, app_password())).encode()).decode()
+    req = urllib.request.Request(
+        "%s/wp-json/wp/v2/pages/%s" % (SITE, a.page),
+        data=json.dumps({"content": body}).encode("utf-8"),
+        headers={"Content-Type": "application/json", "Authorization": "Basic " + auth,
+                 # WP Engine's edge rejects the default Python-urllib agent
+                 # with a bare nginx 403, before WordPress is ever reached.
+                 "User-Agent": "ksscca.org publisher (+https://www.ksscca.org/)",
+                 "Accept": "application/json"},
+        method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=60) as r:
+            got = json.loads(r.read().decode())
+    except urllib.error.HTTPError as e:
+        sys.exit("publish failed: HTTP %s %s" % (e.code, e.read().decode()[:300]))
+
+    print("published page %s at %s (%d bytes sent)" % (got["id"], got["modified"], len(body)))
+
+    # verify against the live front end, past the edge cache
+    import random
+    url = got["link"] + "?cb=%d" % random.randrange(10 ** 6)
+    vreq = urllib.request.Request(url, headers={
+        "User-Agent": "ksscca.org publisher (+https://www.ksscca.org/)"})
+    with urllib.request.urlopen(vreq, timeout=30) as r:
+        live = r.read().decode("utf-8", "replace")
+    rows = len(re.findall(r'<details class="ksn-row', live))
+    print("verified live: %d driver rows, %d modules"
+          % (rows, len(re.findall(r'ksn-mt">', live))))
+    if rows == 0:
+        sys.exit("published, but the live page shows no rows -- check it.")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# One sweep: re-derive the roster from live timing, rebuild the page, publish it.
+#
+# Designed for cron on any machine that can reach both sololive.scca.com and
+# ksscca.org. No Claude session involved.
+#
+#   */10 8-18 * * *  cd /path/to/repo && bin/nationals-refresh >> /tmp/nats.log 2>&1
+#
+# Set WP_ENV_FILE to an .env holding WP_APP_PASS if it is not beside this repo.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+EVENT="${EVENT:-pronto/events/26nats.json}"
+PAGE="${PAGE:-1882}"
+export WP_ENV_FILE="${WP_ENV_FILE:-$HOME/repos/ksscca.org/.env}"
+
+echo "=== $(date '+%Y-%m-%d %H:%M:%S %Z')"
+# one network pass, here: the builder then renders from cache
+bin/pronto-live sync --event "$EVENT"
+bin/build-nationals-page --offline --out nationals/build/
+bin/wp-publish-page --page "$PAGE" --file nationals/build/page.html

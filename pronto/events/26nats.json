@@ -1,0 +1,19 @@
+{
+  "slug": "26nats",
+  "name": "2026 Tire Rack SCCA Solo National Championships",
+  "base": "https://sololive.scca.com/26NATSGEN/",
+  "ends": "2026-09-11",
+  "cache_dir": "nationals/cache",
+  "roster_out": "nationals/roster-seed.json",
+  "select": {
+    "regions": ["Kansas", "Kansas City", "Wichita", "Salina"],
+    "home_states": ["KS"]
+  },
+  "politeness": {
+    "min_gap_seconds": 3,
+    "final_recheck_every": 12,
+    "daily_request_cap": 3000,
+    "timeout_seconds": 15
+  },
+  "contact": "https://www.ksscca.org/"
+}

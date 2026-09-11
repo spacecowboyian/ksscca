@@ -1,0 +1,88 @@
+name: Solo Nationals results
+
+# Rebuilds the results page from Pronto live timing and publishes it.
+#
+# Runs here rather than on a workstation for a practical reason: the job needs
+# to reach the timing site on a schedule, and a laptop is not a server. The
+# rate is deliberately modest -- see pronto/README.md for the arithmetic.
+#
+# NOTE: GitHub only honours `schedule` on the default branch. Until this file
+# is merged to main it will only run via "Run workflow" (workflow_dispatch).
+
+on:
+  schedule:
+    # every 10 minutes, 13:00-23:00 UTC == 08:00-18:00 CDT
+    - cron: '*/10 13-23 * * *'
+  workflow_dispatch:
+
+# never let two sweeps overlap and double the request rate
+concurrency:
+  group: nationals-results
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # carries the page cache, ETags and the "this class is final" flags
+      # between runs. Without it every sweep would refetch all 80 classes
+      # instead of the ~18 that can still change.
+      - name: Restore timing cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            nationals/cache
+            pronto/state
+          key: nats-cache-${{ github.run_id }}
+          restore-keys: nats-cache-
+
+      - name: Stop if the event is over
+        id: guard
+        run: |
+          ENDS=$(python3 -c "import json;print(json.load(open('pronto/events/26nats.json'))['ends'])")
+          TODAY=$(TZ=America/Chicago date +%F)
+          if [[ "$TODAY" > "$ENDS" ]]; then
+            echo "event ended $ENDS, today is $TODAY -- nothing to do"
+            echo "over=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "over=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Sync roster from live timing
+        if: steps.guard.outputs.over == 'false'
+        run: bin/pronto-live sync --event pronto/events/26nats.json
+
+      - name: Build the page
+        if: steps.guard.outputs.over == 'false'
+        run: bin/build-nationals-page --offline --out nationals/build/
+
+      - name: Publish
+        if: steps.guard.outputs.over == 'false'
+        env:
+          WP_APP_PASS: ${{ secrets.WP_APP_PASS }}
+        run: |
+          if [[ -z "${WP_APP_PASS:-}" ]]; then
+            echo "::error::WP_APP_PASS secret is not set on this repository."
+            echo "Add it with: gh secret set WP_APP_PASS --repo ${{ github.repository }}"
+            exit 1
+          fi
+          bin/wp-publish-page --page 1882 --file nationals/build/page.html
+
+      - name: Save timing cache
+        if: always() && steps.guard.outputs.over == 'false'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            nationals/cache
+            pronto/state
+          key: nats-cache-${{ github.run_id }}
