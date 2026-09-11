@@ -45,6 +45,7 @@ import time
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
+from itertools import groupby
 from email.utils import formatdate, parsedate_to_datetime
 from pathlib import Path
 
@@ -270,20 +271,13 @@ def sort_key(row):
 
 
 def field_sort_key(row):
-    """Class A-Z, then position within the class, then surname.
+    """Class A-Z, then surname within the class.
 
-    Someone with no time carries the timing system's running order rather
-    than a standing, so they sort to the end of their class instead of
-    being interleaved with real positions.
+    Every class carries its own heading now, so the rows under one are a
+    short list of names rather than a standing. Alphabetical is easier to
+    scan for a name; the position column still says where each driver sits.
     """
-    p = str(row["pos"]).strip()
-    ranked = row["total"] is not None and p.isdigit()
-    return (
-        row["cls"].upper(),
-        0 if ranked else 1,
-        int(p) if p.isdigit() else 10 ** 6,
-        sort_key(row),
-    )
+    return (row["cls"].upper(), sort_key(row))
 
 
 # --------------------------------------------------------------------------
@@ -291,7 +285,8 @@ def field_sort_key(row):
 #
 # The markup is deliberately unfashionable: every row is a native
 # <details>/<summary>, so expanding a driver works with JavaScript off.
-# The only script on the page is the pager.
+# The only script on the page switches the sort order, and the page
+# is readable in its default order without it.
 #
 # Two wpautop traps are designed around here and must stay designed
 # around (see CLAUDE.md): an inline element followed by a block inside a
@@ -361,7 +356,7 @@ def is_done(row):
     return bool(row["east"]["runs"]) and bool(row["west"]["runs"])
 
 
-def render_row(row, open_by_default=False, medal=None):
+def render_row(row, open_by_default=False, medal=None, oc=0, on=0):
     pos = row["pos"]
     # A position for someone with no time is the timing system's running
     # order, not a standing. Show it, but do not dress it up as a result.
@@ -375,15 +370,21 @@ def render_row(row, open_by_default=False, medal=None):
         name = '<span class="md">%s</span>%s' % (ordinal(medal), name)
 
     return (
-        # Class leads the row: the field is ordered by class, so putting it
-        # first makes the ordering legible instead of looking arbitrary.
-        '<details class="ksn-row%s"%s><summary><span class="cl">%s</span>'
+        # Class leads the row. Under the by-class sort it is hidden, because
+        # the heading above the run of rows already says it; under the
+        # by-name sort there are no headings and the cell is the only
+        # place the class appears. --oc and --on are this row's place in
+        # each order; the CSS picks one.
+        '<details class="ksn-row%s"%s style="--oc:%d;--on:%d">'
+        '<summary><span class="cl">%s</span>'
         '<span class="nm">%s</span><span class="ps">%s</span>'
         '<span class="t">%s</span><span class="t">%s</span>'
         '<span class="t">%s</span></summary>%s</details>'
         % (
             " done" if is_done(row) else "",
             " open" if open_by_default else "",
+            oc,
+            on,
             E(row["cls"]),
             name,
             pos_html,
@@ -395,17 +396,24 @@ def render_row(row, open_by_default=False, medal=None):
     )
 
 
-HDR = ('<div class="ksn-hdr"><span>Class</span><span>Driver</span><span>Pos</span>'
+HDR = ('<div class="ksn-hdr"><span class="hcl">Class</span><span>Driver</span><span>Pos</span>'
        '<span class="t">East</span><span class="t">West</span>'
        '<span class="t">Total</span></div>')
 
 
-def sectioned(rows):
-    """Split a table into "Still running" then "Finished".
+def sectioned(rows, render):
+    """Split a table into "Still running" then "Finished", by class.
 
-    Both groups keep the table's own ordering, so class stays A-Z inside
-    each. A heading is only emitted for a group with anyone in it: a lone
+    A heading is only emitted for a group with anyone in it: a lone
     "Finished" over every row is still worth saying, an empty one is noise.
+
+    Inside a group every class gets a heading, a class of one included --
+    an unheaded row would read as belonging to the class above it.
+
+    Both orders are baked into the markup rather than rebuilt in script:
+    each row carries its place in the by-class order and its place in the
+    by-surname order, and the sort control just flips which one the CSS
+    reads. That keeps the page correct with JavaScript off.
     """
     running = [r for r in rows if not is_done(r)]
     finished = [r for r in rows if is_done(r)]
@@ -414,8 +422,20 @@ def sectioned(rows):
         if not group:
             continue
         out.append('<div class="ksn-sub">%s<span>%d</span></div>' % (label, len(group)))
-        out.extend(group)
-    return out
+        by_class = sorted(group, key=field_sort_key)
+        name_at = {id(r): i for i, r in enumerate(sorted(group, key=sort_key), 1)}
+        out.append('<div class="ksn-grp">')
+        n = 0
+        for cls, drivers in groupby(by_class, key=lambda r: r["cls"]):
+            drivers = list(drivers)
+            n += 1
+            out.append('<div class="ksn-cls" style="--oc:%d">%s<span>%d</span></div>'
+                       % (n, E(cls), len(drivers)))
+            for r in drivers:
+                n += 1
+                out.append(render(r, n, name_at[id(r)]))
+        out.append("</div>")
+    return "".join(out)
 
 
 def module(title, note, rows_html, pager=""):
@@ -465,13 +485,16 @@ def build_page(rows, page_id, snapshot, coverage):
     out = [style]
     out.append('<h1 style="text-align: left; font-weight: 700;">'
                'KS Region at the 2026 SCCA Solo Nationals</h1>')
-    out.append('<div id="ksn">')
+    out.append('<div id="ksn" data-sort="class">')
     out.append(
         '<p class="ksn-lede">The Tire Rack SCCA Solo National Championships run '
         '7 to 11 September 2026. This page tracks Kansas Region drivers and the '
         "surrounding regions, pulled from the event's "
         '<a href="https://sololive.scca.com/26NATSGEN/index.php" rel="noopener">'
         'live timing</a>. Times here are updated every five minutes from 8 AM to 6 PM.</p>')
+    out.append('<div class="ksn-tools"><label for="ksn-sort">Sort by</label>'
+               '<select id="ksn-sort"><option value="class">Class</option>'
+               '<option value="name">Driver last name</option></select></div>')
 
     # No preamble block. It explained the scoring, the selection rule and the
     # refresh schedule in three paragraphs that pushed the actual results
@@ -486,17 +509,16 @@ def build_page(rows, page_id, snapshot, coverage):
         out.append(module(
             "In the trophies",
             "On a trophy in class \u00b7 %d drivers \u00b7 %s" % (len(trophy), legend),
-            "".join(x if isinstance(x, str) else render_row(x, medal=int(str(x["pos"]).strip()))
-                    for x in sectioned(trophy)),
+            sectioned(trophy, lambda r, oc, on: render_row(
+                r, medal=int(str(r["pos"]).strip()), oc=oc, on=on)),
         ))
 
     if field:
-        note = "%d drivers, by class" % len(field)
+        note = "%d drivers" % len(field)
         if not trophy:
             note += " \u00b7 %s" % legend
         out.append(module("The field", note,
-                          "".join(x if isinstance(x, str) else render_row(x)
-                                  for x in sectioned(field))))
+                          sectioned(field, lambda r, oc, on: render_row(r, oc=oc, on=on))))
 
     notes = ['<div class="ksn-note">']
     notes.append('<p><b>Trophy positions are the timing system\u2019s own.</b> Solo '
@@ -507,6 +529,17 @@ def build_page(rows, page_id, snapshot, coverage):
         notes.append("<p><b>Coverage.</b> %s</p>" % E(coverage))
     notes.append("</div>")
     out.append("".join(notes))
+    # One line, no newlines inside: wpautop will not get a chance to wrap
+    # anything in a <p>. Remembers the reader's choice, and does nothing
+    # at all if storage is blocked.
+    out.append(
+        "<script>(function(){var r=document.getElementById('ksn'),"
+        "s=document.getElementById('ksn-sort');if(!r||!s){return;}"
+        "try{var v=localStorage.getItem('ksn-sort');"
+        "if(v==='name'||v==='class'){r.setAttribute('data-sort',v);s.value=v;}}catch(e){}"
+        "s.addEventListener('change',function(){r.setAttribute('data-sort',s.value);"
+        "try{localStorage.setItem('ksn-sort',s.value);}catch(e){}});})();</script>"
+    )
     out.append("</div>")
     return "\n".join(out)
 
