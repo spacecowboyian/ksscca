@@ -6,14 +6,22 @@
   "cache_dir": "nationals/cache",
   "roster_out": "nationals/roster-seed.json",
   "select": {
-    "regions": ["Kansas", "Kansas City", "Wichita", "Salina"],
-    "home_states": ["KS"]
+    "regions": [
+      "Kansas",
+      "Kansas City",
+      "Wichita",
+      "Salina"
+    ],
+    "home_states": [
+      "KS"
+    ]
   },
   "politeness": {
     "min_gap_seconds": 3,
     "final_recheck_every": 12,
     "daily_request_cap": 3000,
-    "timeout_seconds": 15
+    "timeout_seconds": 15,
+    "discover_every": 6
   },
   "contact": "https://www.ksscca.org/"
 }

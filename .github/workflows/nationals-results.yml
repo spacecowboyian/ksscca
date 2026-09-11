@@ -11,8 +11,8 @@ name: Solo Nationals results
 
 on:
   schedule:
-    # every 10 minutes, 13:00-23:00 UTC == 08:00-18:00 CDT
-    - cron: '*/10 13-23 * * *'
+    # every 5 minutes, 13:00-23:00 UTC == 08:00-18:00 CDT
+    - cron: '*/5 13-23 * * *'
   workflow_dispatch:
 
 # never let two sweeps overlap and double the request rate
