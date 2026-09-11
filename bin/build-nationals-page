@@ -375,15 +375,17 @@ def render_row(row, open_by_default=False, medal=None):
         name = '<span class="md">%s</span>%s' % (ordinal(medal), name)
 
     return (
-        '<details class="ksn-row%s"%s><summary><span class="nm">%s</span>'
-        '<span class="cl">%s</span><span class="ps">%s</span>'
+        # Class leads the row: the field is ordered by class, so putting it
+        # first makes the ordering legible instead of looking arbitrary.
+        '<details class="ksn-row%s"%s><summary><span class="cl">%s</span>'
+        '<span class="nm">%s</span><span class="ps">%s</span>'
         '<span class="t">%s</span><span class="t">%s</span>'
         '<span class="t">%s</span></summary>%s</details>'
         % (
             " done" if is_done(row) else "",
             " open" if open_by_default else "",
-            name,
             E(row["cls"]),
+            name,
             pos_html,
             dash(row["east"]["time"]),
             dash(row["west"]["time"]),
@@ -393,7 +395,7 @@ def render_row(row, open_by_default=False, medal=None):
     )
 
 
-HDR = ('<div class="ksn-hdr"><span>Driver</span><span>Class</span><span>Pos</span>'
+HDR = ('<div class="ksn-hdr"><span>Class</span><span>Driver</span><span>Pos</span>'
        '<span class="t">East</span><span class="t">West</span>'
        '<span class="t">Total</span></div>')
 
@@ -461,7 +463,7 @@ def build_page(rows, page_id, snapshot, coverage):
     legend = "a green row is a final result"
     if trophy:
         out.append(module(
-            "Trophy winners",
+            "In the trophies",
             "On a trophy in class \u00b7 %d drivers \u00b7 %s" % (len(trophy), legend),
             "".join(render_row(r, medal=int(str(r["pos"]).strip())) for r in trophy),
         ))
