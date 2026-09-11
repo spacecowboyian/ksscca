@@ -435,7 +435,10 @@ def build_page(rows, page_id, snapshot, coverage):
     trophy = [r for r in rows if on_pace(r)]
     field = [r for r in rows if r not in trophy]
 
-    trophy.sort(key=lambda r: (int(str(r["pos"]).strip()), sort_key(r)))
+    # Same order as the field: class A-Z, then position within it. Sorting
+    # by position first scattered the classes down the table, which reads
+    # as arbitrary now that class leads each row.
+    trophy.sort(key=field_sort_key)
     field.sort(key=field_sort_key)
 
     style = (ROOT / "nationals" / "template-style.html").read_text()
