@@ -2,7 +2,7 @@
   "slug": "26nats",
   "name": "2026 Tire Rack SCCA Solo National Championships",
   "base": "https://sololive.scca.com/26NATSGEN/",
-  "ends": "2026-09-11",
+  "ends": "2026-09-12",
   "cache_dir": "nationals/cache",
   "roster_out": "nationals/roster-seed.json",
   "select": {
@@ -14,6 +14,12 @@
     ],
     "home_states": [
       "KS"
+    ],
+    "also": [
+      {
+        "cls": "CAMT",
+        "name": "Patrick Darling"
+      }
     ]
   },
   "politeness": {
