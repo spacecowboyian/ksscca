@@ -1,1191 +1,1206 @@
 {
- "event": "2026 Tire Rack SCCA Solo National Championships",
- "base": "https://sololive.scca.com/26NATSGEN/",
- "drivers": [
-  {
-   "cls": "AM",
-   "num": "57",
-   "name": "Scott Allison",
-   "car": "Formula Corvair Powered Formula",
-   "region": "Kansas City/Midwest",
-   "home": "Belton, MO",
-   "group": "TEWW",
-   "days": [
-    "Tuesday",
-    "East",
-    "Wednesday",
-    "West"
-   ]
-  },
-  {
-   "cls": "AS",
-   "num": "84",
-   "name": "David Green",
-   "car": "2008 Chevrolet Corvette Z06",
-   "region": "Wichita/Midwest",
-   "home": "Wichita, KS",
-   "group": "TEWW",
-   "days": [
-    "Tuesday",
-    "East",
-    "Wednesday",
-    "West"
-   ]
-  },
-  {
-   "cls": "AS",
-   "num": "63",
-   "name": "Frank Wietharn",
-   "car": "2007 Chevrolet Corvette Z06",
-   "region": "Kansas/Midwest",
-   "home": "Topeka, KS",
-   "group": "TEWW",
-   "days": [
-    "Tuesday",
-    "East",
-    "Wednesday",
-    "West"
-   ]
-  },
-  {
-   "cls": "AST",
-   "num": "171",
-   "name": "Eden Jeffers",
-   "car": "2020 Mazda Miata",
-   "region": "Kansas City/Midwest",
-   "home": "Houston, Tx",
-   "group": "THEFW",
-   "days": [
-    "Thursday",
-    "East",
-    "Friday",
-    "West"
-   ]
-  },
-  {
-   "cls": "BS",
-   "num": "77",
-   "name": "James Harrison",
-   "car": "2026 Toyota Supra",
-   "region": "Wichita/Midwest",
-   "home": "Wichita, KS",
-   "group": "THEFW",
-   "days": [
-    "Thursday",
-    "East",
-    "Friday",
-    "West"
-   ]
-  },
-  {
-   "cls": "BS",
-   "num": "1",
-   "name": "Ryan Kubr",
-   "car": "2016 Chevrolet Corvette Z51",
-   "region": "Kansas City/Midwest",
-   "home": "Shawnee, KS",
-   "group": "THEFW",
-   "days": [
-    "Thursday",
-    "East",
-    "Friday",
-    "West"
-   ]
-  },
-  {
-   "cls": "BST",
-   "num": "45",
-   "name": "Mark Hill",
-   "car": "2006 Mitsubishi E-voh IX",
-   "region": "Kansas/Midwest",
-   "home": "Lawrence, KS",
-   "group": "TEWW",
-   "days": [
-    "Tuesday",
-    "East",
-    "Wednesday",
-    "West"
-   ]
-  },
-  {
-   "cls": "BST",
-   "num": "16",
-   "name": "Preston Evans",
-   "car": "2013 BMW M3",
-   "region": "Kansas City/Midwest",
-   "home": "Overland Park, KS",
-   "group": "TEWW",
-   "days": [
-    "Tuesday",
-    "East",
-    "Wednesday",
-    "West"
-   ]
-  },
-  {
-   "cls": "CAMC",
-   "num": "111",
-   "name": "Daniel Martin",
-   "car": "2005 Ford Mustang GT",
-   "region": "Kansas City/Midwest",
-   "home": "Lee’s Summit, MO",
-   "group": "THWFE",
-   "days": [
-    "Thursday",
-    "West",
-    "Friday",
-    "East"
-   ]
-  },
-  {
-   "cls": "CAMC",
-   "num": "11",
-   "name": "Todd Morris",
-   "car": "2005 Ford Mustang GT",
-   "region": "Kansas City/Midwest",
-   "home": "Lees summit MO, MO",
-   "group": "THWFE",
-   "days": [
-    "Thursday",
-    "West",
-    "Friday",
-    "East"
-   ]
-  },
-  {
-   "cls": "CAMS",
-   "num": "183",
-   "name": "James Woodward",
-   "car": "2002 Chevrolet Z06",
-   "region": "Kansas City/Midwest",
-   "home": "Gardner, KS",
-   "group": "THEFW",
-   "days": [
-    "Thursday",
-    "East",
-    "Friday",
-    "West"
-   ]
-  },
-  {
-   "cls": "CAMS",
-   "num": "83",
-   "name": "Jeremy Scotton",
-   "car": "2002 Chevrolet Z06",
-   "region": "Kansas City/Midwest",
-   "home": "Olathe, KS",
-   "group": "THEFW",
-   "days": [
-    "Thursday",
-    "East",
-    "Friday",
-    "West"
-   ]
-  },
-  {
-   "cls": "CAMS",
-   "num": "7",
-   "name": "Jim French",
-   "car": "2012 Chevrolet Corvette",
-   "region": "Wichita/Midwest",
-   "home": "Wichita, KS",
-   "group": "THEFW",
-   "days": [
-    "Thursday",
-    "East",
-    "Friday",
-    "West"
-   ]
-  },
-  {
-   "cls": "CAMT",
-   "num": "172",
-   "name": "Keith Lamming",
-   "car": "1968 Chevrolet Camaro",
-   "region": "Kansas City/Midwest",
-   "home": "Oak Grove, MO",
-   "group": "THEFW",
-   "days": [
-    "Thursday",
-    "East",
-    "Friday",
-    "West"
-   ]
-  },
-  {
-   "cls": "CAMT",
-   "num": "8",
-   "name": "Opie Viets",
-   "car": "1973 Chevrolet Z28",
-   "region": "Ozark Mountain/Midwest",
-   "home": "Girard, KS",
-   "group": "THEFW",
-   "days": [
-    "Thursday",
-    "East",
-    "Friday",
-    "West"
-   ]
-  },
-  {
-   "cls": "CAMT",
-   "num": "73",
-   "name": "Tyler Gibson",
-   "car": "1973 Intl Harvester Scout II",
-   "region": "Kansas City/Midwest",
-   "home": "Independence, MO",
-   "group": "THEFW",
-   "days": [
-    "Thursday",
-    "East",
-    "Friday",
-    "West"
-   ]
-  },
-  {
-   "cls": "CAMT",
-   "num": "23",
-   "name": "Tyler Talcott",
-   "car": "1991 Ford Mustang",
-   "region": "Kansas City/Midwest",
-   "home": "Raymore, MO",
-   "group": "THEFW",
-   "days": [
-    "Thursday",
-    "East",
-    "Friday",
-    "West"
-   ]
-  },
-  {
-   "cls": "CP",
-   "num": "49",
-   "name": "Albert Hermans",
-   "car": "1997 Ford Mustang Cobra",
-   "region": "Kansas City/Midwest",
-   "home": "Raytown, MO",
-   "group": "THWFE",
-   "days": [
-    "Thursday",
-    "West",
-    "Friday",
-    "East"
-   ]
-  },
-  {
-   "cls": "CP",
-   "num": "34",
-   "name": "Art Martinez",
-   "car": "1982 Pontiac MSE TA",
-   "region": "Wichita/Midwest",
-   "home": "Wichita, KS",
-   "group": "THWFE",
-   "days": [
-    "Thursday",
-    "West",
-    "Friday",
-    "East"
-   ]
-  },
-  {
-   "cls": "CP",
-   "num": "199",
-   "name": "Charlie Clark",
-   "car": "Chevrolet corvair",
-   "region": "Kansas City/Midwest",
-   "home": "ROELAND PARK, KS",
-   "group": "THWFE",
-   "days": [
-    "Thursday",
-    "West",
-    "Friday",
-    "East"
-   ]
-  },
-  {
-   "cls": "CP",
-   "num": "99",
-   "name": "Dick Berger",
-   "car": "1968 Chevrolet corvair",
-   "region": "Kansas City/Midwest",
-   "home": "Kansas City, Mo",
-   "group": "THWFE",
-   "days": [
-    "Thursday",
-    "West",
-    "Friday",
-    "East"
-   ]
-  },
-  {
-   "cls": "CP",
-   "num": "16",
-   "name": "Travis Bolton",
-   "car": "1965 Chevrolet Corvair",
-   "region": "Kansas City/Midwest",
-   "home": "Liberty, MO",
-   "group": "THWFE",
-   "days": [
-    "Thursday",
-    "West",
-    "Friday",
-    "East"
-   ]
-  },
-  {
-   "cls": "CS",
-   "num": "12",
-   "name": "Luke Scott",
-   "car": "2019 Mazda Miata ND2",
-   "region": "Wichita/Midwest",
-   "home": "Wichita, KS",
-   "group": "THWFE",
-   "days": [
-    "Thursday",
-    "West",
-    "Friday",
-    "East"
-   ]
-  },
-  {
-   "cls": "CS",
-   "num": "62",
-   "name": "Mason Smith",
-   "car": "2022 Mazda Miata",
-   "region": "Wichita/Midwest",
-   "home": "Wichita, KS",
-   "group": "THWFE",
-   "days": [
-    "Thursday",
-    "West",
-    "Friday",
-    "East"
-   ]
-  },
-  {
-   "cls": "CSM",
-   "num": "155",
-   "name": "Blayne Rios",
-   "car": "2008 Ford Mustang",
-   "region": "Kansas City/Midwest",
-   "home": "Grandview, MO",
-   "group": "THWFE",
-   "days": [
-    "Thursday",
-    "West",
-    "Friday",
-    "East"
-   ]
-  },
-  {
-   "cls": "CSM",
-   "num": "55",
-   "name": "Joshua Holsworth",
-   "car": "2008 Ford Mustang",
-   "region": "Kansas City/Midwest",
-   "home": "Overland Park, KS",
-   "group": "THWFE",
-   "days": [
-    "Thursday",
-    "West",
-    "Friday",
-    "East"
-   ]
-  },
-  {
-   "cls": "CSM",
-   "num": "158",
-   "name": "Matthew Iden",
-   "car": "2008 Ford Mustang Bullitt",
-   "region": "Kansas City/Midwest",
-   "home": "Olathe, KS",
-   "group": "THWFE",
-   "days": [
-    "Thursday",
-    "West",
-    "Friday",
-    "East"
-   ]
-  },
-  {
-   "cls": "CSM",
-   "num": "174",
-   "name": "Ryan Plourde",
-   "car": "2006 Ford Mustang GT",
-   "region": "Wichita/Midwest",
-   "home": "Wichita, KS",
-   "group": "THWFE",
-   "days": [
-    "Thursday",
-    "West",
-    "Friday",
-    "East"
-   ]
-  },
-  {
-   "cls": "CSP",
-   "num": "2",
-   "name": "Kevin Lynn",
-   "car": "2002 Honda S2000",
-   "region": "Kansas/Midwest",
-   "home": "Topeka, KS",
-   "group": "THEFW",
-   "days": [
-    "Thursday",
-    "East",
-    "Friday",
-    "West"
-   ]
-  },
-  {
-   "cls": "CSX",
-   "num": "19",
-   "name": "Andrew Benagh",
-   "car": "2009 Mazda MX-5",
-   "region": "New England/Northeast",
-   "home": "Olathe, KS",
-   "group": "TWWE",
-   "days": [
-    "Tuesday",
-    "West",
-    "Wednesday",
-    "East"
-   ]
-  },
-  {
-   "cls": "CSX",
-   "num": "151",
-   "name": "Eric Prill",
-   "car": "2014 Mazda MX-5",
-   "region": "Kansas/Midwest",
-   "home": "Topeka, KS",
-   "group": "TWWE",
-   "days": [
-    "Tuesday",
-    "West",
-    "Wednesday",
-    "East"
-   ]
-  },
-  {
-   "cls": "CSX",
-   "num": "72",
-   "name": "Jason Myers",
-   "car": "2006 Mazda Miata",
-   "region": "Kansas/Central",
-   "home": "California City, CA",
-   "group": "TWWE",
-   "days": [
-    "Tuesday",
-    "West",
-    "Wednesday",
-    "East"
-   ]
-  },
-  {
-   "cls": "CSX",
-   "num": "172",
-   "name": "Rick Myers",
-   "car": "2006 Mazda MX-5",
-   "region": "Detroit/Great Lakes",
-   "home": "Valley Falls, KS",
-   "group": "TWWE",
-   "days": [
-    "Tuesday",
-    "West",
-    "Wednesday",
-    "East"
-   ]
-  },
-  {
-   "cls": "CSXL",
-   "num": "44",
-   "name": "Deanna Flanagan",
-   "car": "2007 Mazda MX-5",
-   "region": "Kansas/Midwest",
-   "home": "Topeka, KS",
-   "group": "TWWE",
-   "days": [
-    "Tuesday",
-    "West",
-    "Wednesday",
-    "East"
-   ]
-  },
-  {
-   "cls": "DS",
-   "num": "73",
-   "name": "Brett Barber",
-   "car": "2024 Toyota GR86",
-   "region": "Kansas City/Midwest",
-   "home": "Basehor, KS",
-   "group": "THEFW",
-   "days": [
-    "Thursday",
-    "East",
-    "Friday",
-    "West"
-   ]
-  },
-  {
-   "cls": "DS",
-   "num": "17",
-   "name": "David Hoang",
-   "car": "2023 Subaru BRZ",
-   "region": "Kansas City/Midwest",
-   "home": "Kansas City, MO",
-   "group": "THEFW",
-   "days": [
-    "Thursday",
-    "East",
-    "Friday",
-    "West"
-   ]
-  },
-  {
-   "cls": "DS",
-   "num": "117",
-   "name": "German Flores Ortega",
-   "car": "2023 Subaru BRZ",
-   "region": "Kansas City/Midwest",
-   "home": "Independence, Mo",
-   "group": "THEFW",
-   "days": [
-    "Thursday",
-    "East",
-    "Friday",
-    "West"
-   ]
-  },
-  {
-   "cls": "DS",
-   "num": "11",
-   "name": "Jim Monroe",
-   "car": "2024 Toyota GR86",
-   "region": "Wichita/Midwest",
-   "home": "Wichita, KS",
-   "group": "THEFW",
-   "days": [
-    "Thursday",
-    "East",
-    "Friday",
-    "West"
-   ]
-  },
-  {
-   "cls": "DS",
-   "num": "199",
-   "name": "Peter Hsu",
-   "car": "2019 Honda Civic Type-R",
-   "region": "Kansas City/Midwest",
-   "home": "Minneapolis, MN",
-   "group": "THEFW",
-   "days": [
-    "Thursday",
-    "East",
-    "Friday",
-    "West"
-   ]
-  },
-  {
-   "cls": "DS",
-   "num": "173",
-   "name": "William Pfannenstiel",
-   "car": "2024 Toyota GR86",
-   "region": "Kansas City/Midwest",
-   "home": "Tonganoxie, KS",
-   "group": "THEFW",
-   "days": [
-    "Thursday",
-    "East",
-    "Friday",
-    "West"
-   ]
-  },
-  {
-   "cls": "EP",
-   "num": "98",
-   "name": "Chris DeLay",
-   "car": "1999 Honda Civic Type LLR",
-   "region": "Kansas City/Central",
-   "home": "Liberty, MO",
-   "group": "TWWE",
-   "days": [
-    "Tuesday",
-    "West",
-    "Wednesday",
-    "East"
-   ]
-  },
-  {
-   "cls": "ES",
-   "num": "92",
-   "name": "Nathan Jones-Walker",
-   "car": "1999 Mazda Miata",
-   "region": "Kansas City/Midwest",
-   "home": "Kansas City, KS",
-   "group": "TWWE",
-   "days": [
-    "Tuesday",
-    "West",
-    "Wednesday",
-    "East"
-   ]
-  },
-  {
-   "cls": "ES",
-   "num": "104",
-   "name": "Robert (Rocky) Jr. Entriken",
-   "car": "2000 Mazda Miata",
-   "region": "Salina/Midwest",
-   "home": "Salina, KS",
-   "group": "TWWE",
-   "days": [
-    "Tuesday",
-    "West",
-    "Wednesday",
-    "East"
-   ]
-  },
-  {
-   "cls": "ES",
-   "num": "192",
-   "name": "Zachary Nusbaum",
-   "car": "1999 Mazda Miata",
-   "region": "Kansas City/Midwest",
-   "home": "Overland Park, KS",
-   "group": "TWWE",
-   "days": [
-    "Tuesday",
-    "West",
-    "Wednesday",
-    "East"
-   ]
-  },
-  {
-   "cls": "ESL",
-   "num": "31",
-   "name": "Janet Bauman",
-   "car": "1999 Mazda Miata",
-   "region": "Kansas City/Midwest",
-   "home": "Belton, MO",
-   "group": "TWWE",
-   "days": [
-    "Tuesday",
-    "West",
-    "Wednesday",
-    "East"
-   ]
-  },
-  {
-   "cls": "EST",
-   "num": "171",
-   "name": "Blake Kane",
-   "car": "1991 Mazda Miata",
-   "region": "Kansas City/Midwest",
-   "home": "Grandview, MO",
-   "group": "THEFW",
-   "days": [
-    "Thursday",
-    "East",
-    "Friday",
-    "West"
-   ]
-  },
-  {
-   "cls": "EST",
-   "num": "86",
-   "name": "Conner Herrick",
-   "car": "1988 Honda CRX",
-   "region": "Nebraska/Midwest",
-   "home": "McPherson, KS",
-   "group": "THEFW",
-   "days": [
-    "Thursday",
-    "East",
-    "Friday",
-    "West"
-   ]
-  },
-  {
-   "cls": "EST",
-   "num": "71",
-   "name": "Henry Savasten",
-   "car": "1991 Mazda Miata",
-   "region": "Kansas City/Midwest",
-   "home": "Kansas City, KS",
-   "group": "THEFW",
-   "days": [
-    "Thursday",
-    "East",
-    "Friday",
-    "West"
-   ]
-  },
-  {
-   "cls": "EST",
-   "num": "89",
-   "name": "Mason Herrick",
-   "car": "1990 Mazda Miata",
-   "region": "Nebraska/Midwest",
-   "home": "McPherson, KS",
-   "group": "THEFW",
-   "days": [
-    "Thursday",
-    "East",
-    "Friday",
-    "West"
-   ]
-  },
-  {
-   "cls": "EST",
-   "num": "186",
-   "name": "Mike Herrick",
-   "car": "1988 Honda CRX",
-   "region": "Nebraska/Midwest",
-   "home": "McPherson, KS",
-   "group": "THEFW",
-   "days": [
-    "Thursday",
-    "East",
-    "Friday",
-    "West"
-   ]
-  },
-  {
-   "cls": "EST",
-   "num": "19",
-   "name": "Willie Vela",
-   "car": "2005 Mazda Mazda 3",
-   "region": "Kansas City/Midwest",
-   "home": "Kansas City, KS",
-   "group": "THEFW",
-   "days": [
-    "Thursday",
-    "East",
-    "Friday",
-    "West"
-   ]
-  },
-  {
-   "cls": "FM",
-   "num": "188",
-   "name": "Brad Smith",
-   "car": "2022 SMW Doofwagon",
-   "region": "Kansas City/Midwest",
-   "home": "kansas city, mo",
-   "group": "THWFE",
-   "days": [
-    "Thursday",
-    "West",
-    "Friday",
-    "East"
-   ]
-  },
-  {
-   "cls": "FM",
-   "num": "128",
-   "name": "Brandon Thomas",
-   "car": "2023 SMW Doof3",
-   "region": "Wichita/Midwest",
-   "home": "Wichita, KS",
-   "group": "THWFE",
-   "days": [
-    "Thursday",
-    "West",
-    "Friday",
-    "East"
-   ]
-  },
-  {
-   "cls": "FM",
-   "num": "29",
-   "name": "Chris Thomas",
-   "car": "1992 Red Devil",
-   "region": "Wichita/Midwest",
-   "home": "Wichita, KS",
-   "group": "THWFE",
-   "days": [
-    "Thursday",
-    "West",
-    "Friday",
-    "East"
-   ]
-  },
-  {
-   "cls": "FM",
-   "num": "79",
-   "name": "Graham Smith",
-   "car": "2004 Invader",
-   "region": "Kansas City/Midwest",
-   "home": "Kansas City, MO",
-   "group": "THWFE",
-   "days": [
-    "Thursday",
-    "West",
-    "Friday",
-    "East"
-   ]
-  },
-  {
-   "cls": "FS",
-   "num": "49",
-   "name": "Brian Meyer",
-   "car": "2020 Ford Shelby GT350",
-   "region": "Kansas City/Midwest",
-   "home": "Kansas City, MO",
-   "group": "TWWE",
-   "days": [
-    "Tuesday",
-    "West",
-    "Wednesday",
-    "East"
-   ]
-  },
-  {
-   "cls": "FS",
-   "num": "43",
-   "name": "Dan Wheeler",
-   "car": "2024 Ford Mustang",
-   "region": "Kansas City/Midwest",
-   "home": "Independence, MO",
-   "group": "TWWE",
-   "days": [
-    "Tuesday",
-    "West",
-    "Wednesday",
-    "East"
-   ]
-  },
-  {
-   "cls": "FSAE",
-   "num": "21",
-   "name": "Cian Wenzel",
-   "car": "2026 Jayhawk Motorsports FSAE",
-   "region": "Kansas/Midwest",
-   "home": "Cedar Falls, IA",
-   "group": "TWWE",
-   "days": [
-    "Tuesday",
-    "West",
-    "Wednesday",
-    "East"
-   ]
-  },
-  {
-   "cls": "FSAE",
-   "num": "121",
-   "name": "Daniel Estingoy",
-   "car": "2026 Jayhawk Motorsports JMS 26",
-   "region": "Kansas City/Midwest",
-   "home": "Overland Park, KS",
-   "group": "TWWE",
-   "days": [
-    "Tuesday",
-    "West",
-    "Wednesday",
-    "East"
-   ]
-  },
-  {
-   "cls": "FSP",
-   "num": "176",
-   "name": "Douglas Hitchcock",
-   "car": "1976 BMW 2002",
-   "region": "Kansas City/Midwest",
-   "home": "Kansas City, MO",
-   "group": "TWWE",
-   "days": [
-    "Tuesday",
-    "West",
-    "Wednesday",
-    "East"
-   ]
-  },
-  {
-   "cls": "FSP",
-   "num": "76",
-   "name": "Ian Jennings",
-   "car": "1976 BMW 2002",
-   "region": "Kansas City/Midwest",
-   "home": "Kansas City, MO",
-   "group": "TWWE",
-   "days": [
-    "Tuesday",
-    "West",
-    "Wednesday",
-    "East"
-   ]
-  },
-  {
-   "cls": "GS",
-   "num": "8",
-   "name": "Jeff Bartz",
-   "car": "2025 Hyundai Elantra N",
-   "region": "Kansas City/Midwest",
-   "home": "Lenexa, KS",
-   "group": "THWFE",
-   "days": [
-    "Thursday",
-    "West",
-    "Friday",
-    "East"
-   ]
-  },
-  {
-   "cls": "GS",
-   "num": "66",
-   "name": "Phillip Meredith",
-   "car": "Volkswagen GTI",
-   "region": "Kansas City/Midwest",
-   "home": "Shawnee, KS",
-   "group": "THWFE",
-   "days": [
-    "Thursday",
-    "West",
-    "Friday",
-    "East"
-   ]
-  },
-  {
-   "cls": "GS",
-   "num": "94",
-   "name": "Russell Blume",
-   "car": "2007 Mini Cooper S",
-   "region": "Kansas/Midwest",
-   "home": "Wichita, KS",
-   "group": "THWFE",
-   "days": [
-    "Thursday",
-    "West",
-    "Friday",
-    "East"
-   ]
-  },
-  {
-   "cls": "GSL",
-   "num": "94",
-   "name": "Laney Blume",
-   "car": "2007 Mini Cooper S",
-   "region": "Kansas/Midwest",
-   "home": "Wichita, KS",
-   "group": "THWFE",
-   "days": [
-    "Thursday",
-    "West",
-    "Friday",
-    "East"
-   ]
-  },
-  {
-   "cls": "HS",
-   "num": "98",
-   "name": "Ron Williams",
-   "car": "2021 Honda Civic Sport",
-   "region": "Kansas/Midwest",
-   "home": "Topeka, KS",
-   "group": "TEWW",
-   "days": [
-    "Tuesday",
-    "East",
-    "Wednesday",
-    "West"
-   ]
-  },
-  {
-   "cls": "SMF",
-   "num": "198",
-   "name": "Craig Wilcox",
-   "car": "1999 Honda Civic",
-   "region": "Kansas City/Midwest",
-   "home": "BLUE SPRINGS, MO",
-   "group": "TWWE",
-   "days": [
-    "Tuesday",
-    "West",
-    "Wednesday",
-    "East"
-   ]
-  },
-  {
-   "cls": "SMF",
-   "num": "98",
-   "name": "Joe Silva",
-   "car": "1999 Honda Civic",
-   "region": "Salina/Midwest",
-   "home": "Manhattan, KS",
-   "group": "TWWE",
-   "days": [
-    "Tuesday",
-    "West",
-    "Wednesday",
-    "East"
-   ]
-  },
-  {
-   "cls": "SSC",
-   "num": "177",
-   "name": "Alexander von Bevern",
-   "car": "2013 Subaru BRZ",
-   "region": "Kansas City/Midwest",
-   "home": "Overland park, Ks",
-   "group": "TWWE",
-   "days": [
-    "Tuesday",
-    "West",
-    "Wednesday",
-    "East"
-   ]
-  },
-  {
-   "cls": "SSC",
-   "num": "77",
-   "name": "Heath Helmick",
-   "car": "2013 Subaru BRZ",
-   "region": "Kansas City/Central",
-   "home": "Overland Park, KS",
-   "group": "TWWE",
-   "days": [
-    "Tuesday",
-    "West",
-    "Wednesday",
-    "East"
-   ]
-  },
-  {
-   "cls": "XA",
-   "num": "84",
-   "name": "April Griffith",
-   "car": "2005 Mazda Rx8",
-   "region": "Kansas City/Midwest",
-   "home": "Gardner, KS",
-   "group": "TEWW",
-   "days": [
-    "Tuesday",
-    "East",
-    "Wednesday",
-    "West"
-   ]
-  },
-  {
-   "cls": "XA",
-   "num": "89",
-   "name": "Christopher Edmondson",
-   "car": "1989 BMW 325",
-   "region": "Kansas City/Midwest",
-   "home": "Blue Springs, MO",
-   "group": "TEWW",
-   "days": [
-    "Tuesday",
-    "East",
-    "Wednesday",
-    "West"
-   ]
-  },
-  {
-   "cls": "XA",
-   "num": "184",
-   "name": "Jonathan Griffith",
-   "car": "2005 Mazda Rx8",
-   "region": "Kansas City/Midwest",
-   "home": "Gardner, KS",
-   "group": "TEWW",
-   "days": [
-    "Tuesday",
-    "East",
-    "Wednesday",
-    "West"
-   ]
-  },
-  {
-   "cls": "XA",
-   "num": "189",
-   "name": "Kent Edmondson",
-   "car": "1989 BMW E30",
-   "region": "Kansas City/Midwest",
-   "home": "Blue Springs, MO",
-   "group": "TEWW",
-   "days": [
-    "Tuesday",
-    "East",
-    "Wednesday",
-    "West"
-   ]
-  },
-  {
-   "cls": "XA",
-   "num": "73",
-   "name": "Luis Rodriguez",
-   "car": "2002 Porsche Boxster",
-   "region": "Kansas City/Midwest",
-   "home": "Kansas City, MO",
-   "group": "TEWW",
-   "days": [
-    "Tuesday",
-    "East",
-    "Wednesday",
-    "West"
-   ]
-  },
-  {
-   "cls": "XA",
-   "num": "173",
-   "name": "Stephen Fudge",
-   "car": "2002 Porsche Boxster",
-   "region": "Kansas City/Midwest",
-   "home": "Blue Springs, MO",
-   "group": "TEWW",
-   "days": [
-    "Tuesday",
-    "East",
-    "Wednesday",
-    "West"
-   ]
-  },
-  {
-   "cls": "XB",
-   "num": "84",
-   "name": "Guillermo Chinchilla",
-   "car": "2002 Toyota MR2 Spyder",
-   "region": "Kansas City/Midwest",
-   "home": "Kansas City, MO",
-   "group": "TEWW",
-   "days": [
-    "Tuesday",
-    "East",
-    "Wednesday",
-    "West"
-   ]
-  },
-  {
-   "cls": "XB",
-   "num": "184",
-   "name": "Nathan Carlston",
-   "car": "2002 Toyota MR-S",
-   "region": "Kansas City/Midwest",
-   "home": "Overland Park, KS",
-   "group": "TEWW",
-   "days": [
-    "Tuesday",
-    "East",
-    "Wednesday",
-    "West"
-   ]
-  },
-  {
-   "cls": "XBL",
-   "num": "84",
-   "name": "Tyra Pyle",
-   "car": "2002 Toyota MR-2",
-   "region": "Kansas City/Midwest",
-   "home": "Kansas City, MO",
-   "group": "TEWW",
-   "days": [
-    "Tuesday",
-    "East",
-    "Wednesday",
-    "West"
-   ]
-  }
- ]
+  "event": "2026 Tire Rack SCCA Solo National Championships",
+  "base": "https://sololive.scca.com/26NATSGEN/",
+  "drivers": [
+    {
+      "cls": "AM",
+      "num": "57",
+      "name": "Scott Allison",
+      "car": "Formula Corvair Powered Formula",
+      "region": "Kansas City/Midwest",
+      "home": "Belton, MO",
+      "group": "TEWW",
+      "days": [
+        "Tuesday",
+        "East",
+        "Wednesday",
+        "West"
+      ]
+    },
+    {
+      "cls": "AS",
+      "num": "84",
+      "name": "David Green",
+      "car": "2008 Chevrolet Corvette Z06",
+      "region": "Wichita/Midwest",
+      "home": "Wichita, KS",
+      "group": "TEWW",
+      "days": [
+        "Tuesday",
+        "East",
+        "Wednesday",
+        "West"
+      ]
+    },
+    {
+      "cls": "AS",
+      "num": "63",
+      "name": "Frank Wietharn",
+      "car": "2007 Chevrolet Corvette Z06",
+      "region": "Kansas/Midwest",
+      "home": "Topeka, KS",
+      "group": "TEWW",
+      "days": [
+        "Tuesday",
+        "East",
+        "Wednesday",
+        "West"
+      ]
+    },
+    {
+      "cls": "AST",
+      "num": "171",
+      "name": "Eden Jeffers",
+      "car": "2020 Mazda Miata",
+      "region": "Kansas City/Midwest",
+      "home": "Houston, Tx",
+      "group": "THEFW",
+      "days": [
+        "Thursday",
+        "East",
+        "Friday",
+        "West"
+      ]
+    },
+    {
+      "cls": "BS",
+      "num": "77",
+      "name": "James Harrison",
+      "car": "2026 Toyota Supra",
+      "region": "Wichita/Midwest",
+      "home": "Wichita, KS",
+      "group": "THEFW",
+      "days": [
+        "Thursday",
+        "East",
+        "Friday",
+        "West"
+      ]
+    },
+    {
+      "cls": "BS",
+      "num": "1",
+      "name": "Ryan Kubr",
+      "car": "2016 Chevrolet Corvette Z51",
+      "region": "Kansas City/Midwest",
+      "home": "Shawnee, KS",
+      "group": "THEFW",
+      "days": [
+        "Thursday",
+        "East",
+        "Friday",
+        "West"
+      ]
+    },
+    {
+      "cls": "BST",
+      "num": "45",
+      "name": "Mark Hill",
+      "car": "2006 Mitsubishi E-voh IX",
+      "region": "Kansas/Midwest",
+      "home": "Lawrence, KS",
+      "group": "TEWW",
+      "days": [
+        "Tuesday",
+        "East",
+        "Wednesday",
+        "West"
+      ]
+    },
+    {
+      "cls": "BST",
+      "num": "16",
+      "name": "Preston Evans",
+      "car": "2013 BMW M3",
+      "region": "Kansas City/Midwest",
+      "home": "Overland Park, KS",
+      "group": "TEWW",
+      "days": [
+        "Tuesday",
+        "East",
+        "Wednesday",
+        "West"
+      ]
+    },
+    {
+      "cls": "CAMC",
+      "num": "111",
+      "name": "Daniel Martin",
+      "car": "2005 Ford Mustang GT",
+      "region": "Kansas City/Midwest",
+      "home": "Lee\u2019s Summit, MO",
+      "group": "THWFE",
+      "days": [
+        "Thursday",
+        "West",
+        "Friday",
+        "East"
+      ]
+    },
+    {
+      "cls": "CAMC",
+      "num": "11",
+      "name": "Todd Morris",
+      "car": "2005 Ford Mustang GT",
+      "region": "Kansas City/Midwest",
+      "home": "Lees summit MO, MO",
+      "group": "THWFE",
+      "days": [
+        "Thursday",
+        "West",
+        "Friday",
+        "East"
+      ]
+    },
+    {
+      "cls": "CAMS",
+      "num": "183",
+      "name": "James Woodward",
+      "car": "2002 Chevrolet Z06",
+      "region": "Kansas City/Midwest",
+      "home": "Gardner, KS",
+      "group": "THEFW",
+      "days": [
+        "Thursday",
+        "East",
+        "Friday",
+        "West"
+      ]
+    },
+    {
+      "cls": "CAMS",
+      "num": "83",
+      "name": "Jeremy Scotton",
+      "car": "2002 Chevrolet Z06",
+      "region": "Kansas City/Midwest",
+      "home": "Olathe, KS",
+      "group": "THEFW",
+      "days": [
+        "Thursday",
+        "East",
+        "Friday",
+        "West"
+      ]
+    },
+    {
+      "cls": "CAMS",
+      "num": "7",
+      "name": "Jim French",
+      "car": "2012 Chevrolet Corvette",
+      "region": "Wichita/Midwest",
+      "home": "Wichita, KS",
+      "group": "THEFW",
+      "days": [
+        "Thursday",
+        "East",
+        "Friday",
+        "West"
+      ]
+    },
+    {
+      "cls": "CAMT",
+      "num": "172",
+      "name": "Keith Lamming",
+      "car": "1968 Chevrolet Camaro",
+      "region": "Kansas City/Midwest",
+      "home": "Oak Grove, MO",
+      "group": "THEFW",
+      "days": [
+        "Thursday",
+        "East",
+        "Friday",
+        "West"
+      ]
+    },
+    {
+      "cls": "CAMT",
+      "num": "8",
+      "name": "Opie Viets",
+      "car": "1973 Chevrolet Z28",
+      "region": "Ozark Mountain/Midwest",
+      "home": "Girard, KS",
+      "group": "THEFW",
+      "days": [
+        "Thursday",
+        "East",
+        "Friday",
+        "West"
+      ]
+    },
+    {
+      "cls": "CAMT",
+      "num": "72",
+      "name": "Patrick Darling",
+      "car": "1968 Chevrolet Camaro",
+      "region": "St. Louis/Midwest",
+      "home": "Grain Valley, MO",
+      "group": "THEFW",
+      "days": [
+        "Thursday",
+        "East",
+        "Friday",
+        "West"
+      ]
+    },
+    {
+      "cls": "CAMT",
+      "num": "73",
+      "name": "Tyler Gibson",
+      "car": "1973 Intl Harvester Scout II",
+      "region": "Kansas City/Midwest",
+      "home": "Independence, MO",
+      "group": "THEFW",
+      "days": [
+        "Thursday",
+        "East",
+        "Friday",
+        "West"
+      ]
+    },
+    {
+      "cls": "CAMT",
+      "num": "23",
+      "name": "Tyler Talcott",
+      "car": "1991 Ford Mustang",
+      "region": "Kansas City/Midwest",
+      "home": "Raymore, MO",
+      "group": "THEFW",
+      "days": [
+        "Thursday",
+        "East",
+        "Friday",
+        "West"
+      ]
+    },
+    {
+      "cls": "CP",
+      "num": "49",
+      "name": "Albert Hermans",
+      "car": "1997 Ford Mustang Cobra",
+      "region": "Kansas City/Midwest",
+      "home": "Raytown, MO",
+      "group": "THWFE",
+      "days": [
+        "Thursday",
+        "West",
+        "Friday",
+        "East"
+      ]
+    },
+    {
+      "cls": "CP",
+      "num": "34",
+      "name": "Art Martinez",
+      "car": "1982 Pontiac MSE TA",
+      "region": "Wichita/Midwest",
+      "home": "Wichita, KS",
+      "group": "THWFE",
+      "days": [
+        "Thursday",
+        "West",
+        "Friday",
+        "East"
+      ]
+    },
+    {
+      "cls": "CP",
+      "num": "199",
+      "name": "Charlie Clark",
+      "car": "Chevrolet corvair",
+      "region": "Kansas City/Midwest",
+      "home": "ROELAND PARK, KS",
+      "group": "THWFE",
+      "days": [
+        "Thursday",
+        "West",
+        "Friday",
+        "East"
+      ]
+    },
+    {
+      "cls": "CP",
+      "num": "99",
+      "name": "Dick Berger",
+      "car": "1968 Chevrolet corvair",
+      "region": "Kansas City/Midwest",
+      "home": "Kansas City, Mo",
+      "group": "THWFE",
+      "days": [
+        "Thursday",
+        "West",
+        "Friday",
+        "East"
+      ]
+    },
+    {
+      "cls": "CP",
+      "num": "16",
+      "name": "Travis Bolton",
+      "car": "1965 Chevrolet Corvair",
+      "region": "Kansas City/Midwest",
+      "home": "Liberty, MO",
+      "group": "THWFE",
+      "days": [
+        "Thursday",
+        "West",
+        "Friday",
+        "East"
+      ]
+    },
+    {
+      "cls": "CS",
+      "num": "12",
+      "name": "Luke Scott",
+      "car": "2019 Mazda Miata ND2",
+      "region": "Wichita/Midwest",
+      "home": "Wichita, KS",
+      "group": "THWFE",
+      "days": [
+        "Thursday",
+        "West",
+        "Friday",
+        "East"
+      ]
+    },
+    {
+      "cls": "CS",
+      "num": "62",
+      "name": "Mason Smith",
+      "car": "2022 Mazda Miata",
+      "region": "Wichita/Midwest",
+      "home": "Wichita, KS",
+      "group": "THWFE",
+      "days": [
+        "Thursday",
+        "West",
+        "Friday",
+        "East"
+      ]
+    },
+    {
+      "cls": "CSM",
+      "num": "155",
+      "name": "Blayne Rios",
+      "car": "2008 Ford Mustang",
+      "region": "Kansas City/Midwest",
+      "home": "Grandview, MO",
+      "group": "THWFE",
+      "days": [
+        "Thursday",
+        "West",
+        "Friday",
+        "East"
+      ]
+    },
+    {
+      "cls": "CSM",
+      "num": "55",
+      "name": "Joshua Holsworth",
+      "car": "2008 Ford Mustang",
+      "region": "Kansas City/Midwest",
+      "home": "Overland Park, KS",
+      "group": "THWFE",
+      "days": [
+        "Thursday",
+        "West",
+        "Friday",
+        "East"
+      ]
+    },
+    {
+      "cls": "CSM",
+      "num": "158",
+      "name": "Matthew Iden",
+      "car": "2008 Ford Mustang Bullitt",
+      "region": "Kansas City/Midwest",
+      "home": "Olathe, KS",
+      "group": "THWFE",
+      "days": [
+        "Thursday",
+        "West",
+        "Friday",
+        "East"
+      ]
+    },
+    {
+      "cls": "CSM",
+      "num": "174",
+      "name": "Ryan Plourde",
+      "car": "2006 Ford Mustang GT",
+      "region": "Wichita/Midwest",
+      "home": "Wichita, KS",
+      "group": "THWFE",
+      "days": [
+        "Thursday",
+        "West",
+        "Friday",
+        "East"
+      ]
+    },
+    {
+      "cls": "CSP",
+      "num": "2",
+      "name": "Kevin Lynn",
+      "car": "2002 Honda S2000",
+      "region": "Kansas/Midwest",
+      "home": "Topeka, KS",
+      "group": "THEFW",
+      "days": [
+        "Thursday",
+        "East",
+        "Friday",
+        "West"
+      ]
+    },
+    {
+      "cls": "CSX",
+      "num": "19",
+      "name": "Andrew Benagh",
+      "car": "2009 Mazda MX-5",
+      "region": "New England/Northeast",
+      "home": "Olathe, KS",
+      "group": "TWWE",
+      "days": [
+        "Tuesday",
+        "West",
+        "Wednesday",
+        "East"
+      ]
+    },
+    {
+      "cls": "CSX",
+      "num": "151",
+      "name": "Eric Prill",
+      "car": "2014 Mazda MX-5",
+      "region": "Kansas/Midwest",
+      "home": "Topeka, KS",
+      "group": "TWWE",
+      "days": [
+        "Tuesday",
+        "West",
+        "Wednesday",
+        "East"
+      ]
+    },
+    {
+      "cls": "CSX",
+      "num": "72",
+      "name": "Jason Myers",
+      "car": "2006 Mazda Miata",
+      "region": "Kansas/Central",
+      "home": "California City, CA",
+      "group": "TWWE",
+      "days": [
+        "Tuesday",
+        "West",
+        "Wednesday",
+        "East"
+      ]
+    },
+    {
+      "cls": "CSX",
+      "num": "172",
+      "name": "Rick Myers",
+      "car": "2006 Mazda MX-5",
+      "region": "Detroit/Great Lakes",
+      "home": "Valley Falls, KS",
+      "group": "TWWE",
+      "days": [
+        "Tuesday",
+        "West",
+        "Wednesday",
+        "East"
+      ]
+    },
+    {
+      "cls": "CSXL",
+      "num": "44",
+      "name": "Deanna Flanagan",
+      "car": "2007 Mazda MX-5",
+      "region": "Kansas/Midwest",
+      "home": "Topeka, KS",
+      "group": "TWWE",
+      "days": [
+        "Tuesday",
+        "West",
+        "Wednesday",
+        "East"
+      ]
+    },
+    {
+      "cls": "DS",
+      "num": "73",
+      "name": "Brett Barber",
+      "car": "2024 Toyota GR86",
+      "region": "Kansas City/Midwest",
+      "home": "Basehor, KS",
+      "group": "THEFW",
+      "days": [
+        "Thursday",
+        "East",
+        "Friday",
+        "West"
+      ]
+    },
+    {
+      "cls": "DS",
+      "num": "17",
+      "name": "David Hoang",
+      "car": "2023 Subaru BRZ",
+      "region": "Kansas City/Midwest",
+      "home": "Kansas City, MO",
+      "group": "THEFW",
+      "days": [
+        "Thursday",
+        "East",
+        "Friday",
+        "West"
+      ]
+    },
+    {
+      "cls": "DS",
+      "num": "117",
+      "name": "German Flores Ortega",
+      "car": "2023 Subaru BRZ",
+      "region": "Kansas City/Midwest",
+      "home": "Independence, Mo",
+      "group": "THEFW",
+      "days": [
+        "Thursday",
+        "East",
+        "Friday",
+        "West"
+      ]
+    },
+    {
+      "cls": "DS",
+      "num": "11",
+      "name": "Jim Monroe",
+      "car": "2024 Toyota GR86",
+      "region": "Wichita/Midwest",
+      "home": "Wichita, KS",
+      "group": "THEFW",
+      "days": [
+        "Thursday",
+        "East",
+        "Friday",
+        "West"
+      ]
+    },
+    {
+      "cls": "DS",
+      "num": "199",
+      "name": "Peter Hsu",
+      "car": "2019 Honda Civic Type-R",
+      "region": "Kansas City/Midwest",
+      "home": "Minneapolis, MN",
+      "group": "THEFW",
+      "days": [
+        "Thursday",
+        "East",
+        "Friday",
+        "West"
+      ]
+    },
+    {
+      "cls": "DS",
+      "num": "173",
+      "name": "William Pfannenstiel",
+      "car": "2024 Toyota GR86",
+      "region": "Kansas City/Midwest",
+      "home": "Tonganoxie, KS",
+      "group": "THEFW",
+      "days": [
+        "Thursday",
+        "East",
+        "Friday",
+        "West"
+      ]
+    },
+    {
+      "cls": "EP",
+      "num": "98",
+      "name": "Chris DeLay",
+      "car": "1999 Honda Civic Type LLR",
+      "region": "Kansas City/Central",
+      "home": "Liberty, MO",
+      "group": "TWWE",
+      "days": [
+        "Tuesday",
+        "West",
+        "Wednesday",
+        "East"
+      ]
+    },
+    {
+      "cls": "ES",
+      "num": "92",
+      "name": "Nathan Jones-Walker",
+      "car": "1999 Mazda Miata",
+      "region": "Kansas City/Midwest",
+      "home": "Kansas City, KS",
+      "group": "TWWE",
+      "days": [
+        "Tuesday",
+        "West",
+        "Wednesday",
+        "East"
+      ]
+    },
+    {
+      "cls": "ES",
+      "num": "104",
+      "name": "Robert (Rocky) Jr. Entriken",
+      "car": "2000 Mazda Miata",
+      "region": "Salina/Midwest",
+      "home": "Salina, KS",
+      "group": "TWWE",
+      "days": [
+        "Tuesday",
+        "West",
+        "Wednesday",
+        "East"
+      ]
+    },
+    {
+      "cls": "ES",
+      "num": "192",
+      "name": "Zachary Nusbaum",
+      "car": "1999 Mazda Miata",
+      "region": "Kansas City/Midwest",
+      "home": "Overland Park, KS",
+      "group": "TWWE",
+      "days": [
+        "Tuesday",
+        "West",
+        "Wednesday",
+        "East"
+      ]
+    },
+    {
+      "cls": "ESL",
+      "num": "31",
+      "name": "Janet Bauman",
+      "car": "1999 Mazda Miata",
+      "region": "Kansas City/Midwest",
+      "home": "Belton, MO",
+      "group": "TWWE",
+      "days": [
+        "Tuesday",
+        "West",
+        "Wednesday",
+        "East"
+      ]
+    },
+    {
+      "cls": "EST",
+      "num": "171",
+      "name": "Blake Kane",
+      "car": "1991 Mazda Miata",
+      "region": "Kansas City/Midwest",
+      "home": "Grandview, MO",
+      "group": "THEFW",
+      "days": [
+        "Thursday",
+        "East",
+        "Friday",
+        "West"
+      ]
+    },
+    {
+      "cls": "EST",
+      "num": "86",
+      "name": "Conner Herrick",
+      "car": "1988 Honda CRX",
+      "region": "Nebraska/Midwest",
+      "home": "McPherson, KS",
+      "group": "THEFW",
+      "days": [
+        "Thursday",
+        "East",
+        "Friday",
+        "West"
+      ]
+    },
+    {
+      "cls": "EST",
+      "num": "71",
+      "name": "Henry Savasten",
+      "car": "1991 Mazda Miata",
+      "region": "Kansas City/Midwest",
+      "home": "Kansas City, KS",
+      "group": "THEFW",
+      "days": [
+        "Thursday",
+        "East",
+        "Friday",
+        "West"
+      ]
+    },
+    {
+      "cls": "EST",
+      "num": "89",
+      "name": "Mason Herrick",
+      "car": "1990 Mazda Miata",
+      "region": "Nebraska/Midwest",
+      "home": "McPherson, KS",
+      "group": "THEFW",
+      "days": [
+        "Thursday",
+        "East",
+        "Friday",
+        "West"
+      ]
+    },
+    {
+      "cls": "EST",
+      "num": "186",
+      "name": "Mike Herrick",
+      "car": "1988 Honda CRX",
+      "region": "Nebraska/Midwest",
+      "home": "McPherson, KS",
+      "group": "THEFW",
+      "days": [
+        "Thursday",
+        "East",
+        "Friday",
+        "West"
+      ]
+    },
+    {
+      "cls": "EST",
+      "num": "19",
+      "name": "Willie Vela",
+      "car": "2005 Mazda Mazda 3",
+      "region": "Kansas City/Midwest",
+      "home": "Kansas City, KS",
+      "group": "THEFW",
+      "days": [
+        "Thursday",
+        "East",
+        "Friday",
+        "West"
+      ]
+    },
+    {
+      "cls": "FM",
+      "num": "188",
+      "name": "Brad Smith",
+      "car": "2022 SMW Doofwagon",
+      "region": "Kansas City/Midwest",
+      "home": "kansas city, mo",
+      "group": "THWFE",
+      "days": [
+        "Thursday",
+        "West",
+        "Friday",
+        "East"
+      ]
+    },
+    {
+      "cls": "FM",
+      "num": "128",
+      "name": "Brandon Thomas",
+      "car": "2023 SMW Doof3",
+      "region": "Wichita/Midwest",
+      "home": "Wichita, KS",
+      "group": "THWFE",
+      "days": [
+        "Thursday",
+        "West",
+        "Friday",
+        "East"
+      ]
+    },
+    {
+      "cls": "FM",
+      "num": "29",
+      "name": "Chris Thomas",
+      "car": "1992 Red Devil",
+      "region": "Wichita/Midwest",
+      "home": "Wichita, KS",
+      "group": "THWFE",
+      "days": [
+        "Thursday",
+        "West",
+        "Friday",
+        "East"
+      ]
+    },
+    {
+      "cls": "FM",
+      "num": "79",
+      "name": "Graham Smith",
+      "car": "2004 Invader",
+      "region": "Kansas City/Midwest",
+      "home": "Kansas City, MO",
+      "group": "THWFE",
+      "days": [
+        "Thursday",
+        "West",
+        "Friday",
+        "East"
+      ]
+    },
+    {
+      "cls": "FS",
+      "num": "49",
+      "name": "Brian Meyer",
+      "car": "2020 Ford Shelby GT350",
+      "region": "Kansas City/Midwest",
+      "home": "Kansas City, MO",
+      "group": "TWWE",
+      "days": [
+        "Tuesday",
+        "West",
+        "Wednesday",
+        "East"
+      ]
+    },
+    {
+      "cls": "FS",
+      "num": "43",
+      "name": "Dan Wheeler",
+      "car": "2024 Ford Mustang",
+      "region": "Kansas City/Midwest",
+      "home": "Independence, MO",
+      "group": "TWWE",
+      "days": [
+        "Tuesday",
+        "West",
+        "Wednesday",
+        "East"
+      ]
+    },
+    {
+      "cls": "FSAE",
+      "num": "21",
+      "name": "Cian Wenzel",
+      "car": "2026 Jayhawk Motorsports FSAE",
+      "region": "Kansas/Midwest",
+      "home": "Cedar Falls, IA",
+      "group": "TWWE",
+      "days": [
+        "Tuesday",
+        "West",
+        "Wednesday",
+        "East"
+      ]
+    },
+    {
+      "cls": "FSAE",
+      "num": "121",
+      "name": "Daniel Estingoy",
+      "car": "2026 Jayhawk Motorsports JMS 26",
+      "region": "Kansas City/Midwest",
+      "home": "Overland Park, KS",
+      "group": "TWWE",
+      "days": [
+        "Tuesday",
+        "West",
+        "Wednesday",
+        "East"
+      ]
+    },
+    {
+      "cls": "FSP",
+      "num": "176",
+      "name": "Douglas Hitchcock",
+      "car": "1976 BMW 2002",
+      "region": "Kansas City/Midwest",
+      "home": "Kansas City, MO",
+      "group": "TWWE",
+      "days": [
+        "Tuesday",
+        "West",
+        "Wednesday",
+        "East"
+      ]
+    },
+    {
+      "cls": "FSP",
+      "num": "76",
+      "name": "Ian Jennings",
+      "car": "1976 BMW 2002",
+      "region": "Kansas City/Midwest",
+      "home": "Kansas City, MO",
+      "group": "TWWE",
+      "days": [
+        "Tuesday",
+        "West",
+        "Wednesday",
+        "East"
+      ]
+    },
+    {
+      "cls": "GS",
+      "num": "8",
+      "name": "Jeff Bartz",
+      "car": "2025 Hyundai Elantra N",
+      "region": "Kansas City/Midwest",
+      "home": "Lenexa, KS",
+      "group": "THWFE",
+      "days": [
+        "Thursday",
+        "West",
+        "Friday",
+        "East"
+      ]
+    },
+    {
+      "cls": "GS",
+      "num": "66",
+      "name": "Phillip Meredith",
+      "car": "Volkswagen GTI",
+      "region": "Kansas City/Midwest",
+      "home": "Shawnee, KS",
+      "group": "THWFE",
+      "days": [
+        "Thursday",
+        "West",
+        "Friday",
+        "East"
+      ]
+    },
+    {
+      "cls": "GS",
+      "num": "94",
+      "name": "Russell Blume",
+      "car": "2007 Mini Cooper S",
+      "region": "Kansas/Midwest",
+      "home": "Wichita, KS",
+      "group": "THWFE",
+      "days": [
+        "Thursday",
+        "West",
+        "Friday",
+        "East"
+      ]
+    },
+    {
+      "cls": "GSL",
+      "num": "94",
+      "name": "Laney Blume",
+      "car": "2007 Mini Cooper S",
+      "region": "Kansas/Midwest",
+      "home": "Wichita, KS",
+      "group": "THWFE",
+      "days": [
+        "Thursday",
+        "West",
+        "Friday",
+        "East"
+      ]
+    },
+    {
+      "cls": "HS",
+      "num": "98",
+      "name": "Ron Williams",
+      "car": "2021 Honda Civic Sport",
+      "region": "Kansas/Midwest",
+      "home": "Topeka, KS",
+      "group": "TEWW",
+      "days": [
+        "Tuesday",
+        "East",
+        "Wednesday",
+        "West"
+      ]
+    },
+    {
+      "cls": "SMF",
+      "num": "198",
+      "name": "Craig Wilcox",
+      "car": "1999 Honda Civic",
+      "region": "Kansas City/Midwest",
+      "home": "BLUE SPRINGS, MO",
+      "group": "TWWE",
+      "days": [
+        "Tuesday",
+        "West",
+        "Wednesday",
+        "East"
+      ]
+    },
+    {
+      "cls": "SMF",
+      "num": "98",
+      "name": "Joe Silva",
+      "car": "1999 Honda Civic",
+      "region": "Salina/Midwest",
+      "home": "Manhattan, KS",
+      "group": "TWWE",
+      "days": [
+        "Tuesday",
+        "West",
+        "Wednesday",
+        "East"
+      ]
+    },
+    {
+      "cls": "SSC",
+      "num": "177",
+      "name": "Alexander von Bevern",
+      "car": "2013 Subaru BRZ",
+      "region": "Kansas City/Midwest",
+      "home": "Overland park, Ks",
+      "group": "TWWE",
+      "days": [
+        "Tuesday",
+        "West",
+        "Wednesday",
+        "East"
+      ]
+    },
+    {
+      "cls": "SSC",
+      "num": "77",
+      "name": "Heath Helmick",
+      "car": "2013 Subaru BRZ",
+      "region": "Kansas City/Central",
+      "home": "Overland Park, KS",
+      "group": "TWWE",
+      "days": [
+        "Tuesday",
+        "West",
+        "Wednesday",
+        "East"
+      ]
+    },
+    {
+      "cls": "XA",
+      "num": "84",
+      "name": "April Griffith",
+      "car": "2005 Mazda Rx8",
+      "region": "Kansas City/Midwest",
+      "home": "Gardner, KS",
+      "group": "TEWW",
+      "days": [
+        "Tuesday",
+        "East",
+        "Wednesday",
+        "West"
+      ]
+    },
+    {
+      "cls": "XA",
+      "num": "89",
+      "name": "Christopher Edmondson",
+      "car": "1989 BMW 325",
+      "region": "Kansas City/Midwest",
+      "home": "Blue Springs, MO",
+      "group": "TEWW",
+      "days": [
+        "Tuesday",
+        "East",
+        "Wednesday",
+        "West"
+      ]
+    },
+    {
+      "cls": "XA",
+      "num": "184",
+      "name": "Jonathan Griffith",
+      "car": "2005 Mazda Rx8",
+      "region": "Kansas City/Midwest",
+      "home": "Gardner, KS",
+      "group": "TEWW",
+      "days": [
+        "Tuesday",
+        "East",
+        "Wednesday",
+        "West"
+      ]
+    },
+    {
+      "cls": "XA",
+      "num": "189",
+      "name": "Kent Edmondson",
+      "car": "1989 BMW E30",
+      "region": "Kansas City/Midwest",
+      "home": "Blue Springs, MO",
+      "group": "TEWW",
+      "days": [
+        "Tuesday",
+        "East",
+        "Wednesday",
+        "West"
+      ]
+    },
+    {
+      "cls": "XA",
+      "num": "73",
+      "name": "Luis Rodriguez",
+      "car": "2002 Porsche Boxster",
+      "region": "Kansas City/Midwest",
+      "home": "Kansas City, MO",
+      "group": "TEWW",
+      "days": [
+        "Tuesday",
+        "East",
+        "Wednesday",
+        "West"
+      ]
+    },
+    {
+      "cls": "XA",
+      "num": "173",
+      "name": "Stephen Fudge",
+      "car": "2002 Porsche Boxster",
+      "region": "Kansas City/Midwest",
+      "home": "Blue Springs, MO",
+      "group": "TEWW",
+      "days": [
+        "Tuesday",
+        "East",
+        "Wednesday",
+        "West"
+      ]
+    },
+    {
+      "cls": "XB",
+      "num": "84",
+      "name": "Guillermo Chinchilla",
+      "car": "2002 Toyota MR2 Spyder",
+      "region": "Kansas City/Midwest",
+      "home": "Kansas City, MO",
+      "group": "TEWW",
+      "days": [
+        "Tuesday",
+        "East",
+        "Wednesday",
+        "West"
+      ]
+    },
+    {
+      "cls": "XB",
+      "num": "184",
+      "name": "Nathan Carlston",
+      "car": "2002 Toyota MR-S",
+      "region": "Kansas City/Midwest",
+      "home": "Overland Park, KS",
+      "group": "TEWW",
+      "days": [
+        "Tuesday",
+        "East",
+        "Wednesday",
+        "West"
+      ]
+    },
+    {
+      "cls": "XBL",
+      "num": "84",
+      "name": "Tyra Pyle",
+      "car": "2002 Toyota MR-2",
+      "region": "Kansas City/Midwest",
+      "home": "Kansas City, MO",
+      "group": "TEWW",
+      "days": [
+        "Tuesday",
+        "East",
+        "Wednesday",
+        "West"
+      ]
+    }
+  ]
 }

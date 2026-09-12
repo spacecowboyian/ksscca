@@ -43,6 +43,7 @@ jobs:
           path: |
             nationals/cache
             pronto/state
+            nationals/roster-seed.json
           key: nats-cache-${{ github.run_id }}
           restore-keys: nats-cache-
 
@@ -90,4 +91,5 @@ jobs:
           path: |
             nationals/cache
             pronto/state
+            nationals/roster-seed.json
           key: nats-cache-${{ github.run_id }}
