@@ -440,6 +440,17 @@ def module(title, note, rows_html, pager=""):
     )
 
 
+def ran(row):
+    """Did this driver put a time on the board at all?
+
+    The event is over, so a row with nothing but DNS on both courses is a
+    driver who never ran, not one still to come. A driver with times on one
+    course and DNS on the other did run, and stays.
+    """
+    return any(re.search(r"\d", r["time"] or "")
+               for c in ("east", "west") for r in row[c]["runs"])
+
+
 def build_page(rows, page_id, snapshot, coverage):
     # Three tables, in the order they matter to a reader from Kansas:
     # who is on the trophy, who still has running left to do, who is done.
@@ -464,6 +475,7 @@ def build_page(rows, page_id, snapshot, coverage):
     # which is not an achievement and read as a pecking order. One
     # list of everyone, with the green row doing the work of saying
     # who is done.
+    rows = [r for r in rows if ran(r)]
     trophy = [r for r in rows if on_pace(r)]
     field = [r for r in rows if r not in trophy]
 
@@ -495,21 +507,15 @@ def build_page(rows, page_id, snapshot, coverage):
     # below the fold. The table headings and the row contents carry that
     # information well enough; the one caveat worth keeping is at the bottom.
 
-    # The green row means the same thing in both tables, so the legend goes
-    # on whichever table comes first rather than being repeated or stranded
-    # at the bottom.
-    legend = "a green row is a final result"
     if trophy:
         out.append(module(
             "In the trophies",
-            "On a trophy in class \u00b7 %d drivers \u00b7 %s" % (len(trophy), legend),
+            "On a trophy in class \u00b7 %d drivers" % len(trophy),
             sectioned(trophy, lambda r, oc, on: render_row(r, oc=oc, on=on)),
         ))
 
     if field:
         note = "%d drivers" % len(field)
-        if not trophy:
-            note += " \u00b7 %s" % legend
         out.append(module("The field", note,
                           sectioned(field, lambda r, oc, on: render_row(r, oc=oc, on=on))))
 
