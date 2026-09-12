@@ -280,6 +280,16 @@ def field_sort_key(row):
     return (row["cls"].upper(), sort_key(row))
 
 
+def trophy_sort_key(row):
+    """Class A-Z, then the standing inside the class.
+
+    The field is a list of names and reads best alphabetically, but a
+    trophy run is a podium: 1st above 2nd above 3rd.
+    """
+    p = str(row["pos"]).strip()
+    return (row["cls"].upper(), int(p) if p.isdigit() else 10 ** 6, sort_key(row))
+
+
 # --------------------------------------------------------------------------
 # rendering
 #
@@ -395,7 +405,7 @@ HDR = ('<div class="ksn-hdr"><span class="hcl">Class</span><span>Driver</span><s
        '<span class="t">Total</span></div>')
 
 
-def sectioned(rows, render):
+def sectioned(rows, render, key=None):
     """Split a table into "Still running" then "Finished", by class.
 
     A heading is only emitted for a group with anyone in it: a lone
@@ -416,7 +426,7 @@ def sectioned(rows, render):
         if not group:
             continue
         out.append('<div class="ksn-sub">%s<span>%d</span></div>' % (label, len(group)))
-        by_class = sorted(group, key=field_sort_key)
+        by_class = sorted(group, key=key or field_sort_key)
         name_at = {id(r): i for i, r in enumerate(sorted(group, key=sort_key), 1)}
         out.append('<div class="ksn-grp">')
         n = 0
@@ -511,7 +521,8 @@ def build_page(rows, page_id, snapshot, coverage):
         out.append(module(
             "In the trophies",
             "On a trophy in class \u00b7 %d drivers" % len(trophy),
-            sectioned(trophy, lambda r, oc, on: render_row(r, oc=oc, on=on)),
+            sectioned(trophy, lambda r, oc, on: render_row(r, oc=oc, on=on),
+                      key=trophy_sort_key),
         ))
 
     if field:
