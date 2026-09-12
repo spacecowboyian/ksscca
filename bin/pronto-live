@@ -200,6 +200,14 @@ def selects(d, sel):
         return "region: " + region
     if home_state(d["home"]) in {s.upper() for s in sel.get("home_states", [])}:
         return "hometown"
+    # Named drivers the region and hometown rules miss: someone who runs
+    # with us but is registered to another region, or lives over a state
+    # line. Matched on class and name so a namesake elsewhere in the entry
+    # list is not pulled in by accident.
+    for inc in sel.get("also", []):
+        if (inc.get("cls", "").upper() == d.get("cls", "").upper()
+                and inc.get("name", "").lower() == d["name"].lower()):
+            return "named"
     return None
 
 
@@ -252,6 +260,7 @@ def sync(cfg, state, offline=False, verbose=True):
         drivers, final, _ = parse_class(body, c)
         finals[c] = bool(final)
         for d in drivers:
+            d["cls"] = c
             why = selects(d, cfg["select"])
             if not why:
                 continue
