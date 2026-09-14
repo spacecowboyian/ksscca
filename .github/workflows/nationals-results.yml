@@ -52,7 +52,13 @@ jobs:
         run: |
           ENDS=$(python3 -c "import json;print(json.load(open('pronto/events/26nats.json'))['ends'])")
           TODAY=$(TZ=America/Chicago date +%F)
-          if [[ "$TODAY" > "$ENDS" ]]; then
+          # The date only stops the schedule. A run someone started by hand is
+          # how the page gets republished after the event, when the markup
+          # changes but the results do not.
+          if [[ "${{ github.event_name }}" != "schedule" ]]; then
+            echo "manual run -- publishing regardless of the end date"
+            echo "over=false" >> "$GITHUB_OUTPUT"
+          elif [[ "$TODAY" > "$ENDS" ]]; then
             echo "event ended $ENDS, today is $TODAY -- nothing to do"
             echo "over=true" >> "$GITHUB_OUTPUT"
           else
