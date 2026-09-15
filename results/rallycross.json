@@ -463,5 +463,11 @@
     "/rallycross-season-points/"
    ]
   ]
+ },
+ "schedule_page": {
+  "page_id": 2145,
+  "title": "Kansas Region SCCA RallyCross Schedule and Results",
+  "feed_type": "rallycross",
+  "intro": "The current RallyCross season in one place: results for events that have run, and registration for the ones coming up. Earlier seasons are in the archive below."
  }
 }
