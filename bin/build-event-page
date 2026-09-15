@@ -207,6 +207,27 @@ def pax_time(entry):
     return None if r is None else round(r * factor(entry), 3)
 
 
+NAME_PARTICLES = {"von", "van", "de", "del", "della", "di", "da", "la", "le"}
+
+
+def cap_name(name):
+    """Capitalise a name the entry list typed in lower case.
+
+    Only words that are entirely lower case are touched, so McCormack,
+    LaRandeau and DeLay keep the shape their owners use. A particle keeps its
+    lower case unless it starts the name: von Bevern, not Von Bevern.
+    """
+    out = []
+    for i, w in enumerate(name.split(" ")):
+        if not w:
+            continue
+        if w != w.lower() or (i and w in NAME_PARTICLES):
+            out.append(w)
+        else:
+            out.append(w[:1].upper() + w[1:])
+    return " ".join(out)
+
+
 def run_cells(entry):
     """The four runs as row cells, for screens wide enough to carry them."""
     mark = best(entry["runs"])
@@ -313,10 +334,10 @@ def class_page(event):
             # prints their lead over second here, in a column that otherwise
             # says how far back you are.
             diff = "-" if r["pos"] == 1 else r["diff"]
-            who = (f'<span class="who"><span class="nm">{E(r["name"])}</span>'
+            who = (f'<span class="who"><span class="nm">{E(cap_name(r["name"]))}</span>'
                    f'<span class="car">{E(r["car"])}</span></span>')
             body = run_boxes(r) + info_list([
-                ("Driver", r["name"]),
+                ("Driver", cap_name(r["name"])),
                 ("Class", (r.get("base") or r["cls"]).upper()),
                 ("Car number", r["num"]),
                 ("Colour", r["color"]),
@@ -333,7 +354,7 @@ def class_page(event):
     for label, time, cls, num, name in event["top_times"]:
         tt.append('<div class="row flat" style="grid-template-columns:minmax(0,1fr) 92px">'
                   f'<span class="who"><span class="nm">{E(label)}</span>'
-                  f'<span class="car">{E(name)} &middot; {E(cls)} {E(num)}</span></span>'
+                  f'<span class="car">{E(cap_name(name))} &middot; {E(cls)} {E(num)}</span></span>'
                   f'<span class="t g">{E(time)}</span></div>')
     tt.append("</div>")
 
@@ -369,7 +390,7 @@ def ranked_page(event, kind):
     for i, e in enumerate(scored, 1):
         value = pax_time(e) if kind == "pax" else raw_total(e)
         cls = ("n" if e["cls"] == "n" else "") + (e.get("base") or e["cls"])
-        who = (f'<span class="who"><span class="nm">{E(e["name"])}</span>'
+        who = (f'<span class="who"><span class="nm">{E(cap_name(e["name"]))}</span>'
                f'<span class="car">{E(e["car"])} &middot; #{E(e["num"])}</span></span>')
         gap = ""
         best_cell = ('<span class="t%s">%s</span>'
@@ -385,7 +406,7 @@ def ranked_page(event, kind):
                     + best_cell)
         # Both ranked views read like the class view on a phone: position,
         # driver, the number they are ranked on. The workings are a tap away.
-        common = [("Driver", e["name"]), ("Class", cls.upper()), ("Car number", e["num"])]
+        common = [("Driver", cap_name(e["name"])), ("Class", cls.upper()), ("Car number", e["num"])]
         if kind == "pax":
             extra = [("Best", "%.3f" % raw_total(e)), ("Index", "%.3f" % factor(e))]
         else:
