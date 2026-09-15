@@ -91,22 +91,35 @@ full `wp_update_page` rewrite instead of incremental swaps.
 
 ## Results pages are generated, not hand-edited
 
-Autocross Results (898) and RallyCross Results (996) are rendered from
-`results/autocross.json` and `results/rallycross.json` by `bin/build-results-page`
-(small uppercase H1 with the full page name, a "Current Results" section for the season in
-`current.season`, then the "Results Archive" year sidebar; one row per event day, Class /
-PAX / Raw links). To post a new event: upload the export files to the Media Library, add a
-row to the JSON (`current.rows` for this season, or the right `seasons` year; calendar
-order, earliest first), run
+Since 2026-09-15 each discipline has one **Schedule and Results** page:
+`/autocross-schedule-and-results/` (2139) and `/rallycross-schedule-and-results/` (2145).
+They are rendered from `results/autocross.json` and `results/rallycross.json` by
+`bin/build-results-page --schedule` (the `schedule_page` block names the page): a
+"Current Season" list in calendar order, then the "Results Archive" year sidebar. Events
+that have run are static results rows; events still to come are drawn at request time by
+the `[ksscca_season_rows]` shortcode (WPCode snippet 2140,
+`snippets/ksscca-season-rows.php`) from the MotorsportReg feed, in the same row markup.
+
+To post a new event: upload the export files to the Media Library, add a row to the JSON
+(`current.rows` for this season, or the right `seasons` year; calendar order, earliest
+first), run
 
 ```bash
-bin/build-results-page results/autocross.json > results/build/autocross.html
+bin/build-results-page --schedule results/autocross.json > results/build/autocross-schedule.html
 ```
 
-and publish the output as the page's full content with `wp_update_page`. Row titles and
-dates come from the timing export's own header line (`Org - #N - Event name - Date`); do not
-invent event numbers. `bin/post-results` predates this and writes the old "CLICK HERE" list
-format; it is kept only as a reference. The pre-redesign page bodies are in
+and publish the output as the page's full content. The shortcode's `after` date moves on
+by itself, so the event's Register row gives way to its results row. Current-season
+RallyCross titles follow the registration feed's names ("KSRX August 23, 2026"); archive
+titles and dates come from the timing export's header line (`Org - #N - Event name -
+Date`); do not invent event numbers.
+
+The old Autocross Schedule (899), Autocross Results (898), RallyCross Schedule (31) and
+RallyCross Results (996) are **drafts**, and snippet 2149
+(`snippets/ksscca-schedule-results-redirects.php`) 301s their URLs to the combined pages.
+Do not republish them. Season points are in-theme pages 1020 and 1024, built with
+`bin/build-season-page results/seasons/2026-<discipline>.json --wp`. `bin/post-results`
+predates all of this and is kept only as a reference. Earlier page bodies are in
 `results/backups/`.
 
 ## Conventions
