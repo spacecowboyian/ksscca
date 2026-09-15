@@ -281,6 +281,14 @@ job is to be scanned fast.
   Wheat Gold text, same `8px 16px` padding and Inter 700 13px. Hover
   fills with `rgba(226,196,124,.1)`, brightens the border to `#a86e1d`
   and the text to `#f2d999`.
+- **Highlight (solid gold):** Wheat Gold fill, Fog Ground `#111111` ink,
+  same `8px` radius and `8px 16px` padding. Hover brightens the fill to
+  `#f2d999`. Used for the one action inside a row that is already gold
+  washed, where a hollow gold button would disappear: the season
+  standings row in the results archive. Measured 11.17:1 at rest and
+  13.63:1 on hover. It does not compete with Primary, because green
+  still marks the loudest action on a page; this marks the only action
+  in one row.
 - **Every button sets its own `line-height`.** It is `1` here. Without
   it the button inherits whatever the surrounding page uses and changes
   height from page to page: the Register button stood 39px tall on the
