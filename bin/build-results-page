@@ -56,7 +56,7 @@ body.page-id-PAGE_ID .row.header .title-page{display:none;}
 #ksr-results .ksr-link:hover{color:var(--ks-wheat-gold-bright);text-decoration:underline;}
 #ksr-results .ksr-sep{color:var(--ks-seam-quiet);}
 #ksr-results .ksr-eyebrow{font-family:var(--ks-font-body) !important;font-size:12px !important;line-height:1.4;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ks-morning-mist);margin:0 0 6px;text-align:left;}
-#ksr-results .ksr-h{text-align:left;font-weight:700;margin:0 0 12px;}
+#ksr-results .ksr-h{text-align:left;font-weight:700;margin:0 0 12px;}#ksr-results .ksr-head{display:flex;justify-content:space-between;align-items:baseline;gap:14px;flex-wrap:wrap;}#ksr-results .ksr-head .ksr-h{margin-bottom:12px;}#ksr-results .ksr-btn{display:inline-block;font-family:var(--ks-font-body);font-size:13px;line-height:1;font-weight:700;padding:8px 16px;border-radius:8px;background:transparent;border:1px solid var(--ks-wheat-gold-edge);color:var(--ks-wheat-gold);text-decoration:none;white-space:nowrap;}#ksr-results a.ksr-btn:hover{background:var(--ks-wheat-gold-wash);border-color:var(--ks-wheat-gold-edge-hover);color:var(--ks-wheat-gold-bright);}#ksr-results .ksr-btn.is-off{border-color:var(--ks-ground-seam);color:var(--ks-morning-mist);cursor:not-allowed;}#ksr-results .ksr-points .ksr-row{border-bottom:1px solid var(--ks-ground-seam);}
 #ksr-results .ksr-intro{text-align:left;color:var(--ks-morning-mist);font-size:13px;margin:0 0 18px;}
 #ksr-results .ksr-current{border:1px solid var(--ks-ground-seam);margin-bottom:34px;}
 #ksr-results .ksr-na{padding:14px 20px;font-size:13px;color:var(--ks-morning-mist);}
@@ -125,6 +125,19 @@ def render_row(row):
     )
 
 
+def season_points(rows):
+    """The season's standings links, if that season has any.
+
+    They are recorded inside the season in the JSON, on a row titled
+    "Season Points", so a link is written down in exactly one place. This
+    reads them back out; the row itself is not rendered as an event.
+    """
+    for r in rows:
+        if r["title"] == "Season Points" and r["links"]:
+            return r["links"]
+    return None
+
+
 def render(data):
     years = sorted(data["seasons"].keys(), reverse=True)
     disc = data["discipline"]
@@ -140,7 +153,20 @@ def render(data):
     current = data.get("current") or {}
     season = current.get("season", "")
     rows = current.get("rows") or []
-    out.append('<h2 class="ksr-h">Current Results</h2>')
+    # The current season's standings are a button on the heading rather than a
+    # row: they are one link, and they are what someone tracking a championship
+    # comes back for. Seasons that have not posted standings yet still show the
+    # control, inert and explained, so the page does not simply omit the thing
+    # they were looking for.
+    cur_points = season_points(data["seasons"].get(season, []))
+    if cur_points:
+        href, label = cur_points[0][1], "Season points"
+        btn = f'<a class="ksr-btn" href="{esc(href)}">{label}</a>'
+    else:
+        btn = ('<span class="ksr-btn is-off" role="link" aria-disabled="true" '
+               f'title="Standings for the {esc(season)} season are posted once the season ends.">'
+               'Season points</span>')
+    out.append(f'<div class="ksr-head"><h2 class="ksr-h">Current Results</h2>{btn}</div>')
     out.append('<div class="ksr-current">')
     n = len(rows)
     label = f'{n} event{"s" if n != 1 else ""}' if n else "no results posted yet"
@@ -168,8 +194,16 @@ def render(data):
         n = sum(1 for r in rows if r["title"] != "Season Points")
         out.append(f'<section class="ksr-season{" active" if i == 0 else ""}" data-year="{y}" id="season-{y}" role="tabpanel">')
         out.append(f'<div class="ksr-season-head">{y} {esc(disc)} Results &middot; {n} event{"s" if n != 1 else ""}</div>')
+        pts = season_points(rows)
+        if pts:
+            out.append('<div class="ksr-points">')
+            out.append('<div class="ksr-col-head"><span>Season points</span><span>Standings</span></div>')
+            out.append(render_row({"title": f"{y} final standings", "date": "", "links": pts}))
+            out.append("</div>")
         out.append('<div class="ksr-col-head"><span>Event</span><span>Results</span></div>')
         for r in rows:
+            if r["title"] == "Season Points":
+                continue
             out.append(render_row(r))
         out.append("</section>")
     out.append("</div></div>")  # .ksr-panel, .ksr-layout
