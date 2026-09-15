@@ -1,0 +1,432 @@
+{
+ "name": "RallyCross, 2 May",
+ "event_no": "#1",
+ "org": "KS SCCA",
+ "date": "May 2, 2026",
+ "generated": "May 2026",
+ "registered": 19,
+ "with_times": 18,
+ "scoring": "sum",
+ "views": [
+  "class",
+  "raw"
+ ],
+ "penalties": {
+  "cone_seconds": 2.0,
+  "gate_seconds": 10.0,
+  "dnf_cones": 5,
+  "dnf_seconds": 10.0
+ },
+ "note": "RallyX Mode - Drops 0, Missed Gate (MG) 10secs, DNF Cone Adjustment: 5sec",
+ "class_order": [
+  "rt",
+  "sf",
+  "sr",
+  "sa",
+  "pa",
+  "mf",
+  "mr",
+  "ma"
+ ],
+ "class_names": {
+  "rt": "Rally Truck",
+  "sf": "Stock Fwd",
+  "sr": "Stock Rwd",
+  "sa": "Stock Awd",
+  "pa": "Prepared Awd",
+  "mf": "Modified Fwd",
+  "mr": "Modified Rwd",
+  "ma": "Modified Awd"
+ },
+ "top_times": [
+  [
+   "Raw time",
+   "477.601",
+   "pa",
+   "63",
+   "Timothy Thompson"
+  ]
+ ],
+ "entries": [
+  {
+   "cls": "rt",
+   "pos": 1,
+   "trophy": true,
+   "num": "173",
+   "name": "Niles Davis",
+   "car": "2003 Chevrolet S10 SS",
+   "color": "Black",
+   "runs": [
+    "73.597",
+    "72.902",
+    "70.007",
+    "69.562",
+    "74.760",
+    "72.064",
+    "73.488"
+   ],
+   "total": "506.380",
+   "diff": "[-]19.214"
+  },
+  {
+   "cls": "rt",
+   "pos": 2,
+   "trophy": true,
+   "num": "6",
+   "name": "Blayne Rios",
+   "car": "1995 GMC Sonoma",
+   "color": "Purp",
+   "runs": [
+    "74.683",
+    "75.900",
+    "74.389",
+    "72.038",
+    "71.975+2",
+    "75.922",
+    "76.687"
+   ],
+   "total": "525.594",
+   "diff": "+19.214"
+  },
+  {
+   "cls": "rt",
+   "pos": 3,
+   "trophy": false,
+   "num": "73",
+   "name": "Jon Robertson",
+   "car": "2003 Chevrolet S10 SS",
+   "color": "Onyx Black",
+   "runs": [
+    "75.243+2",
+    "75.473",
+    "74.919",
+    "71.033",
+    "78.462",
+    "74.966",
+    "72.671"
+   ],
+   "total": "526.767",
+   "diff": "+1.173"
+  },
+  {
+   "cls": "sf",
+   "pos": 1,
+   "trophy": true,
+   "num": "129",
+   "name": "Hank Dunham",
+   "car": "2005 Mazda 3",
+   "color": "Silver",
+   "runs": [
+    "78.233",
+    "78.685",
+    "75.671",
+    "75.219",
+    "72.570",
+    "70.749",
+    "75.873"
+   ],
+   "total": "527.000",
+   "diff": "[-]4.240"
+  },
+  {
+   "cls": "sf",
+   "pos": 2,
+   "trophy": true,
+   "num": "29",
+   "name": "Greg Dunham",
+   "car": "2005 Mazda 3",
+   "color": "Silver",
+   "runs": [
+    "78.386+0/1",
+    "75.236",
+    "78.184",
+    "73.968",
+    "71.249",
+    "71.682",
+    "72.535"
+   ],
+   "total": "531.240",
+   "diff": "+4.240"
+  },
+  {
+   "cls": "sf",
+   "pos": 3,
+   "trophy": false,
+   "num": "14",
+   "name": "Forrest Nicholson",
+   "car": "2010 Mitsubishi Lancer GTS",
+   "color": "Black",
+   "runs": [
+    "80.931",
+    "76.608",
+    "76.281",
+    "76.493",
+    "77.327+0/1",
+    "72.219",
+    "77.462"
+   ],
+   "total": "547.321",
+   "diff": "+16.081"
+  },
+  {
+   "cls": "sr",
+   "pos": 1,
+   "trophy": true,
+   "num": "31",
+   "name": "Bill Bauman",
+   "car": "2001 Mazda Miata",
+   "color": "white",
+   "runs": [
+    "80.500",
+    "78.608",
+    "76.456+1",
+    "78.206+1",
+    "75.388+1",
+    "73.630",
+    "76.812"
+   ],
+   "total": "545.600",
+   "diff": "[-]11.659"
+  },
+  {
+   "cls": "sr",
+   "pos": 2,
+   "trophy": true,
+   "num": "131",
+   "name": "Janet Bauman",
+   "car": "2001 Mazda Miata",
+   "color": "white",
+   "runs": [
+    "80.745",
+    "77.575+2",
+    "85.127",
+    "76.923+1",
+    "75.093",
+    "74.465",
+    "75.331+3"
+   ],
+   "total": "557.259",
+   "diff": "+11.659"
+  },
+  {
+   "cls": "sr",
+   "pos": 3,
+   "trophy": false,
+   "num": "64",
+   "name": "Randal Lewis",
+   "car": "1995 Nissan XE truck",
+   "color": "white",
+   "runs": [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+   ],
+   "total": "dns",
+   "diff": ""
+  },
+  {
+   "cls": "sa",
+   "pos": 1,
+   "trophy": false,
+   "num": "50",
+   "name": "Steve Jones",
+   "car": "2008 Subaru Wrx",
+   "color": "Blue",
+   "runs": [
+    "79.152+0/2",
+    "78.332",
+    "74.526",
+    "75.079",
+    "81.084+",
+    "83.048",
+    "82.877"
+   ],
+   "total": "574.098",
+   "diff": "-"
+  },
+  {
+   "cls": "pa",
+   "pos": 1,
+   "trophy": true,
+   "num": "63",
+   "name": "Timothy Thompson",
+   "car": "2016 Ford FOCUS RS",
+   "color": "Black",
+   "runs": [
+    "71.957",
+    "67.414+1",
+    "68.078+1",
+    "68.044",
+    "65.680+1",
+    "64.308",
+    "66.120"
+   ],
+   "total": "477.601",
+   "diff": "[-]38.638"
+  },
+  {
+   "cls": "pa",
+   "pos": 2,
+   "trophy": true,
+   "num": "3",
+   "name": "Nick Cossey",
+   "car": "2000 Subaru Impereza",
+   "color": "",
+   "runs": [
+    "72.618+0/1",
+    "71.547",
+    "69.602+2",
+    "70.115+1",
+    "70.973+2",
+    "70.226",
+    "71.158"
+   ],
+   "total": "516.239",
+   "diff": "+38.638"
+  },
+  {
+   "cls": "pa",
+   "pos": 3,
+   "trophy": false,
+   "num": "7",
+   "name": "William Ho",
+   "car": "2011 Subaru STI",
+   "color": "",
+   "runs": [
+    "69.495+1/1",
+    "68.581+1",
+    "68.325+2",
+    "67.173+1",
+    "80.973",
+    "80.226",
+    "81.158"
+   ],
+   "total": "535.931",
+   "diff": "+19.692"
+  },
+  {
+   "cls": "mf",
+   "pos": 1,
+   "trophy": true,
+   "num": "0",
+   "name": "Blake Kane",
+   "car": "2010 Honda Fit",
+   "color": "",
+   "runs": [
+    "71.187",
+    "71.283+1",
+    "65.496",
+    "66.817",
+    "68.777+0/1",
+    "67.357",
+    "70.152+1"
+   ],
+   "total": "495.069",
+   "diff": "[-]15.439"
+  },
+  {
+   "cls": "mf",
+   "pos": 2,
+   "trophy": true,
+   "num": "86",
+   "name": "Ryan Redenbaugh",
+   "car": "1973 MG GTS",
+   "color": "Grenade Green",
+   "runs": [
+    "71.733",
+    "70.173",
+    "68.507+3",
+    "71.084",
+    "73.048",
+    "72.877+1",
+    "73.086+1"
+   ],
+   "total": "510.508",
+   "diff": "+15.439"
+  },
+  {
+   "cls": "mr",
+   "pos": 1,
+   "trophy": false,
+   "num": "173",
+   "name": "Luis Rodriguez",
+   "car": "2003 Chevrolet S10",
+   "color": "Black",
+   "runs": [
+    "80.562",
+    "78.369",
+    "75.625",
+    "75.294",
+    "72.763",
+    "71.246+1",
+    "74.873+1"
+   ],
+   "total": "532.732",
+   "diff": "-"
+  },
+  {
+   "cls": "ma",
+   "pos": 1,
+   "trophy": true,
+   "num": "9",
+   "name": "Bill Taylor",
+   "car": "1992 Geo Tracker",
+   "color": "White",
+   "runs": [
+    "72.220",
+    "70.869+1",
+    "69.057",
+    "70.535",
+    "72.954",
+    "71.277",
+    "70.713"
+   ],
+   "total": "499.625",
+   "diff": "[-]15.000"
+  },
+  {
+   "cls": "ma",
+   "pos": 2,
+   "trophy": true,
+   "num": "258",
+   "name": "Blake Landre",
+   "car": "2009 Subaru Impreza",
+   "color": "Silver",
+   "runs": [
+    "73.487+1",
+    "72.680+1",
+    "72.641+1",
+    "71.824+1",
+    "70.345+1",
+    "71.204",
+    "70.444+1"
+   ],
+   "total": "514.625",
+   "diff": "+15.000"
+  },
+  {
+   "cls": "ma",
+   "pos": 3,
+   "trophy": false,
+   "num": "91",
+   "name": "Wyatt Taylor",
+   "car": "1992 Geo Tracker",
+   "color": "White",
+   "runs": [
+    "77.196",
+    "75.688",
+    "77.668",
+    "73.089+1",
+    "76.760+1",
+    "75.196",
+    "75.026+1"
+   ],
+   "total": "536.623",
+   "diff": "+21.998"
+  }
+ ]
+}
