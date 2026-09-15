@@ -1,59 +1,46 @@
 <?php
 /**
  * Plugin Name: KSSCCA former homepage handling
- * Description: Points the superseded homepage (page 1342, now reachable at
- *              /home/) at the real front page and keeps it out of the XML
- *              sitemap.
+ * Description: Redirects /home/, the superseded homepage, to the front page.
  *
  * Context: on 2026-09-04 the V2 homepage (page 1655) was promoted to be the
  * front page. The previous homepage did not disappear; it simply became
  * reachable at its own slug, /home/, where it self-canonicalised and stayed
- * in the sitemap. That leaves two pages both presenting themselves as the
+ * in the sitemap. That left two pages both presenting themselves as the
  * region's home page, competing for the same searches.
  *
- * The gentle fix is used here rather than a redirect, deliberately. A 301
- * would make the page impossible to view, and it is still being worked on
- * in a parallel homepage redesign. A canonical says "the front page is the
- * real one" to search engines while leaving the page fully visible to
- * anyone who opens it.
+ * The first version of this snippet was a holding position: a canonical and
+ * a sitemap exclusion, no redirect, because a parallel session was mid
+ * redesign on page 1342 and a 301 would have made previewing impossible.
+ * That work concluded, and on 2026-09-14 Ian chose to redirect and delete
+ * (issue #44). Page 1342 is in the trash; its content was a YouTube embed
+ * and the events calendar, both of which the front page already covers.
  *
- * When the redesign work is finished, replace this with a decision: either
- * redirect /home/ to / and delete the page, or keep it deliberately. This
- * snippet is a holding position, not an answer.
- *
- * Structured data and headers only. Nothing a visitor sees changes.
+ * The redirect matches on the request path rather than on the page, because
+ * the page no longer exists to match against. That also means it keeps
+ * working if the trashed page is ever purged.
  *
  * Install: Code Snippets (WPCode) -> Add New -> paste this whole file ->
  * Insert Method: Auto Insert, location "Run Everywhere" -> Save Changes
  * and Activate.
  */
 
-if ( ! defined( 'KSSCCA_FORMER_HOME_ID' ) ) {
-	define( 'KSSCCA_FORMER_HOME_ID', 1342 );
-}
-
-if ( ! function_exists( 'ksscca_former_home_canonical' ) ) {
-	function ksscca_former_home_canonical( $canonical ) {
-		if ( is_page( KSSCCA_FORMER_HOME_ID ) ) {
-			return home_url( '/' );
+if ( ! function_exists( 'ksscca_former_home_redirect' ) ) {
+	function ksscca_former_home_redirect() {
+		if ( is_admin() ) {
+			return;
 		}
-		return $canonical;
-	}
-	add_filter( 'wpseo_canonical', 'ksscca_former_home_canonical', 10, 1 );
-}
 
-if ( ! function_exists( 'ksscca_former_home_sitemap' ) ) {
-	/**
-	 * Keep it out of the sitemap too. A canonical tells a crawler which URL
-	 * wins; listing it in the sitemap simultaneously invites the crawl in
-	 * the first place, which is a mixed signal.
-	 */
-	function ksscca_former_home_sitemap( $excluded ) {
-		if ( ! is_array( $excluded ) ) {
-			$excluded = array();
+		$path = wp_parse_url( $_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH );
+		$path = trim( (string) $path, '/' );
+
+		// /home/ and /home-v2/ both pointed at the old page at various times.
+		// The second already redirected on its own; keeping it here means one
+		// place to look rather than two.
+		if ( 'home' === $path || 'home-v2' === $path ) {
+			wp_safe_redirect( home_url( '/' ), 301 );
+			exit;
 		}
-		$excluded[] = KSSCCA_FORMER_HOME_ID;
-		return $excluded;
 	}
-	add_filter( 'wpseo_exclude_from_sitemap_by_post_ids', 'ksscca_former_home_sitemap', 10, 1 );
+	add_action( 'template_redirect', 'ksscca_former_home_redirect', 1 );
 }
