@@ -2660,5 +2660,17 @@
    "total": "dns",
    "diff": ""
   }
- ]
+ ],
+ "scoring": "best",
+ "views": [
+  "class",
+  "pax",
+  "raw"
+ ],
+ "penalties": {
+  "cone_seconds": 2.0,
+  "gate_seconds": 10.0,
+  "dnf_cones": 0,
+  "dnf_seconds": 0
+ }
 }
