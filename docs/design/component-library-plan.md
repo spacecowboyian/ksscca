@@ -146,6 +146,33 @@ same component on each, fail on a difference. That is exactly how the calendar b
 mismatch was found and proven fixed, done by hand. Both halves, or the library will pass its
 own tests and still look wrong on the site.
 
+### The kitchen sink page
+
+Storybook is not enough on its own, so there is a second gallery: one WordPress page that
+renders every component in every state **inside the real theme**, where the `!important`
+fights actually happen. Decided 2026-09-14.
+
+Storybook proves the component. The kitchen sink proves the component survives `kingsize`.
+They are not redundant: the two drifts that reached production this month would both have
+been caught by the kitchen sink and neither by Storybook.
+
+**Keeping it out of the index.** Yoast's per-page noindex is not REST-writable and its
+settings screen needs a person, but none of that is required here. A WPCode snippet can
+print the robots meta for one page id:
+
+```php
+add_action( 'wp_head', function () {
+    if ( is_page( KITCHEN_SINK_ID ) ) {
+        echo '<meta name="robots" content="noindex,nofollow">';
+    }
+}, 1 );
+```
+
+and the same snippet can drop the page from the Yoast sitemap through
+`wpseo_exclude_from_sitemap_by_post_ids`. Both are code, so both are ours to do. The page
+also stays out of every menu and gets no inbound links, which is what actually keeps
+visitors off it.
+
 ## 7. Order of work
 
 1. **Tokens + the missing DESIGN.md** (closes #37). No visual change; every hex keeps its
@@ -161,6 +188,10 @@ own tests and still look wrong on the site.
 6. **Timing exports and the live-timing overlay** (#18), which is where the build step and
    the size budget matter.
 
+The kitchen sink page comes early, not late: it is built alongside the primitives in step 2,
+so every later step has somewhere to prove itself inside the theme before it touches a page
+people read.
+
 Each step is a separate issue and a separate PR, verified by computed-style parity against
 the page before the change. A step that cannot prove parity gets reverted, not argued.
 
@@ -172,6 +203,8 @@ the page before the change. A step that cannot prove parity gets reverted, not a
    #22 is not a gate. Revisit when the build step is real and there is something to measure;
    until then, treat the current numbers as the reference points (Nationals 10.8 KB gzipped,
    results archive 5.1 KB, prototypes 27.7 KB).
-3. **Storybook, not a WordPress page.** See section 6, including what it cannot catch.
+3. **Storybook and a kitchen sink page.** Storybook for the components in isolation, plus
+   one noindexed WordPress page that renders them inside the real theme, since that is where
+   this site's failures have actually lived. See section 6.
 4. **PAX-aware parsing splits into its own issue**, so the library is not waiting on a parser
    change.
