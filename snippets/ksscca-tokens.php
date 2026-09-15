@@ -19,7 +19,7 @@
  *
  * Two values in use are NOT in DESIGN.md and are named here for the first
  * time: the wheat gold family, which the results pages and the Register button
- * use, and the quiet seam grey used for separator dots. See issue #72.
+ * use, and the quiet seam grey used for separator dots. See issue #73.
  *
  * Install: Code Snippets (WPCode) -> Add New -> paste this whole file ->
  * Insert Method: Auto Insert, location "Run Everywhere" -> Save Changes
@@ -50,7 +50,7 @@ if ( ! function_exists( 'ksscca_tokens' ) ) {
 			. '--ks-ground-seam:#2d2d2d;'
 			. '--ks-paddock-white:#e7e5df;'
 			. '--ks-morning-mist:#99978f;'
-			// colour: in use on the live site, not yet in DESIGN.md (#72)
+			// colour: in use on the live site, not yet in DESIGN.md (#73)
 			. '--ks-wheat-gold:#e2c47c;'
 			. '--ks-wheat-gold-bright:#f2d999;'
 			. '--ks-wheat-gold-edge:#6b4d1d;'
