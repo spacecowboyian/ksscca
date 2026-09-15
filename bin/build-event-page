@@ -56,15 +56,20 @@ border:1px solid #6b4d1d;color:var(--gold);text-decoration:none;}
 .view:hover{background:rgba(226,196,124,.1);border-color:#a86e1d;color:var(--gold-bright);}
 .view.on{background:var(--gold);border-color:var(--gold);color:var(--ground);}
 .pane-h{font-family:var(--display);font-size:22px;text-transform:uppercase;color:var(--gold);margin:26px 0 14px;}
-.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:1px;
-background:var(--seam);border:1px solid var(--seam);margin:0 0 24px;}
-.tile{background:var(--lift);padding:10px 14px;}
+.tiles{display:flex;gap:1px;background:var(--seam);border:1px solid var(--seam);
+margin:0 0 24px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;
+-ms-overflow-style:none;cursor:grab;}
+.tiles::-webkit-scrollbar{display:none;}
+.tiles.dragging{cursor:grabbing;scroll-snap-type:none;}
+.tile{background:var(--lift);padding:10px 14px;flex:0 0 240px;scroll-snap-align:start;
+user-select:none;}
 .tk{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mist);}
 .tv{margin-top:3px;display:flex;align-items:baseline;flex-wrap:wrap;gap:0 8px;font-weight:700;}
 .tn{font-size:15px;color:var(--white);}
 .tf{font-size:15px;color:var(--gold);font-variant-numeric:tabular-nums;}
 .ts{font-size:12px;color:var(--mist-deep);line-height:1.3;margin-top:1px;}
-@media(max-width:620px){.tiles{margin-left:-14px;margin-right:-14px;border-left:0;border-right:0;}}
+@media(max-width:620px){.tiles{margin-left:-14px;margin-right:-14px;border-left:0;border-right:0;}
+.tile{flex:0 0 84%;}}
 .filter{display:none;align-items:center;gap:9px;margin:0 0 18px;}
 html.js .filter{display:flex;}
 .filter label{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mist);}
@@ -328,6 +333,31 @@ function fromHash(){var k=(location.hash||'').replace('#','');return VIEWS.index
 VIEWS.forEach(function(v){var b=document.getElementById('tab-'+v);if(b){b.addEventListener('click',
 function(e){e.preventDefault();location.hash=v;show(v);});}});
 addEventListener('hashchange',function(){show(fromHash());});show(fromHash());
+/* The tiles ride a strip that steps itself along every four seconds so all
+   eight get seen without anyone having to find the drag. Any hand on it -
+   drag, wheel, touch or keyboard - stops the stepping for good: a strip that
+   keeps moving under your finger is worse than one that never moved. */
+var strip=document.querySelector('.tiles');
+if(strip&&strip.children.length>1){
+var timer=null,stopped=false;
+function step(){var t=strip.children[0];var w=t.getBoundingClientRect().width+1;
+var end=strip.scrollWidth-strip.clientWidth-2;
+strip.scrollTo({left:strip.scrollLeft>=end?0:strip.scrollLeft+w,behavior:'smooth'});}
+function stop(){if(stopped){return;}stopped=true;clearInterval(timer);}
+var reduced=matchMedia('(prefers-reduced-motion: reduce)');
+if(!reduced.matches){timer=setInterval(step,4000);}
+['pointerdown','wheel','touchstart','keydown'].forEach(function(ev){
+strip.addEventListener(ev,stop,{passive:true});});
+/* a mouse can drag it too, not just a trackpad or a thumb */
+var down=false,x0=0,left0=0;
+strip.addEventListener('pointerdown',function(e){if(e.pointerType==='mouse'){down=true;
+x0=e.clientX;left0=strip.scrollLeft;strip.classList.add('dragging');
+strip.setPointerCapture(e.pointerId);}});
+strip.addEventListener('pointermove',function(e){if(!down){return;}
+strip.scrollLeft=left0-(e.clientX-x0);});
+function release(){down=false;strip.classList.remove('dragging');}
+strip.addEventListener('pointerup',release);strip.addEventListener('pointercancel',release);
+}
 var pick=document.getElementById('class-pick');
 if(pick){var mods=[].slice.call(document.querySelectorAll('#view-class .mod'));
 pick.addEventListener('change',function(){var v=pick.value;
@@ -445,6 +475,19 @@ def tiles(event):
     add("Fastest raw time" if not summing else "Fastest total",
         cap_name(quickest["name"]), "%.3f" % raw_total(quickest, event), cname(quickest))
 
+    # second under a sum, where the day's total says nothing about how quick
+    # anyone actually was on one lap. Autocross gives this slot to the index,
+    # which is the same question asked a different way.
+    if summing:
+        quick = None
+        for e in ents:
+            for r in runs_of(e):
+                if not r["dnf"] and (quick is None or r["total"] < quick[0]):
+                    quick = (r["total"], e)
+        if quick:
+            add("Quickest single run", cap_name(quick[1]["name"]), "%.3f" % quick[0],
+                cname(quick[1]))
+
     # the index winner: the fastest car relative to what its class should do
     if indexed:
         paxed = [e for e in ents if e["cls"] != "n"]
@@ -548,18 +591,9 @@ def tiles(event):
             bits.append("%d gate%s" % (gates, "" if gates == 1 else "s"))
         if dnfs:
             bits.append("%d DNF" % dnfs)
-        add("Cones, all told", None, "+%.3f" % secs, " \u00b7 ".join(bits))
-
-    # the single quickest run anyone put in, which a sum hides
-    if summing:
-        quick = None
-        for e in ents:
-            for r in runs_of(e):
-                if not r["dnf"] and (quick is None or r["total"] < quick[0]):
-                    quick = (r["total"], e)
-        if quick:
-            add("Quickest single run", cap_name(quick[1]["name"]), "%.3f" % quick[0],
-                cname(quick[1]))
+        # not just cones: gates and did-not-finish adjustments land here too,
+        # so the label says what the figure actually adds up
+        add("Penalty time", None, "+%.3f" % secs, " \u00b7 ".join(bits))
 
     cells = []
     for k, name, fig, sub_ in out[:8]:
