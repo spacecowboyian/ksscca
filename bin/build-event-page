@@ -120,15 +120,16 @@ grid-template-areas:"pos who who who" "a b c d";gap:8px 10px;align-items:end;}
    Position, driver and the time that counted stay on one line; the gap and
    the car move into the expansion, which is a tap away. Forty rows of one
    line beat forty rows of two. */
-.class .row>summary{grid-template-columns:40px minmax(0,1fr) 78px;
-grid-template-areas:none;gap:10px;align-items:center;}
+.class .row>summary{grid-template-columns:30px minmax(0,1fr) 54px 70px;
+grid-template-areas:none;gap:7px;align-items:center;}
+.class .nm{font-size:13.5px;}
 /* the two-line rules name grid areas and match at the same specificity as a
    plain reset would, so this has to out-specify them: with no areas to match,
    those names leave every cell stacked in one column */
 .class .row>summary>*:nth-child(n){grid-area:auto;}
-.class .row>summary>*:nth-child(3){display:none;}
-.class .row>summary>*:nth-child(4){text-align:right;}
-.class .row>summary>*:nth-child(4):before{content:none;}
+.class .row>summary>*:nth-child(3),.class .row>summary>*:nth-child(4){text-align:right;}
+.class .row>summary>*:nth-child(3):before,.class .row>summary>*:nth-child(4):before{content:none;}
+.class .row>summary>*:nth-child(3){font-size:12.5px;}
 .class .who .car{display:none;}
 .class .nm{white-space:nowrap;}
 .row>summary>*:nth-child(1),.row.flat>*:nth-child(1){grid-area:pos;}
@@ -279,9 +280,9 @@ def class_page(event):
             who = (f'<span class="who"><span class="nm">{E(r["name"])}</span>'
                    f'<span class="car">{E(r["car"])}</span></span>')
             body = run_boxes(r) + info_list([
+                ("Driver", r["name"]),
                 ("Class", (r.get("base") or r["cls"]).upper()),
                 ("Car number", r["num"]),
-                ("Diff", diff),
                 ("Colour", r["color"]),
                 ("Car", r["car"]),
             ])
