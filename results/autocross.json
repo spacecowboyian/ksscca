@@ -1635,5 +1635,11 @@
     "/autocross-season-points/"
    ]
   ]
+ },
+ "schedule_page": {
+  "page_id": 2139,
+  "title": "Kansas Region SCCA Autocross Schedule and Results",
+  "feed_type": "autocross",
+  "intro": "The current autocross season in one place: results for events that have run, and registration for the ones coming up. Earlier seasons are in the archive below."
  }
 }
