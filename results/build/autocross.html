@@ -3,44 +3,44 @@ purpose: a newline straight after <style> lets wpautop insert a <p> that swallow
 whatever rule comes first, so the first line is kept expendable. The fonts these
 rules use are enqueued in the document head by the ksscca-fonts snippet (#36),
 not imported here. */
-#ksr-results{font-family:'Inter',Verdana,Arial,sans-serif;color:#e7e5df;min-width:0;}
+#ksr-results{font-family:var(--ks-font-body);color:var(--ks-paddock-white);min-width:0;}
 #ksr-results p:empty{display:none;margin:0;}
 /* The theme repeats the page title above the content; our H1 replaces it.
    No literal tags in these comments: WordPress parses them as real markup. */
 body.page-id-898 .row.header .title-page{display:none;}
-#ksr-results .ksr-layout{display:grid;grid-template-columns:160px 1fr;border:1px solid #2d2d2d;min-width:0;}
-#ksr-results .ksr-years{background:transparent;border-right:1px solid #2d2d2d;}
-#ksr-results .ksr-year-btn{display:block;width:100%;text-align:left;padding:14px 18px;background:none;border:none;border-bottom:1px solid #2d2d2d;color:#99978f;font-family:'PT Sans Narrow',Verdana,Arial,sans-serif;font-size:19px;font-weight:700;letter-spacing:.02em;cursor:pointer;}
+#ksr-results .ksr-layout{display:grid;grid-template-columns:160px 1fr;border:1px solid var(--ks-ground-seam);min-width:0;}
+#ksr-results .ksr-years{background:transparent;border-right:1px solid var(--ks-ground-seam);}
+#ksr-results .ksr-year-btn{display:block;width:100%;text-align:left;padding:14px 18px;background:none;border:none;border-bottom:1px solid var(--ks-ground-seam);color:var(--ks-morning-mist);font-family:var(--ks-font-display);font-size:19px;font-weight:700;letter-spacing:.02em;cursor:pointer;}
 #ksr-results .ksr-year-btn:last-child{border-bottom:none;}
-#ksr-results .ksr-year-btn.active{color:#e7e5df;background:#161616;box-shadow:inset 3px 0 0 #6cc98d;}
-#ksr-results .ksr-year-btn:not(.active):hover{color:#e7e5df;background:#161616;}
+#ksr-results .ksr-year-btn.active{color:var(--ks-paddock-white);background:var(--ks-fog-lift);box-shadow:inset 3px 0 0 var(--ks-grid-light-green);}
+#ksr-results .ksr-year-btn:not(.active):hover{color:var(--ks-paddock-white);background:var(--ks-fog-lift);}
 #ksr-results .ksr-panel{padding:0;min-width:0;}
 #ksr-results .ksr-season{display:none;}
 #ksr-results .ksr-season.active{display:block;}
-#ksr-results .ksr-season-head{padding:16px 20px;border-bottom:1px solid #2d2d2d;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#99978f;}
-#ksr-results .ksr-col-head{display:flex;justify-content:space-between;padding:10px 20px;border-bottom:1px solid #2d2d2d;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#99978f;}
-#ksr-results .ksr-row{display:block;padding:12px 20px;border-bottom:1px solid #2d2d2d;}
+#ksr-results .ksr-season-head{padding:16px 20px;border-bottom:1px solid var(--ks-ground-seam);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ks-morning-mist);}
+#ksr-results .ksr-col-head{display:flex;justify-content:space-between;padding:10px 20px;border-bottom:1px solid var(--ks-ground-seam);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ks-morning-mist);}
+#ksr-results .ksr-row{display:block;padding:12px 20px;border-bottom:1px solid var(--ks-ground-seam);}
 #ksr-results .ksr-row:last-child{border-bottom:none;}
-#ksr-results .ksr-row:hover{background:#161616;}
-#ksr-results .ksr-event-name{display:block;font-weight:600;font-size:14.5px;color:#e7e5df;line-height:1.2;margin:0;padding:0;}
+#ksr-results .ksr-row:hover{background:var(--ks-fog-lift);}
+#ksr-results .ksr-event-name{display:block;font-weight:600;font-size:14.5px;color:var(--ks-paddock-white);line-height:1.2;margin:0;padding:0;}
 #ksr-results .ksr-meta{display:flex;justify-content:space-between;align-items:baseline;gap:14px;margin-top:1px;line-height:1.2;}
-#ksr-results .ksr-event-sub{font-size:12.5px;color:#99978f;min-width:0;}
+#ksr-results .ksr-event-sub{font-size:12.5px;color:var(--ks-morning-mist);min-width:0;}
 #ksr-results .ksr-links{font-size:13px;white-space:nowrap;flex:none;margin-left:auto;}
-#ksr-results .ksr-link{color:#e2c47c;text-decoration:none;font-weight:600;}
-#ksr-results .ksr-link:hover{color:#f2d999;text-decoration:underline;}
-#ksr-results .ksr-sep{color:#4a4a4a;}
-#ksr-results .ksr-eyebrow{font-family:'Inter',Verdana,Arial,sans-serif !important;font-size:12px !important;line-height:1.4;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#99978f;margin:0 0 6px;text-align:left;}
+#ksr-results .ksr-link{color:var(--ks-wheat-gold);text-decoration:none;font-weight:600;}
+#ksr-results .ksr-link:hover{color:var(--ks-wheat-gold-bright);text-decoration:underline;}
+#ksr-results .ksr-sep{color:var(--ks-seam-quiet);}
+#ksr-results .ksr-eyebrow{font-family:var(--ks-font-body) !important;font-size:12px !important;line-height:1.4;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ks-morning-mist);margin:0 0 6px;text-align:left;}
 #ksr-results .ksr-h{text-align:left;font-weight:700;margin:0 0 12px;}
-#ksr-results .ksr-intro{text-align:left;color:#99978f;font-size:13px;margin:0 0 18px;}
-#ksr-results .ksr-current{border:1px solid #2d2d2d;margin-bottom:34px;}
-#ksr-results .ksr-na{padding:14px 20px;font-size:13px;color:#99978f;}
-#ksr-results .ksr-pending{color:#99978f;font-weight:400;font-style:italic;}
+#ksr-results .ksr-intro{text-align:left;color:var(--ks-morning-mist);font-size:13px;margin:0 0 18px;}
+#ksr-results .ksr-current{border:1px solid var(--ks-ground-seam);margin-bottom:34px;}
+#ksr-results .ksr-na{padding:14px 20px;font-size:13px;color:var(--ks-morning-mist);}
+#ksr-results .ksr-pending{color:var(--ks-morning-mist);font-weight:400;font-style:italic;}
 @media (max-width:700px){
 #ksr-results .ksr-layout{grid-template-columns:1fr;}
-#ksr-results .ksr-years{display:flex;overflow-x:auto;border-right:none;border-bottom:1px solid #2d2d2d;-webkit-overflow-scrolling:touch;}
-#ksr-results .ksr-year-btn{width:auto;flex:none;padding:12px 16px;border-bottom:none;border-right:1px solid #2d2d2d;white-space:nowrap;font-size:17px;}
+#ksr-results .ksr-years{display:flex;overflow-x:auto;border-right:none;border-bottom:1px solid var(--ks-ground-seam);-webkit-overflow-scrolling:touch;}
+#ksr-results .ksr-year-btn{width:auto;flex:none;padding:12px 16px;border-bottom:none;border-right:1px solid var(--ks-ground-seam);white-space:nowrap;font-size:17px;}
 #ksr-results .ksr-year-btn:last-child{border-right:none;}
-#ksr-results .ksr-year-btn.active{box-shadow:inset 0 -3px 0 #6cc98d;}
+#ksr-results .ksr-year-btn.active{box-shadow:inset 0 -3px 0 var(--ks-grid-light-green);}
 #ksr-results .ksr-season-head,#ksr-results .ksr-col-head{padding-left:14px;padding-right:14px;}
 #ksr-results .ksr-row{padding:10px 14px;}
 #ksr-results .ksr-event-name{font-size:14px;}
