@@ -2,6 +2,7 @@
 """Render a results archive page (year sidebar + per-season event rows) from a JSON file.
 
     bin/build-results-page results/autocross.json > results/build/autocross.html
+    bin/build-results-page --schedule results/autocross.json > results/build/autocross-schedule.html
 
 The JSON shape is documented by example in results/autocross.json and
 results/rallycross.json:
@@ -22,6 +23,7 @@ wp_update_page (or bin/wp-rest); it is a plain full-content replacement.
 import html
 import json
 import sys
+from datetime import datetime
 from pathlib import Path
 
 STYLE = """<style>/* Results archive styles. This comment stays on the same line as the tag on
@@ -61,6 +63,13 @@ body.page-id-PAGE_ID .row.header .title-page{display:none;}
 #ksr-results .ksr-current{border:1px solid var(--ks-ground-seam);margin-bottom:34px;}
 #ksr-results .ksr-na{padding:14px 20px;font-size:13px;color:var(--ks-morning-mist);}
 #ksr-results .ksr-pending{color:var(--ks-morning-mist);font-weight:400;font-style:italic;}
+#ksr-results .ksr-cal-row{display:flex;align-items:center;gap:14px;}
+#ksr-results .ksr-cal{flex:none;width:40px;border:1px solid var(--ks-ground-seam);border-radius:6px;overflow:hidden;text-align:center;line-height:1;}
+#ksr-results .ksr-cal-m{display:block;font-size:9.5px;font-weight:700;letter-spacing:.08em;padding:3px 0;background:var(--ks-ground-seam);color:var(--ks-morning-mist);}
+#ksr-results .ksr-cal-d{display:block;font-family:var(--ks-font-display);font-size:18px;font-weight:700;padding:3px 0 4px;color:var(--ks-paddock-white);}
+#ksr-results .ksr-cal-row.is-upcoming .ksr-cal-m{background:var(--ks-wheat-gold-wash);color:var(--ks-wheat-gold);}
+#ksr-results .ksr-cal-main{flex:1;min-width:0;}
+#ksr-results .ksr-ds{display:none;}
 @media (max-width:700px){
 #ksr-results .ksr-layout{grid-template-columns:1fr;}
 #ksr-results .ksr-years{display:flex;overflow-x:auto;border-right:none;border-bottom:1px solid var(--ks-ground-seam);-webkit-overflow-scrolling:touch;}
@@ -72,6 +81,9 @@ body.page-id-PAGE_ID .row.header .title-page{display:none;}
 #ksr-results .ksr-event-name{font-size:14px;}
 #ksr-results .ksr-event-sub{font-size:12px;}
 #ksr-results .ksr-links{font-size:12.5px;}
+#ksr-results .ksr-dl{display:none;}
+#ksr-results .ksr-ds{display:inline;}
+#ksr-results .ksr-cal-row{gap:12px;}
 }
 </style>
 <noscript><style>#ksr-results .ksr-season{display:block;}#ksr-results .ksr-years{display:none;}</style></noscript>"""
@@ -138,17 +150,43 @@ def season_points(rows):
     return None
 
 
-def render(data):
+def event_day(row):
+    """'June 27, 2026' -> date, or None for anything that is not one day."""
+    try:
+        return datetime.strptime(row.get("date", ""), "%B %d, %Y").date()
+    except ValueError:
+        return None
+
+
+def render_cal_row(row):
+    """A current-season results row with a calendar leaf, in the markup the
+    ksscca_season_rows shortcode uses for events that have not run yet, so the
+    two read as one list."""
+    day = event_day(row)
+    inner = render_row(row)
+    leaf = ('<div class="ksr-cal" aria-hidden="true"><span class="ksr-cal-m">%s</span>'
+            '<span class="ksr-cal-d">%d</span></div>' % (day.strftime("%b").upper(), day.day))
+    body = inner[len('<div class="ksr-row">'):-len("</div>")]
+    body = body.replace(f'<div class="ksr-event-sub">{esc(row["date"])}</div>',
+                        f'<div class="ksr-event-sub"><span class="ksr-dl">{day.strftime("%A")}</span>'
+                        f'<span class="ksr-ds">{day.strftime("%a")}</span>, {day.strftime("%B")} {day.day}</div>')
+    return f'<div class="ksr-row ksr-cal-row">{leaf}<div class="ksr-cal-main">{body}</div></div>'
+
+
+def render(data, schedule=False):
     years = sorted(data["seasons"].keys(), reverse=True)
     disc = data["discipline"]
-    out = [STYLE.replace("PAGE_ID", str(data["page_id"])), ""]
+    sched = data.get("schedule_page") or {}
+    page_id = sched["page_id"] if schedule else data["page_id"]
+    out = [STYLE.replace("PAGE_ID", str(page_id)), ""]
     out.append('<div id="ksr-results">')
     # Small eyebrow line carries the full page name (it is the page's H1 for
     # search engines, styled at H6 size); the visible section headings are H2s
     # with the same inline treatment as the homepage's "Upcoming Events" H1.
-    out.append(f'<h1 class="ksr-eyebrow">{esc(data["title"])}</h1>')
-    if data.get("intro"):
-        out.append(f'<p class="ksr-intro">{esc(data["intro"])}</p>')
+    out.append(f'<h1 class="ksr-eyebrow">{esc(sched["title"] if schedule else data["title"])}</h1>')
+    intro = sched.get("intro") if schedule else data.get("intro")
+    if intro:
+        out.append(f'<p class="ksr-intro">{esc(intro)}</p>')
 
     current = data.get("current") or {}
     season = current.get("season", "")
@@ -169,6 +207,21 @@ def render(data):
         btn = ('<span class="ksr-btn is-off" role="link" aria-disabled="true" '
                f'title="Standings for the {esc(season)} season are posted once the season ends.">'
                'Season points</span>')
+    if schedule:
+        out.append(f'<div class="ksr-head"><h2 class="ksr-h">Current Season</h2>{btn}</div>')
+        out.append('<div class="ksr-current">')
+        out.append(f'<div class="ksr-season-head">{esc(season)} {esc(disc)} Season</div>')
+        out.append('<div class="ksr-col-head"><span>Event</span><span></span></div>')
+        # One list in calendar order: what has run, with its results, then
+        # what is coming. The upcoming rows come from the live MotorsportReg
+        # feed at request time, drawn by the shortcode in the same markup.
+        dated = [r for r in rows if event_day(r)]
+        for r in dated:
+            out.append(render_cal_row(r))
+        after = max(event_day(r) for r in dated).isoformat() if dated else ""
+        out.append(f'[ksscca_season_rows type="{esc(sched["feed_type"])}" after="{after}"]')
+        out.append("</div>")
+        return "\n".join(out + archive(data, years, disc)) + "\n"
     out.append(f'<div class="ksr-head"><h2 class="ksr-h">Current Results</h2>{btn}</div>')
     out.append('<div class="ksr-current">')
     n = len(rows)
@@ -183,7 +236,11 @@ def render(data):
     else:
         out.append('<div class="ksr-na">NA</div>')
     out.append("</div>")
+    return "\n".join(out + archive(data, years, disc)) + "\n"
 
+
+def archive(data, years, disc):
+    out = []
     out.append('<h2 class="ksr-h">Results Archive</h2>')
     out.append('<div class="ksr-layout">')
     nav = "".join(
@@ -223,14 +280,15 @@ def render(data):
     out.append("</div></div>")  # .ksr-panel, .ksr-layout
     out.append("</div>")  # #ksr-results
     out.append(SCRIPT)
-    return "\n".join(out) + "\n"
+    return out
 
 
 def main():
-    if len(sys.argv) != 2:
+    args = [a for a in sys.argv[1:] if a != "--schedule"]
+    if len(args) != 1:
         sys.exit(__doc__)
-    data = json.loads(Path(sys.argv[1]).read_text())
-    sys.stdout.write(render(data))
+    data = json.loads(Path(args[0]).read_text())
+    sys.stdout.write(render(data, schedule="--schedule" in sys.argv))
 
 
 if __name__ == "__main__":
