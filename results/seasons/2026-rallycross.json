@@ -1,0 +1,44 @@
+{
+ "name": "2026 RallyCross Season",
+ "org": "KS SCCA",
+ "season": "2026",
+ "events": [
+  "results/events/2026-05-02-rallycross.json",
+  "results/events/2026-06-20-rallycross.json",
+  "results/events/2026-08-23-rallycross.json"
+ ],
+ "class_points": [
+  100,
+  80,
+  70,
+  60,
+  50,
+  40,
+  30,
+  20,
+  10,
+  5
+ ],
+ "class_points_after": 1,
+ "pax_points_first": null,
+ "counted_events": null,
+ "class_groups": [
+  [
+   "Novice",
+   "n"
+  ],
+  [
+   "Stock",
+   "sf sr sa"
+  ],
+  [
+   "Prepared",
+   "pf pr pa"
+  ],
+  [
+   "Modified",
+   "mf mr ma"
+  ]
+ ],
+ "other_classes": "Special classes"
+}

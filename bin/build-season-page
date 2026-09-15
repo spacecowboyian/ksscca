@@ -1,0 +1,269 @@
+#!/usr/bin/env python3
+"""Render a season's championship standings from its event results.
+
+    bin/build-season-page results/seasons/2026-autocross.json --out results/build/
+
+No standings sheet exists for a season in progress, so this computes one from
+the canonical event JSON, using the scoring model the region's published
+standings have used (checked against 2019 and 2022, event by event):
+
+  Class points  by finishing position in class: 100, 80, 70, 60, 50, 40, 30,
+                20, 10, 5, then 1 for every place after tenth. A driver with no
+                time scores nothing.
+  PAX points    101 minus overall PAX position, so 100, 99, 98 ... down to 1.
+  Drops         only the best N events count. 2019 counted 8 of 11 and 2022
+                7 of 10, so N is set per season in "counted_events"; null
+                counts everything.
+
+Drivers are matched across events by name; class standings are kept per
+class, as the timing system keeps them, so a driver who changes class starts a
+new line.
+
+The page reuses the event page's palette, rows and tabs, so a season reads like
+any other results page.
+"""
+import argparse, json
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+ev = {"__name__": "event_page"}
+exec(compile((HERE / "build-event-page").read_text(), "build-event-page", "exec"), ev)
+E, STYLE, TABS, cap_name, pax_time = ev["E"], ev["STYLE"], ev["TABS"], ev["cap_name"], ev["pax_time"]
+raw_total = ev["raw_total"]
+
+
+def class_groups(season, classes):
+    """[(group name, [class, ...]), ...] for the classes present, in the order
+    the season's "class_groups" sets. Each ladies class follows its open class;
+    a class no group names goes into the season's "other_classes" group, last."""
+    out, placed = [], set()
+    for name, codes in season["class_groups"]:
+        members = []
+        for c in codes.split():
+            for code in (c, c + "l"):
+                if code in classes and code not in placed:
+                    members.append(code)
+                    placed.add(code)
+        if members:
+            out.append((name, members))
+    rest = sorted(c for c in classes if c not in placed)
+    if rest:
+        out.append((season.get("other_classes", "Other classes"), rest))
+    return out
+
+
+def ordinal(n):
+    return "%d%s" % (n, "th" if 10 <= n % 100 <= 20 else {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th"))
+
+
+def scored(e, event):
+    return e["total"] not in ("dns", "dnf", "") and raw_total(e, event) is not None
+
+
+def class_points(pos, season):
+    scale = season["class_points"]
+    return scale[pos - 1] if pos <= len(scale) else season["class_points_after"]
+
+
+def counted(points, season):
+    """Points with drops: the best N event scores, or all of them."""
+    n = season.get("counted_events")
+    vals = sorted((p for p in points if p), reverse=True)
+    return sum(vals[:n] if n else vals)
+
+
+def rank(rows):
+    """Competition ranking on counted points: equal points share a place."""
+    rows.sort(key=lambda r: (-r["counted"], r["name"].lower()))
+    for i, r in enumerate(rows):
+        r["place"] = rows[i - 1]["place"] if i and r["counted"] == rows[i - 1]["counted"] else i + 1
+    return rows
+
+
+def standings(season, events):
+    classes, pax = {}, {}
+    for k, event in enumerate(events):
+        field = [e for e in event["entries"] if scored(e, event)]
+        by_cls = {}
+        for e in event["entries"]:
+            by_cls.setdefault(e["cls"], []).append(e)
+        for e in field:
+            key = (e["cls"], e["name"].lower())
+            row = classes.setdefault(key, {"cls": e["cls"], "name": e["name"], "car": e["car"],
+                                           "points": [None] * len(events), "detail": [None] * len(events)})
+            pts = class_points(e["pos"], season)
+            row["points"][k] = pts
+            row["detail"][k] = (e["pos"], len(by_cls[e["cls"]]), pts)
+            row["car"] = e["car"]
+        if not season.get("pax_points_first"):
+            continue
+        for place, e in enumerate(sorted(field, key=lambda e: pax_time(e, event)), 1):
+            row = pax.setdefault(e["name"].lower(), {"name": e["name"], "car": e["car"], "cls": e["cls"],
+                                                    "points": [None] * len(events), "detail": [None] * len(events)})
+            pts = max(1, season["pax_points_first"] + 1 - place)
+            row["points"][k] = pts
+            row["detail"][k] = (place, len(field), pts)
+            row["car"], row["cls"] = e["car"], e.get("base") or e["cls"]
+    for rows in (classes.values(), pax.values()):
+        for r in rows:
+            r["total"] = sum(p for p in r["points"] if p)
+            r["counted"] = counted(r["points"], season)
+    by_class = {}
+    for r in classes.values():
+        by_class.setdefault(r["cls"], []).append(r)
+    return {c: rank(rows) for c, rows in by_class.items()}, rank(list(pax.values()))
+
+
+def row_html(r, events, season, who_extra, place_word):
+    cells = "".join('<span class="t rc%s">%s</span>' % ("" if p else " m", p if p else "&mdash;")
+                    for p in r["points"])
+    runs = []
+    for k, (event, d) in enumerate(zip(events, r["detail"])):
+        if d:
+            pos, of, pts = d
+            txt = "%s of %d &middot; %d pts" % (ordinal(pos), of, pts)
+            runs.append(f'<div class="run"><span>{E(event["date"])}</span>{txt}</div>')
+        else:
+            runs.append(f'<div class="run m"><span>{E(event["date"])}</span>did not score</div>')
+    info = [("Driver", cap_name(r["name"])), ("Class", r["cls"].upper()), ("Car", r["car"]),
+            ("Events scored", "%d of %d" % (sum(1 for p in r["points"] if p), len(events)))]
+    if season.get("counted_events"):
+        info.append(("Points before drops", str(r["total"])))
+    body = ('<div class="runs">%s</div>' % "".join(runs)) + ev["info_list"](info)
+    who = (f'<span class="who c-who"><span class="nm">{E(cap_name(r["name"]))}</span>'
+           f'<span class="car">{E(who_extra(r))}</span></span>')
+    return (f'<details class="row"><summary><span class="pos c-pos">{r["place"]}</span>{who}{cells}'
+            f'<span class="t c-best"><span class="g">{r["counted"]}</span></span>'
+            f'</summary><div class="body">{body}</div></details>')
+
+
+def header(events):
+    heads = "".join(f'<span class="t rc" title="{E(e["name"])}, {E(e["date"])}">E{k}</span>'
+                    for k, e in enumerate(events, 1))
+    return ('<div class="hdr"><span class="c-pos">Pos</span><span class="c-who">Driver</span>'
+            f'{heads}<span class="t c-best">Points</span></div>')
+
+
+def class_view(season, events, by_class):
+    order, names = [], {}
+    for event in events:
+        for c in event["class_order"]:
+            if c not in order:
+                order.append(c)
+        names.update(event["class_names"])
+    groups = class_groups(season, [c for c in order if by_class.get(c)])
+    opts = "".join(
+        f'<optgroup label="{E(g)}">' + "".join(
+            f'<option value="{E(c)}">{E(c.upper())} &middot; {E(names[c])} ({len(by_class[c])})</option>'
+            for c in members) + "</optgroup>"
+        for g, members in groups)
+    count = sum(len(m) for _, m in groups)
+    out = ['<div class="filter"><label for="class-pick">Show</label>'
+           f'<select id="class-pick"><option value="all">All classes ({count})</option>{opts}</select></div>']
+    for g, members in groups:
+        out.append(f'<div class="grp"><h3 class="grp-h">{E(g)}</h3>')
+        for c in members:
+            rows = by_class[c]
+            out.append(f'<div class="mod class" data-cls="{E(c)}"><div class="mh">'
+                       f'<div class="mt">{E(c.upper())} &middot; {E(names[c])}</div>'
+                       f'<div class="mn">{len(rows)} driver{"" if len(rows) == 1 else "s"}</div></div>')
+            out.append(header(events))
+            out.extend(row_html(r, events, season, lambda r: r["car"], "class") for r in rows)
+            out.append("</div>")
+        out.append("</div>")
+    return "".join(out)
+
+
+def pax_view(season, events, rows):
+    out = ['<div class="mod class"><div class="mh"><div class="mt">PAX points</div>'
+           f'<div class="mn">{len(rows)} drivers</div></div>', header(events)]
+    out.extend(row_html(r, events, season, lambda r: "%s · %s" % (r["cls"].upper(), r["car"]), "pax")
+               for r in rows)
+    out.append("</div>")
+    return "".join(out)
+
+
+def note(season, events):
+    scale = ", ".join(str(p) for p in season["class_points"])
+    drops = ("Only the best %d events count toward the final standings." % season["counted_events"]
+             if season.get("counted_events") else
+             "Every event counts so far; once the season is long enough, the lowest scores are dropped."
+             if season.get("drops_later") else "Every event counts.")
+    return ('<div class="note"><p><b>How points work.</b> Class points go by finishing position in class: '
+            f'{scale}{", then %d for every place after that" % season["class_points_after"] if season.get("class_points_after") else ""}. '
+            + (f'PAX points start at {season["pax_points_first"]} for the top PAX time of the day and '
+               'drop by one per place. ' if season.get("pax_points_first") else '')
+            + f'A driver with no time scores nothing. {drops}</p></div>')
+
+
+def page(season, events, by_class, pax):
+    drivers = len({r["name"].lower() for rows in by_class.values() for r in rows})
+    has_pax = bool(season.get("pax_points_first"))
+    views = ('<div class="views" role="tablist">'
+             '<a class="view on" id="tab-class" href="#class" role="tab" aria-selected="true">Class points</a>'
+             '<a class="view" id="tab-pax" href="#pax" role="tab" aria-selected="false">PAX points</a></div>'
+             if has_pax else "")
+    pax_section = (f'<section id="view-pax" class="view-pane"><h2 class="pane-h">PAX points</h2>'
+                   f'{pax_view(season, events, pax)}{note(season, events)}</section>' if has_pax else "")
+    n = len(events)
+    # Every event's points sit on the row once there is room for all of them:
+    # pos, name, one column per event, total, plus the row's padding and the
+    # caret. Below that the row is position, driver, points.
+    need = max(621, 48 + 220 + n * (56 + 10) + 84 + 10 + 47 + 40)
+    css = (":root{--c-class:48px minmax(0,1fr) 84px;}"
+           # the caret takes 32px on the right of every row; the header has to
+           # give up the same, or each column heading sits 17px right of its numbers
+           ".hdr{padding-right:32px;}"
+           "@media(min-width:%dpx){:root{--c-class:48px minmax(0,1fr) repeat(%d,56px) 84px;}"
+           ".class .rc{display:block;}}"
+           ".grp-h{font-family:var(--display);font-size:15px;font-weight:700;letter-spacing:.1em;"
+           "text-transform:uppercase;color:var(--mist);margin:30px 0 12px;padding-bottom:7px;"
+           "border-bottom:1px solid var(--seam);}"
+           ".grp:first-of-type .grp-h{margin-top:0;}"
+           "@media(max-width:620px){.class .row>summary{grid-template-columns:30px minmax(0,1fr) 70px;}"
+           ".grp-h{margin-left:0;}}"
+           % (need, n))
+    return f"""<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Season points &mdash; {E(season['name'])}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=PT+Sans+Narrow:wght@400;700&display=swap" rel="stylesheet">
+{STYLE}
+<style>{css}</style></head><body><div class="wrap">
+<div class="head"><p class="kicker">{E(season['org'])} season points</p>
+<h1>{E(season['name'])}</h1>
+<p class="sub">After {n} event{"" if n == 1 else "s"} &middot; {drivers} drivers scored</p>
+{views}</div>
+<section id="view-class" class="view-pane"><h2 class="pane-h">Class points</h2>{class_view(season, events, by_class)}{note(season, events)}</section>
+{pax_section}
+<div class="foot">Computed from the event results posted by Kansas Region SCCA.</div>
+</div>{TABS}{GROUP_FILTER}</body></html>
+"""
+
+
+# The class picker hides modules; a group heading with none of its classes left
+# showing goes with them.
+GROUP_FILTER = """<script>
+(function(){var pick=document.getElementById('class-pick');if(!pick){return;}
+pick.addEventListener('change',function(){[].forEach.call(document.querySelectorAll('.grp'),function(g){
+g.hidden=![].some.call(g.querySelectorAll('.mod'),function(m){return !m.hidden;});});});})();
+</script>"""
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("season", type=Path)
+    p.add_argument("--out", type=Path, default=Path("results/build"))
+    a = p.parse_args()
+    season = json.loads(a.season.read_text())
+    events = [json.loads(Path(f).read_text()) for f in season["events"]]
+    by_class, pax = standings(season, events)
+    a.out.mkdir(parents=True, exist_ok=True)
+    path = a.out / (a.season.stem + "-points.htm")
+    path.write_text(page(season, events, by_class, pax))
+    print("wrote %s (%d bytes)" % (path, len(path.read_text())))
+
+
+if __name__ == "__main__":
+    main()
