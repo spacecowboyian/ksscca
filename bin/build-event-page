@@ -40,7 +40,7 @@ STYLE = r"""<style>
 --mist-deep:#6f6d67;--gold:#e2c47c;--gold-bright:#f2d999;--green:#6cc98d;
 --display:'PT Sans Narrow','Helvetica Neue',Verdana,Arial,sans-serif;
 --body:'Inter',Verdana,Arial,sans-serif;
---c-class:52px minmax(0,1fr) 96px 84px;
+--c-class:52px minmax(0,1fr) repeat(4,82px) 78px 88px;
 --c-rank:52px minmax(0,1fr) 62px 80px 76px 84px;}
 *{box-sizing:border-box;}
 body{margin:0;background:var(--ground);color:var(--white);font-family:var(--body);font-size:14px;line-height:1.5;}
@@ -65,6 +65,7 @@ padding:12px 15px;border-bottom:1px solid var(--seam);}
 .mn{font-size:12px;color:var(--mist);}
 /* one grid, two shapes: columns on a desktop, two lines on a phone */
 .hdr,.row>summary,.row.flat{display:grid;gap:10px;align-items:center;}
+.rc{font-variant-numeric:tabular-nums;}
 .class .hdr,.class .row>summary{grid-template-columns:var(--c-class);}
 .rank .hdr,.rank .row.flat,.rank .row>summary{grid-template-columns:var(--c-rank);}
 .hdr{padding:8px 15px;border-bottom:1px solid var(--seam);font-size:10.5px;font-weight:700;
@@ -103,8 +104,14 @@ display:block;}
 .note{background:var(--lift);border:1px solid var(--seam);padding:14px 16px;font-size:12.5px;color:var(--mist);}
 .note b{color:var(--white);}
 .foot{margin-top:26px;font-size:12px;color:var(--mist-deep);}
+/* the runs need about 330px of their own. Below that they come off the row
+   and the expansion carries them, which is what it was there for. */
+@media(max-width:900px){:root{--c-class:48px minmax(0,1fr) 92px 84px;}
+.class .rc{display:none;}}
 @media(max-width:700px){:root{--c-class:44px minmax(0,1fr) 86px 74px;
 --c-rank:44px minmax(0,1fr) 54px 72px 66px 76px;}}
+/* and above it the expansion stops repeating what the row already shows */
+@media(min-width:901px){.class .runs{display:none;}}
 @media(max-width:620px){
 h1{font-size:26px;}
 .wrap{padding:18px 14px 40px;}
@@ -139,9 +146,9 @@ grid-template-areas:none;gap:7px;align-items:center;}
    plain reset would, so this has to out-specify them: with no areas to match,
    those names leave every cell stacked in one column */
 .class .row>summary>*:nth-child(n){grid-area:auto;}
-.class .row>summary>*:nth-child(3),.class .row>summary>*:nth-child(4){text-align:right;}
-.class .row>summary>*:nth-child(3):before,.class .row>summary>*:nth-child(4):before{content:none;}
-.class .row>summary>*:nth-child(3){font-size:12.5px;}
+.class .row>summary>*:nth-child(7),.class .row>summary>*:nth-child(8){text-align:right;}
+.class .row>summary>*:nth-child(7):before,.class .row>summary>*:nth-child(8):before{content:none;}
+.class .row>summary>*:nth-child(7){font-size:12.5px;}
 .class .who .car{display:none;}
 .class .nm{white-space:nowrap;}
 .row>summary>*:nth-child(1),.row.flat>*:nth-child(1){grid-area:pos;}
@@ -198,6 +205,21 @@ def raw_total(entry):
 def pax_time(entry):
     r = raw_total(entry)
     return None if r is None else round(r * factor(entry), 3)
+
+
+def run_cells(entry):
+    """The four runs as row cells, for screens wide enough to carry them."""
+    mark = best(entry["runs"])
+    out = []
+    for r in entry["runs"]:
+        v = counted(r)
+        if not (r or "").strip():
+            out.append('<span class="t rc m">&mdash;</span>')
+        elif v is not None and mark is not None and abs(v - mark) < 0.0005:
+            out.append(f'<span class="t rc b">{E(r)}</span>')
+        else:
+            out.append(f'<span class="t rc">{E(r)}</span>')
+    return "".join(out)
 
 
 def run_boxes(entry):
@@ -278,6 +300,8 @@ def class_page(event):
                    f'<div class="mn">{len(rows)} entr{"y" if len(rows)==1 else "ies"}'
                    f'{" &middot; scored on index" if indexed else ""}</div></div>')
         out.append('<div class="hdr"><span>Pos</span><span>Driver</span>'
+                   '<span class="t rc">Run 1</span><span class="t rc">Run 2</span>'
+                   '<span class="t rc">Run 3</span><span class="t rc">Run 4</span>'
                    '<span class="t">Diff</span><span class="t">Best</span></div>')
         for r in rows:
             pos = ('<span class="pos">%d%s</span>'
@@ -300,7 +324,7 @@ def class_page(event):
             ])
             # Best sits on the right in every view, so the time is always in
             # the same place whichever tab you are on.
-            out.append(f'<details class="row"><summary>{pos}{who}'
+            out.append(f'<details class="row"><summary>{pos}{who}{run_cells(r)}'
                        f'<span class="t m">{E(diff)}</span><span class="t">{bestc}</span>'
                        f'</summary><div class="body">{body}</div></details>')
         out.append("</div>")
