@@ -33,7 +33,7 @@ typography:
     letterSpacing: "0.01em"
   label:
     fontFamily: "Inter, Verdana, Arial, sans-serif"
-    fontSize: "11px"
+    fontSize: "12px"
     fontWeight: 700
     lineHeight: 1
     letterSpacing: "0.08em"
@@ -197,8 +197,16 @@ if the Google Fonts request ever fails.
 ### Hierarchy
 - **Display** (700, 40px, line-height 1): page-level headings ("Upcoming
   Events"). Left-aligned, not centered.
-- **Label** (700, 11px, uppercase, letter-spacing 0.08em): column
-  headers, the date badge's month abbreviation.
+- **Label** (700, 12px, uppercase, letter-spacing 0.08em): column
+  headers. The date badge's month abbreviation is smaller still at 10px,
+  because it sits inside a 52px badge.
+
+  *Changed 2026-09-15* from 11px. The homepage had been rendering column
+  labels at 14px, not by choice: `body.page-id-1655 .ksv2
+  span{font-size:14px!important}` outranked that page's own
+  `.ksscca-h{font-size:12px!important}`, and the schedule pages were
+  later matched to the homepage. Settled at 12px, which is what the
+  homepage had been asking for all along.
 - **Title/Row-primary** (600, 15px, line-height 1.35): the primary line
   in a row (discipline/event name).
 - **Body/Row-secondary** (400, 13px): the secondary line in a row
@@ -347,13 +355,6 @@ every list of events on the site should use it, not a plain date string.
 Things the live site does that this document does not endorse. Each one
 is a bug with a name, not a variant.
 
-- **The homepage renders column labels at 14px**, not the 11px Label
-  size. `body.page-id-1655 .ksv2 span{font-size:14px!important}`
-  outranks that page's own `.ksscca-h{font-size:12px!important}`, so
-  neither the documented size nor the page's own intent wins. The
-  schedule pages match the homepage because the shared calendar CSS was
-  set to 14px to make them agree. Nobody chose 14px. Worth settling at
-  11px or 12px in both places.
 - **The palette is documented here and declared in
   `snippets/ksscca-tokens.php`**, which is a second copy. The snippet is
   what the site reads; this file is what a person reads. They are in

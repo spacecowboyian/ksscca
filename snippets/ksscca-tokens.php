@@ -61,7 +61,7 @@ if ( ! function_exists( 'ksscca_tokens' ) ) {
 			// type
 			. "--ks-font-display:'PT Sans Narrow',Verdana,Arial,sans-serif;"
 			. "--ks-font-body:'Inter',Verdana,Arial,sans-serif;"
-			. '--ks-label-size:11px;'
+			. '--ks-label-size:12px;'
 			. '--ks-label-tracking:.08em;'
 			// shape and rhythm
 			. '--ks-radius-badge:10px;'
