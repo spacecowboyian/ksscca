@@ -42,6 +42,15 @@ body.page-id-1024 .row.header .title-page{display:none;}
 #ksp .ksp-note b{color:var(--ks-paddock-white);}
 #ksp .ksp-note a{color:var(--ks-wheat-gold);font-weight:600;}
 #ksp [hidden]{display:none !important;}
+#ksp .ksp-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 18px;}
+#ksp .ksp-views{display:none;gap:8px;}
+#ksp.js .ksp-views{display:flex;}
+#ksp .ksp-view{display:inline-block;font-family:var(--ks-font-body);font-size:13px;line-height:1;font-weight:700;padding:8px 16px;border-radius:8px;background:transparent;border:1px solid var(--ks-wheat-gold-edge);color:var(--ks-wheat-gold);text-decoration:none;white-space:nowrap;cursor:pointer;}
+#ksp .ksp-view:hover{background:var(--ks-wheat-gold-wash);border-color:var(--ks-wheat-gold-edge-hover);color:var(--ks-wheat-gold-bright);}
+#ksp .ksp-view.on{background:var(--ks-wheat-gold-wash);border-color:var(--ks-wheat-gold-edge-hover);color:var(--ks-wheat-gold-bright);}
+#ksp.js .ksp-pane{display:none;}
+#ksp.js .ksp-pane.on{display:block;}
+#ksp.js.is-pax .ksp-filter{display:none;}
 @media (max-width:700px){
 #ksp .ksp-cols{display:none;}
 #ksp .ksp-row>summary{grid-template-columns:30px minmax(0,1fr) 60px;padding:10px 34px 10px 14px;}
@@ -55,6 +64,7 @@ body.page-id-1024 .row.header .title-page{display:none;}
 <h1 class="ksp-eyebrow">Kansas Region SCCA RallyCross Season Points</h1>
 <p class="ksp-intro">2026 standings after 3 events (May 2, June 20 and August 23), 41 drivers scored. Tap a driver for their results at each event.</p>
 <div class="ksp-head"><h2 class="ksp-h">2026 Season</h2><div class="ksp-filter"><label for="ksp-pick">Show</label><select id="ksp-pick"><option value="all">All classes</option><optgroup label="Novice"><option value="n">N &middot; Novice</option></optgroup><optgroup label="Stock"><option value="sf">SF &middot; Stock Fwd</option><option value="sr">SR &middot; Stock Rwd</option><option value="sa">SA &middot; Stock Awd</option></optgroup><optgroup label="Prepared"><option value="pf">PF &middot; Prepared Fwd</option><option value="pa">PA &middot; Prepared Awd</option></optgroup><optgroup label="Modified"><option value="mf">MF &middot; Modified Fwd</option><option value="mr">MR &middot; Modified Rwd</option><option value="ma">MA &middot; Modified Awd</option></optgroup><optgroup label="Special classes"><option value="rt">RT &middot; Rally Truck</option></optgroup></select></div></div>
+<div class="ksp-pane on" data-view="class">
 <div class="ksp-grp"><h3 class="ksp-grp-h">Novice</h3>
 <div class="ksp-cls" data-cls="n"><div class="ksp-cls-head"><div class="ksp-cls-name">N &middot; Novice</div><div class="ksp-cls-count">6 drivers</div></div>
 <div class="ksp-cols"><span>Pos</span><span>Driver</span><span class="ksp-n" title="May 2, 2026">May 2</span><span class="ksp-n" title="June 20, 2026">Jun 20</span><span class="ksp-n" title="August 23, 2026">Aug 23</span><span class="ksp-n">Points</span></div>
@@ -138,13 +148,21 @@ body.page-id-1024 .row.header .title-page{display:none;}
 <details class="ksp-row"><summary><span class="ksp-pos">4</span><span class="ksp-who"><span class="ksp-nm">Jon Robertson</span><span class="ksp-car">2003 Chevrolet S10 SS</span></span><span class="ksp-n ksp-ev-n">70</span><span class="ksp-n ksp-ev-n ksp-m">&mdash;</span><span class="ksp-n ksp-ev-n ksp-m">&mdash;</span><span class="ksp-n ksp-tot">70</span></summary><div class="ksp-body"><div class="ksp-evs"><div class="ksp-ev"><b>May 2, 2026</b>3rd of 3 &middot; 70 pts</div><div class="ksp-ev is-out"><b>June 20, 2026</b>Did not score</div><div class="ksp-ev is-out"><b>August 23, 2026</b>Did not score</div></div></div></details>
 </div>
 </div>
-<div class="ksp-note"><b>How points work.</b> Points go by finishing position in class: 100, 80, 70, 60, 50, 40, 30, 20, 10, 5, then 1 for every place after that. A driver with no time scores nothing, and every event counts. Final standings for past seasons are in the <a href="/rallycross-results-2/">results archive</a>.</div>
+</div>
+<div class="ksp-note"><b>How points work.</b> Class points go by finishing position in class: 100, 80, 70, 60, 50, 40, 30, 20, 10, 5, then 1 for every place after that. A driver with no time scores nothing. Every event counts. Final standings for past seasons are in the <a href="/rallycross-results-2/">results archive</a>.</div>
 </div>
 <script>
 (function(){var root=document.getElementById('ksp');if(!root)return;root.className+=' js';
-var pick=document.getElementById('ksp-pick');if(!pick)return;
-pick.addEventListener('change',function(){var v=pick.value;
-[].forEach.call(root.querySelectorAll('.ksp-cls'),function(m){m.hidden=!(v==='all'||m.getAttribute('data-cls')===v);});
-[].forEach.call(root.querySelectorAll('.ksp-grp'),function(g){g.hidden=![].some.call(g.querySelectorAll('.ksp-cls'),function(m){return !m.hidden;});});});
+var pick=document.getElementById('ksp-pick');
+if(pick){pick.addEventListener('change',function(){var v=pick.value;
+[].forEach.call(root.querySelectorAll('.ksp-cls[data-cls]'),function(m){m.hidden=!(v==='all'||m.getAttribute('data-cls')===v);});
+[].forEach.call(root.querySelectorAll('.ksp-grp'),function(g){g.hidden=![].some.call(g.querySelectorAll('.ksp-cls'),function(m){return !m.hidden;});});});}
+var tabs=root.querySelectorAll('.ksp-view'),panes=root.querySelectorAll('.ksp-pane');
+function show(v){var ok=false;[].forEach.call(panes,function(p){var on=p.getAttribute('data-view')===v;p.classList.toggle('on',on);if(on)ok=true;});
+if(!ok)return false;[].forEach.call(tabs,function(t){var on=t.getAttribute('data-view')===v;t.classList.toggle('on',on);t.setAttribute('aria-selected',on?'true':'false');});
+root.classList.toggle('is-pax',v==='pax');return true;}
+[].forEach.call(tabs,function(t){t.addEventListener('click',function(e){e.preventDefault();var v=t.getAttribute('data-view');show(v);
+if(history.replaceState){history.replaceState(null,'','#'+v);}});});
+if(!show((location.hash||'').replace('#',''))){show('class');}
 })();
 </script>
