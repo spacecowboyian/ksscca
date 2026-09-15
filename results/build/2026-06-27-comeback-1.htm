@@ -115,7 +115,10 @@ grid-template-areas:none;gap:7px;align-items:center;}
    the car move into the expansion, which is a tap away. Forty rows of one
    line beat forty rows of two. */
 .class .row>summary{grid-template-columns:30px minmax(0,1fr) 54px 70px;
-grid-template-areas:none;gap:7px;align-items:center;}
+grid-template-areas:none;gap:7px;align-items:start;}
+.class .row>summary>*:nth-child(1),.class .row>summary>*:nth-child(7),
+.class .row>summary>*:nth-child(8){padding-top:1px;}
+.class .who .car{display:block;font-size:11.5px;margin-top:1px;}
 .class .nm{font-size:13.5px;}
 /* the two-line rules name grid areas and match at the same specificity as a
    plain reset would, so this has to out-specify them: with no areas to match,
@@ -124,7 +127,6 @@ grid-template-areas:none;gap:7px;align-items:center;}
 .class .row>summary>*:nth-child(7),.class .row>summary>*:nth-child(8){text-align:right;}
 .class .row>summary>*:nth-child(7):before,.class .row>summary>*:nth-child(8):before{content:none;}
 .class .row>summary>*:nth-child(7){font-size:12.5px;}
-.class .who .car{display:none;}
 .class .nm{white-space:nowrap;}
 .row>summary>*:nth-child(1),.row.flat>*:nth-child(1){grid-area:pos;}
 .row>summary>*:nth-child(2),.row.flat>*:nth-child(2){grid-area:who;}
