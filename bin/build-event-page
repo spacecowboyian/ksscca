@@ -407,12 +407,14 @@ def score_label(event):
 def tiles(event):
     """The half dozen things worth noticing that a results table does not say.
 
-    Ported from the RallyCross prototype so both disciplines read the same.
-    What counts as clean differs: RallyCross has gates and did-not-finish
-    adjustments to avoid as well, autocross only has cones.
+    Every one is computed from this event's own numbers, so they hold for any
+    event rather than being written once and going stale. What counts as clean
+    differs by discipline: RallyCross has gates and did-not-finish adjustments
+    to avoid as well, autocross only has cones.
     """
     pen = event.get("penalties", DEFAULT_PENALTIES)
     summing = event.get("scoring") == "sum"
+    indexed = not summing
     names = event["class_names"]
     ents = [e for e in event["entries"] if e["total"] not in ("dns", "dnf")
             and raw_total(e, event) is not None]
@@ -423,60 +425,117 @@ def tiles(event):
         return [r for r in (parse_run(x, pen) for x in e["runs"]) if r]
 
     def total_of(e):
-        return raw_total(e, event)
+        """The number the class was decided on, which for an autocross novice
+        is their indexed time, not the raw one. Comparing a novice's raw time
+        against their class made the closest fight come out negative."""
+        try:
+            return float(e["total"])
+        except (TypeError, ValueError):
+            return raw_total(e, event)
+
+    def cname(e):
+        return names.get(e["cls"], e["cls"].upper())
 
     out = []
     def add(k, name, fig, sub_):
         out.append((k, name, fig, sub_))
 
-    # most improved: the first timed run against the driver's best
-    imp = None
-    for e in ents:
-        rs = [r for r in runs_of(e) if not r["dnf"]]
-        if len(rs) < 2:
-            continue
-        gain = rs[0]["total"] - min(r["total"] for r in rs)
-        if gain > 0 and (imp is None or gain > imp[0]):
-            imp = (gain, e, rs[0]["total"], min(r["total"] for r in rs))
-    if imp:
-        add("Most improved", cap_name(imp[1]["name"]), "\u2212%.3f" % imp[0],
-            "%.3f to %.3f" % (imp[2], imp[3]))
+    # fastest of the day, before class or index has a say
+    quickest = min(ents, key=lambda e: raw_total(e, event))
+    add("Fastest raw time" if not summing else "Fastest total",
+        cap_name(quickest["name"]), "%.3f" % raw_total(quickest, event), cname(quickest))
+
+    # the index winner: the fastest car relative to what its class should do
+    if indexed:
+        paxed = [e for e in ents if e["cls"] != "n"]
+        if paxed:
+            top = min(paxed, key=lambda e: pax_time(e, event))
+            add("Top PAX", cap_name(top["name"]), "%.3f" % pax_time(top, event),
+                "%s \u00b7 %.3f raw" % (cname(top), total_of(top)))
 
     # the class that came down to the least
-    close = None
     by_class = {}
     for e in ents:
         by_class.setdefault(e["cls"], []).append(e)
+    close = None
     for cls, rows in by_class.items():
         rows = sorted(rows, key=lambda r: r["pos"])
         if len(rows) < 2:
             continue
-        margin = float(rows[1]["total"]) - float(rows[0]["total"])
+        margin = total_of(rows[1]) - total_of(rows[0])
         if close is None or margin < close[0]:
             close = (margin, cls, rows[0], rows[1])
     if close:
-        add("Closest class", cap_name(close[2]["name"]), "%.3f" % close[0],
+        add("Closest fight", cap_name(close[2]["name"]), "%.3f" % close[0],
             "%s \u00b7 over %s" % (names.get(close[1], close[1].upper()),
                                    cap_name(close[3]["name"])))
 
+    # the run that was quick enough and came home with a cone on it
+    ghost = None
+    for e in ents:
+        rs = runs_of(e)
+        penalised = [r for r in rs if r["penalty"] > 0]
+        if not penalised:
+            continue
+        if summing:
+            # every run counts, so a clean day is the total less its penalties
+            clean = total_of(e) - sum(r["penalty"] for r in rs)
+        else:
+            # only one run counts, so it is the quickest run that carried a
+            # penalty, had it come home clean
+            clean = min(r["time"] for r in penalised if not r["dnf"]) if any(
+                not r["dnf"] for r in penalised) else None
+        if clean is None:
+            continue
+        lost = total_of(e) - clean
+        if lost <= 0:
+            continue
+        leader = min(by_class[e["cls"]], key=total_of)
+        wins = e is not leader and clean < total_of(leader)
+        if ghost is None or (wins, lost) > (ghost[0], ghost[1]):
+            ghost = (wins, lost, e, clean)
+    if ghost:
+        wins, lost, e, clean = ghost
+        add("One clean run away", cap_name(e["name"]), "%.3f" % clean,
+            "%s \u00b7 %s" % (cname(e),
+                              "would have won the class" if wins
+                              else "%.3f quicker than the run that counted" % lost))
+
+    # the biggest grid of the day and who came out on top of it
+    # autocross novice is an overlay: every novice is also entered in a real
+    # class, so counting it as the biggest grid of the day says nothing
+    grids = {c: rows for c, rows in by_class.items() if not (indexed and c == "n")}
+    big = max(grids.items(), key=lambda kv: (len(kv[1]), -min(total_of(e) for e in kv[1])))
+    if len(big[1]) > 2:
+        winner = min(big[1], key=total_of)
+        add("Biggest class", names.get(big[0], big[0].upper()), "%d" % len(big[1]),
+            "%s took it in %.3f" % (cap_name(winner["name"]), total_of(winner)))
+
+    # the newcomers' race within the race
+    novices = by_class.get("n") or []
+    if novices:
+        n1 = min(novices, key=total_of)
+        sub_ = "%d out%s" % (len(novices), ", scored on index" if indexed else "")
+        add("Novice win", cap_name(n1["name"]), "%.3f" % total_of(n1), sub_)
+
     # the quickest driver who kept it clean all day
-    def clean(e):
+    def clean_all(e):
         rs = runs_of(e)
         if not rs:
             return False
         if summing:
             return all(r["penalty"] == 0 and not r["dnf"] for r in rs)
         return all(r["cones"] == 0 for r in rs)
-    spotless = [e for e in ents if clean(e)]
+    spotless = [e for e in ents if clean_all(e)]
     if spotless:
-        b = min(spotless, key=total_of)
-        rs = runs_of(b)
-        add("Fastest clean all day", cap_name(b["name"]), "%.3f" % total_of(b),
-            "%s \u00b7 %s" % (names.get(b["cls"], b["cls"].upper()),
-                              "no penalties in %d runs" % len(rs) if summing
+        # pace, not placing: compare what they drove, so an indexed novice is
+        # not measured against everyone else's raw time
+        b = min(spotless, key=lambda e: raw_total(e, event))
+        add("Fastest clean all day", cap_name(b["name"]), "%.3f" % raw_total(b, event),
+            "%s \u00b7 %s" % (cname(b), "no penalties in %d runs" % len(runs_of(b)) if summing
                               else "not a cone all day"))
 
-    # cones, and the seconds they cost
+    # what the cones cost everyone between them
     cones = sum(r["cones"] for e in ents for r in runs_of(e))
     gates = sum(r["gates"] for e in ents for r in runs_of(e))
     dnfs = sum(1 for e in ents for r in runs_of(e) if r["dnf"])
@@ -489,17 +548,9 @@ def tiles(event):
             bits.append("%d gate%s" % (gates, "" if gates == 1 else "s"))
         if dnfs:
             bits.append("%d DNF" % dnfs)
-        add("Penalties", None, "+%.3f" % secs, " \u00b7 ".join(bits))
+        add("Cones, all told", None, "+%.3f" % secs, " \u00b7 ".join(bits))
 
-    worst = max((sum(r["cones"] for r in runs_of(e)) for e in ents), default=0)
-    if worst:
-        tied = [e for e in ents if sum(r["cones"] for r in runs_of(e)) == worst]
-        who = min(tied, key=total_of)
-        add("Most cones", cap_name(who["name"]), "%d" % worst,
-            names.get(who["cls"], who["cls"].upper())
-            + (" \u00b7 fastest of %d tied" % len(tied) if len(tied) > 1 else ""))
-
-    # the single quickest run anyone put in, which sum scoring hides
+    # the single quickest run anyone put in, which a sum hides
     if summing:
         quick = None
         for e in ents:
@@ -508,10 +559,10 @@ def tiles(event):
                     quick = (r["total"], e)
         if quick:
             add("Quickest single run", cap_name(quick[1]["name"]), "%.3f" % quick[0],
-                names.get(quick[1]["cls"], quick[1]["cls"].upper()))
+                cname(quick[1]))
 
     cells = []
-    for k, name, fig, sub_ in out:
+    for k, name, fig, sub_ in out[:8]:
         who = f'<span class="tn">{E(name)}</span>' if name else ""
         cells.append(f'<div class="tile"><div class="tk">{E(k)}</div>'
                      f'<div class="tv">{who}<span class="tf">{fig}</span></div>'
