@@ -26,7 +26,7 @@ colors:
   wheat-gold-wash: "rgba(226,196,124,.1)"
 typography:
   display:
-    fontFamily: "'PT Sans Narrow', 'Helvetica Neue', Arial, sans-serif"
+    fontFamily: "'PT Sans Narrow', 'Helvetica Neue', Verdana, Arial, sans-serif"
     fontSize: "40px"
     fontWeight: 700
     lineHeight: 1
@@ -183,7 +183,8 @@ a background-tone shift (Fog Ground → Fog Lift), not elevation.
 
 ## Typography
 
-**Display Font:** PT Sans Narrow (with 'Helvetica Neue', Arial, sans-serif fallback)
+**Display Font:** PT Sans Narrow (with 'Helvetica Neue', Verdana, Arial,
+sans-serif fallback)
 **Body/Label Font:** Inter (with Verdana, Arial, sans-serif fallback)
 
 **Character:** A condensed, confident display face for headings and the
