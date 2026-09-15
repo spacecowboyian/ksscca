@@ -103,6 +103,37 @@ if ( ! function_exists( 'ksscca_calendar_fetch_events' ) ) {
 	}
 }
 
+if ( ! function_exists( 'ksscca_calendar_assets' ) ) {
+	/**
+	 * The calendar's own styling and its table-to-cards enhancer.
+	 *
+	 * These used to be pasted into every page that ran the shortcode: the
+	 * homepage and both schedule pages carried byte-for-byte copies, and by the
+	 * time this moved here they had already drifted apart (the homepage Register
+	 * button had been restyled, the schedule pages had not). See issue #42.
+	 *
+	 * Printed at most once per request, so a page with two calendars on it does
+	 * not emit either twice, and pages without a calendar carry neither.
+	 */
+	function ksscca_calendar_assets() {
+		static $done = false;
+		if ( $done ) {
+			return '';
+		}
+		$done = true;
+
+		$css = <<<'KSSCCA_CSS'
+.msrcalendar{text-align:left;}.msrcalendar h2{display:none;}.msrcalendar .morelink{margin-top:14px;font-family:'Inter',Verdana,Arial,sans-serif;font-size:12.5px;color:#99978f;text-align:left;}.msrcalendar .morelink a{color:#5cb3dd;text-decoration:none;}.msrcalendar .morelink a:hover{text-decoration:underline;}.ksscca-card{background:transparent;}.ksscca-row{display:grid;grid-template-columns:68px 1fr 90px;align-items:center;padding:14px 18px;border-bottom:1px solid #2d2d2d;}.ksscca-card>.ksscca-row:last-child{border-bottom:none;}.ksscca-row:hover:not(.ksscca-head-row){background:#161616;}.ksscca-head-row{background:transparent;}.ksscca-h{font-family:'Inter',Verdana,Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#99978f;}.ksscca-date{display:flex;flex-direction:column;align-items:center;justify-content:center;width:52px;height:52px;border-radius:10px;background:#17313c;color:#8ccdef;}.ksscca-date .mon{font-family:'Inter',Verdana,Arial,sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;line-height:1;}.ksscca-date .day{font-family:'PT Sans Narrow',Verdana,Arial,sans-serif;font-size:22px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums;}.ksscca-cell-name{display:flex;flex-direction:column;gap:2px;min-width:0;padding-right:12px;font-family:'Inter',Verdana,Arial,sans-serif;}.ksscca-cell-name .name{font-weight:600;font-size:14.5px;color:#e7e5df;line-height:1.35;}.ksscca-cell-name .venue{font-size:12.5px;color:#99978f;}.ksscca-cell-action{display:flex;justify-content:flex-end;}.ksscca-register{display:inline-block;font-family:'Inter',Verdana,Arial,sans-serif;padding:8px 16px;border-radius:8px;background:transparent;border:1px solid #6b4d1d;color:#e2c47c !important;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap;}.ksscca-register:hover{background:rgba(226,196,124,.1);border-color:#a86e1d;color:#f2d999 !important;}.ksscca-cards{display:none;}@media (max-width:700px){.ksscca-card{display:none;}.ksscca-cards{display:flex;flex-direction:column;gap:12px;font-family:'Inter',Verdana,Arial,sans-serif;}.ksscca-event-card{background:#161616;border:1px solid #2d2d2d;padding:16px;display:flex;gap:14px;}.ksscca-event-card .ksscca-date{width:48px;height:48px;flex:none;}.ksscca-event-card .body{flex:1;min-width:0;}.ksscca-event-card .name{font-weight:600;font-size:15px;color:#e7e5df;}.ksscca-event-card .venue{font-size:13px;color:#99978f;margin-top:3px;}}
+KSSCCA_CSS;
+
+		$js = <<<'KSSCCA_JS'
+(function () { function el(tag, className) { var e = document.createElement(tag); if (className) e.className = className; return e; } function dateBlock(ev) { var d = el('div', 'ksscca-date'); var mon = el('span', 'mon'); mon.textContent = ev.month; var day = el('span', 'day'); day.textContent = ev.day; d.appendChild(mon); d.appendChild(day); return d; } function registerLink(ev, block) { var a = document.createElement('a'); a.className = 'ksscca-register'; a.href = ev.href; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Register'; if (block) { a.style.display = 'block'; a.style.textAlign = 'center'; a.style.marginTop = '12px'; } return a; } function enhance() { var cal = document.querySelector('.msrcalendar'); if (!cal) return; var table = cal.querySelector('table'); if (!table || table.dataset.ksscca) return; var rows = table.querySelectorAll('tbody tr'); var events = []; rows.forEach(function (tr) { var tds = tr.querySelectorAll('td'); if (!tds[5]) return; var dp = tds[0].textContent.trim().split(/\s+/); var link = tds[5].querySelector('a'); var venue = tds[2].textContent.trim(); var location = tds[3].textContent.trim(); events.push({ month: dp[0] || '', day: dp[1] || '', type: tds[4].textContent.trim(), venueLocation: venue + (location ? ' - ' + location : ''), href: link ? link.href : '#' }); }); if (!events.length) return; var wrap = el('div', 'ksscca-card'); var headRow = el('div', 'ksscca-row ksscca-head-row'); ['Date', 'Event', ''].forEach(function (h) { var s = el('span', 'ksscca-h'); s.textContent = h; headRow.appendChild(s); }); wrap.appendChild(headRow); events.forEach(function (ev) { var row = el('div', 'ksscca-row'); var dateCell = el('div', 'ksscca-cell-date'); dateCell.appendChild(dateBlock(ev)); row.appendChild(dateCell); var nameCell = el('div', 'ksscca-cell-name'); var nm = el('span', 'name'); nm.textContent = ev.type; var vn = el('span', 'venue'); vn.textContent = ev.venueLocation; nameCell.appendChild(nm); nameCell.appendChild(vn); row.appendChild(nameCell); var actionCell = el('div', 'ksscca-cell-action'); actionCell.appendChild(registerLink(ev, false)); row.appendChild(actionCell); wrap.appendChild(row); }); var cardsWrap = el('div', 'ksscca-cards'); events.forEach(function (ev) { var card = el('div', 'ksscca-event-card'); card.appendChild(dateBlock(ev)); var body = el('div', 'body'); var nm = el('div', 'name'); nm.textContent = ev.type; var vn = el('div', 'venue'); vn.textContent = ev.venueLocation; body.appendChild(nm); body.appendChild(vn); body.appendChild(registerLink(ev, true)); card.appendChild(body); cardsWrap.appendChild(card); }); table.dataset.ksscca = '1'; var parent = table.parentNode; parent.replaceChild(wrap, table); parent.insertBefore(cardsWrap, wrap.nextSibling); } if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', enhance); } else { enhance(); } })();
+KSSCCA_JS;
+
+		return '<style>' . $css . '</style>' . '<script>' . $js . '</script>';
+	}
+}
+
 if ( ! function_exists( 'ksscca_calendar_shortcode' ) ) {
 	function ksscca_calendar_shortcode( $atts ) {
 		$atts = shortcode_atts(
@@ -128,6 +159,7 @@ if ( ! function_exists( 'ksscca_calendar_shortcode' ) ) {
 		}
 
 		ob_start();
+		echo ksscca_calendar_assets();
 		?>
 		<div class="msrcalendar">
 			<h2><?php echo esc_html( $atts['title'] ); ?></h2>
