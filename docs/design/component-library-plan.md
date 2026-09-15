@@ -120,17 +120,31 @@ These take the canonical event shape, not an AXWare export or a Pronto page.
 - **Page-scoped overrides stay on the page.** The homepage's `-35px` edge-to-edge margins and
   its 13px button are legitimately page-specific and should not migrate into the library.
 
-## 6. The demo page earns its place here
+## 6. Storybook, plus a parity check against the real site
 
-Not for show: it is the only way to see the states that broke things in practice. It should
-render every component at 1 entry and 60 entries, 4 runs and 12 runs, DNF, DNS, PAX-indexed,
-a name long enough to wrap, and a class of one. Publish it as an unlisted page so it renders
-inside the real theme, where the `!important` fights actually happen. A local HTML file
-cannot show those.
+Decided 2026-09-14: the component gallery is **Storybook**, run locally and published to
+GitHub Pages if it needs a URL. It does not live in WordPress.
 
-Pair it with a parity check: a script that loads two URLs and diffs the computed styles of
-the same component on each, which is how the calendar button mismatch was caught and proven
-fixed. That check is worth having as `bin/style-parity` rather than as ad-hoc browser work.
+The components are plain HTML and CSS, so this is `@storybook/html` with a static build, in
+a `package.json` this repo does not have yet. Node 22 is already on the workstation and
+GitHub Actions is already wired for this repo, so publishing the static build is a small
+workflow alongside the existing one.
+
+Every component gets stories for the states that have actually broken things: 1 entry and
+60 entries, 4 runs and 12 runs, DNF, DNS, PAX-indexed, a name long enough to wrap, and a
+class of one.
+
+**What Storybook cannot show, and what covers it.** The failures on this site have mostly
+not been in the component; they have been in the collision between the component and the
+`kingsize` theme. `body.page-id-1655 .ksv2 span{font-size:14px!important}` beating a page's
+own rule, and a button inheriting `line-height:1.62` from its surroundings, are both
+invisible in an isolated iframe. Storybook proves a component is correct in a vacuum, which
+is necessary and not sufficient.
+
+The other half is `bin/style-parity`: load two live URLs, diff the computed styles of the
+same component on each, fail on a difference. That is exactly how the calendar button
+mismatch was found and proven fixed, done by hand. Both halves, or the library will pass its
+own tests and still look wrong on the site.
 
 ## 7. Order of work
 
@@ -150,15 +164,14 @@ fixed. That check is worth having as `bin/style-parity` rather than as ad-hoc br
 Each step is a separate issue and a separate PR, verified by computed-style parity against
 the page before the change. A step that cannot prove parity gets reverted, not argued.
 
-## 8. Decisions still open for Ian
+## 8. Decisions, answered 2026-09-14
 
-1. **Tokens via WPCode snippet or `custom.css`?** The snippet keeps the source in this repo
-   and survives a theme change; `custom.css` is one fewer inline block per page and is
-   already loaded. Recommendation: the snippet.
-2. **What is the real size budget** for uploaded standalone files, given the prototypes are
-   already at 27.7 KB gzipped against the 17.6 KB the issue quotes?
-3. **Is the demo page public?** Unlisted and `noindex` is the low-risk answer, but `noindex`
-   on this site needs the Yoast UI, so it is a small manual step for you either way.
-4. **PAX-aware parsing** was named in #22 as part of this work. It is a parser change, not a
-   component change. Recommendation: split it into its own issue so the library is not
-   waiting on it.
+1. **Tokens via WPCode snippet**, not `custom.css`. Source stays in this repo and survives a
+   theme change.
+2. **Size budget: not settled, but "not oppressively large."** The 17.6 KB gzipped figure in
+   #22 is not a gate. Revisit when the build step is real and there is something to measure;
+   until then, treat the current numbers as the reference points (Nationals 10.8 KB gzipped,
+   results archive 5.1 KB, prototypes 27.7 KB).
+3. **Storybook, not a WordPress page.** See section 6, including what it cannot catch.
+4. **PAX-aware parsing splits into its own issue**, so the library is not waiting on a parser
+   change.
