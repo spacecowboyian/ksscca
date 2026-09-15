@@ -66,7 +66,7 @@ padding:12px 15px;border-bottom:1px solid var(--seam);}
 /* one grid, two shapes: columns on a desktop, two lines on a phone */
 .hdr,.row>summary,.row.flat{display:grid;gap:10px;align-items:center;}
 .class .hdr,.class .row>summary{grid-template-columns:var(--c-class);}
-.rank .hdr,.rank .row.flat{grid-template-columns:var(--c-rank);}
+.rank .hdr,.rank .row.flat,.rank .row>summary{grid-template-columns:var(--c-rank);}
 .hdr{padding:8px 15px;border-bottom:1px solid var(--seam);font-size:10.5px;font-weight:700;
 letter-spacing:.08em;text-transform:uppercase;color:var(--mist);}
 .row{border-bottom:1px solid var(--seam);}
@@ -116,6 +116,18 @@ h1{font-size:26px;}
    or the desktop track sizes win inside the media query and cells collapse */
 .rank .row.flat{grid-template-columns:repeat(4,1fr);
 grid-template-areas:"pos who who who" "a b c d";gap:8px 10px;align-items:end;}
+/* pax reads like the class view: position, driver, the number it is ranked
+   on. Class, best and index are the workings, and they live in the expansion */
+.pax .row>summary,.raw .row>summary{grid-template-columns:30px minmax(0,1fr) 70px;
+grid-template-areas:none;gap:7px;align-items:center;}
+.pax .row>summary>*:nth-child(n),.raw .row>summary>*:nth-child(n){grid-area:auto;}
+.pax .row>summary>*:nth-child(3),.pax .row>summary>*:nth-child(4),
+.pax .row>summary>*:nth-child(5),.raw .row>summary>*:nth-child(3),
+.raw .row>summary>*:nth-child(4),.raw .row>summary>*:nth-child(5){display:none;}
+.pax .row>summary>*:nth-child(6),.raw .row>summary>*:nth-child(6){text-align:right;}
+.pax .row>summary>*:nth-child(6):before,.raw .row>summary>*:nth-child(6):before{content:none;}
+.pax .who .car,.raw .who .car{display:none;}
+.pax .nm,.raw .nm{white-space:nowrap;font-size:13.5px;}
 /* A class row is four short facts, and three of them fit beside the name.
    Position, driver and the time that counted stay on one line; the gap and
    the car move into the expansion, which is a tap away. Forty rows of one
@@ -335,6 +347,7 @@ def ranked_page(event, kind):
         cls = ("n" if e["cls"] == "n" else "") + (e.get("base") or e["cls"])
         who = (f'<span class="who"><span class="nm">{E(e["name"])}</span>'
                f'<span class="car">{E(e["car"])} &middot; #{E(e["num"])}</span></span>')
+        gap = ""
         best_cell = ('<span class="t%s">%s</span>'
                      % ("" if kind == "pax" else " g", "%.3f" % raw_total(e)))
         if kind == "pax":
@@ -346,8 +359,18 @@ def ranked_page(event, kind):
             rest = (f'<span class="t m">{E(gap)}</span>'
                     + f'<span class="t m">{"%.3f" % (value - leader)}</span>'
                     + best_cell)
-        out.append(f'<div class="row flat"><span class="pos">{i}</span>{who}'
-                   f'<span class="cl">{E(cls)}</span>{rest}</div>')
+        # Both ranked views read like the class view on a phone: position,
+        # driver, the number they are ranked on. The workings are a tap away.
+        common = [("Driver", e["name"]), ("Class", cls.upper()), ("Car number", e["num"])]
+        if kind == "pax":
+            extra = [("Best", "%.3f" % raw_total(e)), ("Index", "%.3f" % factor(e))]
+        else:
+            extra = [("Gap to the car ahead", gap or "-"),
+                     ("From 1st", "%.3f" % (value - leader))]
+        body = info_list(common + extra + [("Car", e["car"])])
+        out.append(f'<details class="row"><summary><span class="pos">{i}</span>{who}'
+                   f'<span class="cl">{E(cls)}</span>{rest}</summary>'
+                   f'<div class="body">{body}</div></details>')
         prev = value
     out.append("</div>")
 
