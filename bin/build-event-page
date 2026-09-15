@@ -533,56 +533,109 @@ def tiles(event):
     by_class = {}
     for e in ents:
         by_class.setdefault(e["cls"], []).append(e)
+    close_slot = len(out)   # filled in below, once the penalties tile has its class
+
+    # the driver whose penalties cost them a place, told as the penalties:
+    # "6 fewer cones and they win" says what happened; a clean total does not.
+    def counted_as(n, what):
+        return "%d %s%s" % (n, what, "" if n == 1 else "s")
+
+    def penalty_words(cones, gates, dnfs):
+        bits = []
+        if gates:
+            bits.append(counted_as(gates, "missed gate"))
+        if dnfs:
+            bits.append(counted_as(dnfs, "DNF"))
+        if cones:
+            bits.append(counted_as(cones, "cone"))
+        return ", ".join(bits)
+
+    ghost = None
+    for e in ents:
+        if indexed and e["cls"] == "n":
+            continue   # decided on index; a raw clean time cannot be compared
+        rs = runs_of(e)
+        grid = sorted(by_class[e["cls"]], key=total_of)
+        here = grid.index(e)
+        if not here:
+            continue
+        if summing:
+            # Every run counts, so penalties come off the day's total one at a
+            # time, the costliest first, until it passes the driver above.
+            # The fewest penalties that would have done it is the story.
+            units = sorted(
+                [(pen["gate_seconds"], "gate")] * sum(r["gates"] for r in rs)
+                + [(pen.get("dnf_seconds", 0), "dnf")] * sum(1 for r in rs if r["dnf"])
+                + [(pen["cone_seconds"], "cone")] * sum(r["cones"] for r in rs),
+                reverse=True)
+            units = [u for u in units if u[0] > 0]
+            if not units:
+                continue
+            best_clean = total_of(e) - sum(u[0] for u in units)
+            took = next((j for j in range(here) if best_clean < total_of(grid[j])), None)
+            if took is None:
+                continue
+            rival = grid[took]
+            dropped, t = [], total_of(e)
+            for u in units:
+                if t < total_of(rival):
+                    break
+                t -= u[0]
+                dropped.append(u[1])
+            if t >= total_of(rival):
+                continue
+            n = len(dropped)
+            words = penalty_words(dropped.count("cone"), dropped.count("gate"),
+                                  dropped.count("dnf"))
+            cost = total_of(e) - t
+            detail = "Behind %s for %s. %s cost %g seconds." % (
+                cap_name(rival["name"]), ordinal(took + 1), words[:1].upper() + words[1:], cost)
+        else:
+            # One run counts, so it is the quickest run that came home with a
+            # cone on it, had it come home clean.
+            hit = [(r["time"], i, r) for i, r in enumerate(rs, 1)
+                   if r["penalty"] > 0 and not r["dnf"]]
+            if not hit:
+                continue
+            t, run_no, r = min(hit)
+            took = next((j for j in range(here) if t < total_of(grid[j])), None)
+            if took is None:
+                continue
+            rival = grid[took]
+            n = r["cones"] + r["gates"]
+            words = penalty_words(r["cones"], r["gates"], 0)
+            detail = "Behind %s for %s. %s on run %d cost %g seconds." % (
+                cap_name(rival["name"]), ordinal(took + 1), words[:1].upper() + words[1:],
+                run_no, r["penalty"])
+        key = (took == 0, here - took, -n)
+        if ghost is None or key > ghost[0]:
+            ghost = (key, e, words, detail, took + 1, total_of(e) - total_of(rival))
+    if ghost:
+        _, e, words, detail, place, needed = ghost
+        if summing:
+            what = "Cones" if "," not in words and "cone" in words else "Penalties"
+            title = "%s cost %s" % (what, "the win" if place == 1 else ordinal(place))
+        else:
+            title = "One clean run away"
+        # the figure is the time that stood between them and the place; the
+        # line under it is the penalty that would have covered it
+        add(title, cap_name(e["name"]), "%.3f" % needed, "%s \u00b7 %s" % (cname(e), detail))
+
+    # the tightest class result, unless the penalties tile is already telling
+    # that class's story: the same two names and the same gap twice says less
+    taken = ghost[1]["cls"] if ghost else None
     close = None
     for cls, rows in by_class.items():
         rows = sorted(rows, key=lambda r: r["pos"])
-        if len(rows) < 2:
+        if len(rows) < 2 or cls == taken:
             continue
         margin = total_of(rows[1]) - total_of(rows[0])
         if close is None or margin < close[0]:
             close = (margin, cls, rows[0], rows[1])
     if close:
-        add("Closest fight", cap_name(close[2]["name"]), "%.3f" % close[0],
+        out.insert(close_slot, ("Closest fight", cap_name(close[2]["name"]), "%.3f" % close[0],
             "%s \u00b7 over %s" % (names.get(close[1], close[1].upper()),
-                                   cap_name(close[3]["name"])))
-
-    # the run that was quick enough and came home with a cone on it
-    ghost = None
-    for e in ents:
-        rs = runs_of(e)
-        penalised = [r for r in rs if r["penalty"] > 0]
-        if not penalised:
-            continue
-        if summing:
-            # every run counts, so a clean day is the total less its penalties
-            clean = total_of(e) - sum(r["penalty"] for r in rs)
-        else:
-            # only one run counts, so it is the quickest run that carried a
-            # penalty, had it come home clean
-            clean = min(r["time"] for r in penalised if not r["dnf"]) if any(
-                not r["dnf"] for r in penalised) else None
-        if clean is None:
-            continue
-        lost = total_of(e) - clean
-        if lost <= 0:
-            continue
-        # the highest place that clean total would have taken, and who from
-        grid = sorted(by_class[e["cls"]], key=total_of)
-        here = grid.index(e)
-        took = next((j for j in range(here) if clean < total_of(grid[j])), None)
-        if took is None:
-            continue
-        rival = grid[took]
-        key = (took == 0, here - took, lost)
-        if ghost is None or key > ghost[0]:
-            ghost = (key, e, clean, rival, took + 1)
-    if ghost:
-        _, e, clean, rival, place = ghost
-        # the figure is what the title is about: how far ahead of the driver
-        # above them a clean day would have finished
-        add("One clean run away", cap_name(e["name"]), "%.3f" % (total_of(rival) - clean),
-            "%s \u00b7 clean, %.3f beats %s's %.3f for %s" % (
-                cname(e), clean, cap_name(rival["name"]), total_of(rival), ordinal(place)))
+                                   cap_name(close[3]["name"]))))
 
     # the steadiest driver: the smallest spread across every run they took.
     # Clock times, cones and gates aside, since a penalty is a mistake rather
@@ -606,8 +659,18 @@ def tiles(event):
     # the newcomers' race within the race
     novices = by_class.get("n") or []
     if novices:
-        n1 = min(novices, key=total_of)
-        sub_ = "%d out%s" % (len(novices), ", scored on index" if indexed else "")
+        ranked = sorted(novices, key=total_of)
+        n1 = ranked[0]
+        on = " on index" if indexed else ""
+        if len(ranked) > 2:
+            n2 = ranked[1]
+            sub_ = "Out of %d novices, the closest was %s, %.3f back%s" % (
+                len(ranked), cap_name(n2["name"]), total_of(n2) - total_of(n1), on)
+        elif len(ranked) == 2:
+            sub_ = "Ahead of %s, the other novice, by %.3f%s" % (
+                cap_name(ranked[1]["name"]), total_of(ranked[1]) - total_of(n1), on)
+        else:
+            sub_ = "The only novice"
         add("Novice win", cap_name(n1["name"]), "%.3f" % total_of(n1), sub_)
 
     # the quickest driver who kept it clean all day
