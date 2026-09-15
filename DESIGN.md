@@ -17,6 +17,13 @@ colors:
   ground-seam: "#2d2d2d"
   paddock-white: "#e7e5df"
   morning-mist: "#99978f"
+  morning-mist-deep: "#6f6d67"
+  seam-quiet: "#4a4a4a"
+  wheat-gold: "#e2c47c"
+  wheat-gold-bright: "#f2d999"
+  wheat-gold-edge: "#6b4d1d"
+  wheat-gold-edge-hover: "#a86e1d"
+  wheat-gold-wash: "rgba(226,196,124,.1)"
 typography:
   display:
     fontFamily: "'PT Sans Narrow', 'Helvetica Neue', Arial, sans-serif"
@@ -30,9 +37,15 @@ typography:
     fontWeight: 700
     lineHeight: 1
     letterSpacing: "0.08em"
-  body:
+  row-primary:
     fontFamily: "Inter, Verdana, Arial, sans-serif"
-    fontSize: "14.5px"
+    fontSize: "15px"
+    fontWeight: 600
+    lineHeight: 1.35
+    letterSpacing: "normal"
+  row-secondary:
+    fontFamily: "Inter, Verdana, Arial, sans-serif"
+    fontSize: "13px"
     fontWeight: 400
     lineHeight: 1.35
     letterSpacing: "normal"
@@ -54,6 +67,17 @@ components:
   button-primary-hover:
     backgroundColor: "{colors.grid-light-green}"
     textColor: "{colors.grid-light-green-hover-text}"
+  button-secondary:
+    backgroundColor: "transparent"
+    borderColor: "{colors.wheat-gold-edge}"
+    textColor: "{colors.wheat-gold}"
+    rounded: "{rounded.button}"
+    padding: "8px 16px"
+    lineHeight: 1
+  button-secondary-hover:
+    backgroundColor: "{colors.wheat-gold-wash}"
+    borderColor: "{colors.wheat-gold-edge-hover}"
+    textColor: "{colors.wheat-gold-bright}"
   badge-date:
     backgroundColor: "{colors.paddock-lamp-well}"
     textColor: "{colors.paddock-lamp-blue}"
@@ -104,11 +128,28 @@ near-black.
   not the sun.
 
 ### Secondary
-- **Grid-Light Green** (`#6cc98d`): the Register button background — the
-  one warm color in the system, reserved for the single primary action.
-  **The One Green Rule.** Grid-Light Green appears in exactly one place:
-  the action that gets someone registered. It never becomes a decorative
-  accent or a second CTA color.
+- **Grid-Light Green** (`#6cc98d`): the primary button fill — the one
+  warm color in the system, reserved for the single loudest action on a
+  screen.
+  **The One Primary Rule.** Green means "this is the one thing to do
+  here". At most one green button is visible at a time: on the homepage
+  that is "See upcoming events" and the Solo Nationals promo card. It
+  never becomes a decorative accent.
+
+  *Changed 2026-09-14.* This was the One Green Rule, and it reserved
+  green for the Register button specifically. Register moved to the
+  wheat gold secondary when the schedule pages were reconciled with the
+  homepage (issue #46), so green became the general primary instead.
+  Registering is still the most important thing a visitor does; it is
+  simply no longer the loudest thing on a page that has a hero on it.
+
+- **Wheat Gold** (`#e2c47c`, brightening to `#f2d999`): the secondary
+  action and the color of anything that resolves to a result. The
+  **Register** button (hollow, `#6b4d1d` border, `#a86e1d` on hover, over
+  a `rgba(226,196,124,.1)` wash), results links, class headings on the
+  Solo Nationals page, and the border of the promo card. Pulled from the
+  wheat in the theme's own background photograph, which is why it sits
+  comfortably on this ground.
 
 ### Tertiary
 - **RallyCross Amber** (`#e2a768` on `#3a2a14`): discipline accent, used
@@ -128,6 +169,12 @@ near-black.
   pure `#fff`.
 - **Morning Mist** (`#99978f`): secondary/muted text — venue lines,
   column headers, footnotes.
+- **Morning Mist Deep** (`#6f6d67`): muted text that sits on a darker
+  ground than usual, where Morning Mist would be louder than the row it
+  labels. Used inside expanded rows on the Solo Nationals page.
+- **Seam Quiet** (`#4a4a4a`): separator dots between inline links, and
+  the outline of a tertiary button. Quieter than Ground Seam is at rest
+  because it appears inside a line of text, not between rows.
 
 ### Named Rules
 **The Flat Ground Rule.** Nothing sits on a card, a shadow, or a border
@@ -152,10 +199,14 @@ if the Google Fonts request ever fails.
   Events"). Left-aligned, not centered.
 - **Label** (700, 11px, uppercase, letter-spacing 0.08em): column
   headers, the date badge's month abbreviation.
-- **Title/Row-primary** (600, 14.5px, line-height 1.35): the primary line
+- **Title/Row-primary** (600, 15px, line-height 1.35): the primary line
   in a row (discipline/event name).
-- **Body/Row-secondary** (400, 12.5px): the secondary line in a row
+- **Body/Row-secondary** (400, 13px): the secondary line in a row
   (venue, location, footnote text).
+
+  *Changed 2026-09-14* from 14.5px and 12.5px, when the schedule pages
+  were brought up to the homepage's type scale. Both numbers now match
+  everywhere a calendar renders.
 - **Numeral** (PT Sans Narrow 700, 22px, `font-variant-numeric:
   tabular-nums`): the date badge's day number — the one place display
   type appears at small scale, because it has to be instantly readable.
@@ -190,11 +241,12 @@ elevation. A `box-shadow` anywhere in a redesigned surface is a bug.
 
 ## Shapes
 
-Two radius values only: `10px` on the date badge (a soft square, not a
-circle — it holds two lines of text), and `999px` (a true pill) on
-discipline badges and the Register button. Everything else — the row
-grid, the page ground, table containers — is a hard `0px`, edge-to-edge.
-No borders anywhere except the 1px Ground Seam row dividers.
+Three radius values: `10px` on the date badge (a soft square, not a
+circle — it holds two lines of text), `8px` on buttons including
+Register, and `999px` (a true pill) on discipline badges. Everything
+else — the row grid, the page ground, table containers — is a hard
+`0px`, edge-to-edge. The only line work is the 1px Ground Seam row
+divider and the secondary button's own `#6b4d1d` edge.
 
 ## Components
 
@@ -204,7 +256,7 @@ job is to be scanned fast.
 
 ### Buttons
 - **Shape:** `8px` radius, `999px` on the pill-shaped discipline badges.
-- **Primary (Register CTA):** Grid-Light Green background (`#6cc98d`),
+- **Primary:** Grid-Light Green background (`#6cc98d`),
   `#1a1a1a` text at rest — **not white**: white-on-green measures
   ~2.0:1 contrast (fails WCAG AA), while `#1a1a1a` measures ~8.6:1
   (AAA). Padding `8px 16px`, Inter 700 13px.
@@ -216,6 +268,17 @@ job is to be scanned fast.
   pseudo-class beats a lone class), so an unprotected link silently
   turns theme-blue on hover. See `docs/design/style-guide.md` for the
   full specificity breakdown.
+- **Secondary (Register):** transparent fill, 1px `#6b4d1d` border,
+  Wheat Gold text, same `8px 16px` padding and Inter 700 13px. Hover
+  fills with `rgba(226,196,124,.1)`, brightens the border to `#a86e1d`
+  and the text to `#f2d999`.
+- **Every button sets its own `line-height`.** It is `1` here. Without
+  it the button inherits whatever the surrounding page uses and changes
+  height from page to page: the Register button stood 39px tall on the
+  homepage and 31px on the schedule pages for exactly this reason, from
+  the same stylesheet. The same goes for `font-size`, `padding` and
+  `border-width`: a component is only consistent when it declares every
+  property that decides its own size.
 
 ### Chips (discipline pills)
 - **Style:** small pill (`999px` radius), `4px 10px` padding, 12px/600
@@ -260,6 +323,9 @@ every list of events on the site should use it, not a plain date string.
   script/style content. Full detail in `docs/design/style-guide.md`.
 
 ### Don't:
+- **Don't** let a component inherit a property that decides its size.
+  Declare `font-size`, `line-height`, `padding` and `border-width` on
+  the component itself, every time.
 - **Don't** use white text on Grid-Light Green — it fails contrast
   (~2.0:1). Use `#1a1a1a` at rest, `#12281c` on hover.
 - **Don't** reach for the generic "racing site" template: checkered
@@ -275,3 +341,20 @@ every list of events on the site should use it, not a plain date string.
   new work should use Inter + Paddock White/Morning Mist instead.
 - **Don't** add a border-radius or box-shadow to a table/row container.
   Edge-to-edge and flat is the deliberate choice for this system.
+
+## Known deviations
+
+Things the live site does that this document does not endorse. Each one
+is a bug with a name, not a variant.
+
+- **The homepage renders column labels at 14px**, not the 11px Label
+  size. `body.page-id-1655 .ksv2 span{font-size:14px!important}`
+  outranks that page's own `.ksscca-h{font-size:12px!important}`, so
+  neither the documented size nor the page's own intent wins. The
+  schedule pages match the homepage because the shared calendar CSS was
+  set to 14px to make them agree. Nobody chose 14px. Worth settling at
+  11px or 12px in both places.
+- **The palette is documented here and declared in
+  `snippets/ksscca-tokens.php`**, which is a second copy. The snippet is
+  what the site reads; this file is what a person reads. They are in
+  sync as of 2026-09-14 and nothing enforces that.
