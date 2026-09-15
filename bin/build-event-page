@@ -94,9 +94,10 @@ letter-spacing:.08em;text-transform:uppercase;color:var(--mist);}
 .b{color:var(--gold);font-weight:600;}
 .g{color:var(--green);font-weight:600;}
 .m{color:var(--mist-deep);}
-.nm:before{content:'\25B8';display:inline-block;color:#5a5a5a;font-size:11px;margin-right:7px;}
-.row.flat .nm:before{content:none;}
-details[open]>summary .nm:before{transform:rotate(90deg);color:var(--gold);}
+.row>summary{position:relative;padding-right:32px;}
+.row>summary:after{content:'\25B8';position:absolute;right:13px;top:50%;
+transform:translateY(-50%);color:#5a5a5a;font-size:12px;line-height:1;}
+details[open]>summary:after{transform:translateY(-50%) rotate(90deg);color:var(--gold);}
 /* the runs live in the expansion, where there is room for them */
 .body{background:#0d0d0d;padding:12px 15px 16px;}
 .runs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
