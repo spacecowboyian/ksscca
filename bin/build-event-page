@@ -35,11 +35,13 @@ FACTOR = {
     "csp": 0.860, "sm": 0.868, "xu": 0.869, "fm": 0.917, "fsae": 0.980,
 }
 
-STYLE = """<style>
+STYLE = r"""<style>
 :root{--ground:#111111;--lift:#161616;--seam:#2d2d2d;--white:#e7e5df;--mist:#99978f;
 --mist-deep:#6f6d67;--gold:#e2c47c;--gold-bright:#f2d999;--green:#6cc98d;
 --display:'PT Sans Narrow','Helvetica Neue',Verdana,Arial,sans-serif;
---body:'Inter',Verdana,Arial,sans-serif;}
+--body:'Inter',Verdana,Arial,sans-serif;
+--c-class:52px minmax(0,1fr) 96px 84px;
+--c-rank:52px minmax(0,1fr) 62px 80px 76px 84px;}
 *{box-sizing:border-box;}
 body{margin:0;background:var(--ground);color:var(--white);font-family:var(--body);font-size:14px;line-height:1.5;}
 .wrap{max-width:1180px;margin:0 auto;padding:26px 18px 60px;}
@@ -49,37 +51,90 @@ a{color:var(--gold);}a:hover{color:var(--gold-bright);}
 h1{font-family:var(--display);font-size:34px;font-weight:700;text-transform:uppercase;margin:0 0 6px;line-height:1.05;}
 .sub{color:var(--mist);font-size:13px;margin:0;}
 .views{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 0;}
-.view{display:inline-block;font-size:13px;line-height:1;font-weight:700;padding:8px 16px;border-radius:8px;
+.view{display:inline-block;font-size:13px;line-height:1;font-weight:700;padding:9px 16px;border-radius:8px;
 border:1px solid #6b4d1d;color:var(--gold);text-decoration:none;}
 .view:hover{background:rgba(226,196,124,.1);border-color:#a86e1d;color:var(--gold-bright);}
 .view.on{background:var(--gold);border-color:var(--gold);color:var(--ground);}
 .pane-h{font-family:var(--display);font-size:22px;text-transform:uppercase;color:var(--gold);margin:26px 0 14px;}
 html.js .pane-h{display:none;}
 [hidden]{display:none !important;}
-.mod{border:1px solid var(--seam);background:var(--ground);margin:0 0 26px;}
+.mod{border:1px solid var(--seam);background:var(--ground);margin:0 0 22px;}
 .mh{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;
 padding:12px 15px;border-bottom:1px solid var(--seam);}
 .mt{font-family:var(--display);font-size:20px;color:var(--gold);}
 .mn{font-size:12px;color:var(--mist);}
-.scroll{overflow-x:auto;}
-table{width:100%;border-collapse:collapse;font-size:13px;min-width:720px;}
-th{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mist);
-text-align:left;padding:9px 12px;border-bottom:1px solid var(--seam);white-space:nowrap;}
-td{padding:10px 12px;border-bottom:1px solid var(--seam);vertical-align:top;}
-tr:last-child td{border-bottom:0;}
-tbody tr:hover{background:var(--lift);}
-.num,.t{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
-.pos{font-family:var(--display);font-size:16px;color:var(--white);white-space:nowrap;}
+/* one grid, two shapes: columns on a desktop, two lines on a phone */
+.hdr,.row>summary,.row.flat{display:grid;gap:10px;align-items:center;}
+.class .hdr,.class .row>summary{grid-template-columns:var(--c-class);}
+.rank .hdr,.rank .row.flat{grid-template-columns:var(--c-rank);}
+.hdr{padding:8px 15px;border-bottom:1px solid var(--seam);font-size:10.5px;font-weight:700;
+letter-spacing:.08em;text-transform:uppercase;color:var(--mist);}
+.row{border-bottom:1px solid var(--seam);}
+.row:last-child{border-bottom:0;}
+.row>summary{padding:11px 15px;cursor:pointer;list-style:none;}
+.row>summary::-webkit-details-marker{display:none;}
+.row>summary:hover,.row[open]>summary,.row.flat:hover{background:var(--lift);}
+.row.flat{padding:11px 15px;}
+.row>summary:focus-visible{outline:2px solid var(--gold);outline-offset:-2px;}
+.pos{font-family:var(--display);font-size:16px;white-space:nowrap;}
 .tro{color:var(--gold);}
-.name{font-weight:600;}
-.car{color:var(--mist);font-size:12.5px;}
+.who{min-width:0;}
+.who>span{display:block;}
+.nm{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.car{color:var(--mist);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cl{color:var(--gold);font-family:var(--display);font-size:15px;}
+.t{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
 .b{color:var(--gold);font-weight:600;}
-.m{color:var(--mist-deep);}
 .g{color:var(--green);font-weight:600;}
+.m{color:var(--mist-deep);}
+.nm:before{content:'\25B8';display:inline-block;color:#5a5a5a;font-size:11px;margin-right:7px;}
+.row.flat .nm:before{content:none;}
+details[open]>summary .nm:before{transform:rotate(90deg);color:var(--gold);}
+/* the runs live in the expansion, where there is room for them */
+.body{background:#0d0d0d;padding:12px 15px 16px;}
+.runs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.run{border:1px solid var(--seam);padding:7px 8px;font-variant-numeric:tabular-nums;font-size:13px;}
+.run span{display:block;font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+color:var(--mist-deep);margin-bottom:3px;}
+.run.best{border-color:#6b4d1d;color:var(--gold);}
+.info{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:12px;font-size:12.5px;}
+.info b{font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--mist);
+display:block;}
 .note{background:var(--lift);border:1px solid var(--seam);padding:14px 16px;font-size:12.5px;color:var(--mist);}
 .note b{color:var(--white);}
 .foot{margin-top:26px;font-size:12px;color:var(--mist-deep);}
-@media(max-width:700px){h1{font-size:26px;}.wrap{padding:20px 12px 40px;}}
+@media(max-width:700px){:root{--c-class:44px minmax(0,1fr) 86px 74px;
+--c-rank:44px minmax(0,1fr) 54px 72px 66px 76px;}}
+@media(max-width:620px){
+h1{font-size:26px;}
+.wrap{padding:18px 14px 40px;}
+/* edge to edge: a table that stops short of the screen wastes the width a
+   phone has least of */
+.mod{margin-left:-14px;margin-right:-14px;border-left:0;border-right:0;}
+.hdr{display:none;}
+/* these have to out-specify .class .row>summary and .rank .row.flat above,
+   or the desktop track sizes win inside the media query and cells collapse */
+.class .row>summary,.rank .row.flat{grid-template-columns:repeat(4,1fr);
+grid-template-areas:"pos who who who" "a b c d";gap:8px 10px;align-items:end;}
+.row>summary>*:nth-child(1),.row.flat>*:nth-child(1){grid-area:pos;}
+.row>summary>*:nth-child(2),.row.flat>*:nth-child(2){grid-area:who;}
+.row>summary>*:nth-child(3),.row.flat>*:nth-child(3){grid-area:a;text-align:left;}
+.row>summary>*:nth-child(4),.row.flat>*:nth-child(4){grid-area:b;text-align:left;}
+.row.flat>*:nth-child(5){grid-area:c;text-align:left;}
+.row.flat>*:nth-child(6){grid-area:d;text-align:right;}
+.row>summary>*:nth-child(n+3):before,.row.flat>*:nth-child(n+3):before{display:block;font-size:9.5px;
+font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--mist-deep);margin-bottom:2px;}
+.class .row>summary>*:nth-child(3):before{content:'Best';}
+.class .row>summary>*:nth-child(4):before{content:'Diff';}
+.rank .row.flat>*:nth-child(3):before{content:'Class';}
+.rank .row.flat>*:nth-child(4):before{content:'Best';}
+.rank.pax .row.flat>*:nth-child(5):before{content:'Index';}
+.rank.pax .row.flat>*:nth-child(6):before{content:'Pax';}
+.rank.raw .row.flat>*:nth-child(5):before{content:'Diff';}
+.rank.raw .row.flat>*:nth-child(6):before{content:'From 1st';}
+.runs{grid-template-columns:repeat(2,1fr);}
+.nm{white-space:normal;}
+}
 </style>"""
 
 RUN = re.compile(r"^([\d.]+)(?:\+(\d+))?$")
@@ -117,17 +172,23 @@ def pax_time(entry):
     return None if r is None else round(r * factor(entry), 3)
 
 
-def run_cells(entry):
-    out, mark = [], best(entry["runs"])
-    for r in entry["runs"]:
+def run_boxes(entry):
+    """The four runs, as labelled boxes. The one that counted is marked."""
+    mark = best(entry["runs"])
+    out = []
+    for i, r in enumerate(entry["runs"], 1):
         v = counted(r)
+        txt = E(r) if (r or "").strip() else "&mdash;"
+        cls = "run best" if (v is not None and mark is not None and abs(v - mark) < 0.0005) else "run"
         if not (r or "").strip():
-            out.append('<td class="t m">&mdash;</td>')
-        elif v is not None and abs(v - mark) < 0.0005:
-            out.append('<td class="t b">%s</td>' % E(r))
-        else:
-            out.append('<td class="t">%s</td>' % E(r))
-    return "".join(out)
+            cls = "run m"
+        out.append(f'<div class="{cls}"><span>Run {i}</span>{txt}</div>')
+    return '<div class="runs">%s</div>' % "".join(out)
+
+
+def info_list(pairs):
+    return '<div class="info">%s</div>' % "".join(
+        f"<div><b>{E(k)}</b>{E(v) if v else '&mdash;'}</div>" for k, v in pairs)
 
 
 VIEWS = (("class", "Class"), ("pax", "PAX index"), ("raw", "Raw time"))
@@ -184,42 +245,48 @@ def class_page(event):
         if not rows:
             continue
         indexed = cls == "n"
-        out.append('<div class="mod"><div class="mh">'
+        out.append('<div class="mod class"><div class="mh">'
                    f'<div class="mt">{E(cls.upper())} &middot; {E(event["class_names"][cls])}</div>'
                    f'<div class="mn">{len(rows)} entr{"y" if len(rows)==1 else "ies"}'
                    f'{" &middot; scored on index" if indexed else ""}</div></div>')
-        out.append('<div class="scroll"><table><thead><tr><th>Pos</th><th>Class</th><th>#</th>'
-                   '<th>Driver</th><th>Car</th><th>Color</th>'
-                   '<th class="t">Run 1</th><th class="t">Run 2</th><th class="t">Run 3</th>'
-                   '<th class="t">Run 4</th><th class="t">Best</th><th class="t">Diff</th>'
-                   '</tr></thead><tbody>')
+        out.append('<div class="hdr"><span>Pos</span><span>Driver</span>'
+                   '<span class="t">Best</span><span class="t">Diff</span></div>')
         for r in rows:
-            pos = '<span class="pos">%d%s</span>' % (r["pos"], '<span class="tro">T</span>' if r["trophy"] else "")
+            pos = ('<span class="pos">%d%s</span>'
+                   % (r["pos"], '<span class="tro">T</span>' if r["trophy"] else ""))
             total = r["total"]
-            tot = ('<span class="m">%s</span>' % E(total)) if total in ("dns", "dnf") else ('<span class="g">%s</span>' % E(total))
-            # The class winner has nobody ahead of them. The timing system prints
-            # their gap back to second here, which reads as though they were
-            # behind it.
+            bestc = (f'<span class="m">{E(total)}</span>' if total in ("dns", "dnf")
+                     else f'<span class="g">{E(total)}</span>')
+            # The class winner has nobody ahead of them. The timing system
+            # prints their lead over second here, in a column that otherwise
+            # says how far back you are.
             diff = "-" if r["pos"] == 1 else r["diff"]
-            out.append(
-                f'<tr><td>{pos}</td><td>{E(r.get("base") or r["cls"])}</td><td class="num">{E(r["num"])}</td>'
-                f'<td class="name">{E(r["name"])}</td><td class="car">{E(r["car"])}</td>'
-                f'<td class="car">{E(r["color"])}</td>{run_cells(r)}'
-                f'<td class="t">{tot}</td><td class="t m">{E(diff)}</td></tr>')
-        out.append("</tbody></table></div></div>")
+            who = (f'<span class="who"><span class="nm">{E(r["name"])}</span>'
+                   f'<span class="car">{E(r["car"])}</span></span>')
+            body = run_boxes(r) + info_list([
+                ("Class", (r.get("base") or r["cls"]).upper()),
+                ("Car number", r["num"]),
+                ("Colour", r["color"]),
+                ("Car", r["car"]),
+            ])
+            out.append(f'<details class="row"><summary>{pos}{who}'
+                       f'<span class="t">{bestc}</span><span class="t m">{E(diff)}</span>'
+                       f'</summary><div class="body">{body}</div></details>')
+        out.append("</div>")
 
-    tt = ['<div class="mod"><div class="mh"><div class="mt">Top times of day</div></div>'
-          '<div class="scroll"><table><thead><tr><th>Category</th><th class="t">Time</th>'
-          '<th>Class</th><th>#</th><th>Driver</th></tr></thead><tbody>']
+    tt = ['<div class="mod"><div class="mh"><div class="mt">Top times of day</div></div>']
     for label, time, cls, num, name in event["top_times"]:
-        tt.append(f'<tr><td class="name">{E(label)}</td><td class="t g">{E(time)}</td>'
-                  f'<td>{E(cls)}</td><td class="num">{E(num)}</td><td>{E(name)}</td></tr>')
-    tt.append("</tbody></table></div></div>")
+        tt.append('<div class="row flat" style="grid-template-columns:minmax(0,1fr) 92px">'
+                  f'<span class="who"><span class="nm">{E(label)}</span>'
+                  f'<span class="car">{E(name)} &middot; {E(cls)} {E(num)}</span></span>'
+                  f'<span class="t g">{E(time)}</span></div>')
+    tt.append("</div>")
 
-    note = ('<div class="note"><p><b>How to read this.</b> A bold run is the one that counted. '
+    note = ('<div class="note"><p><b>How to read this.</b> Tap a driver for their four runs. '
             'A number after a run is cones, two seconds each, already included in the best. '
             '<b>dnf</b> is a run that did not finish and scores nothing. <b>T</b> marks a trophy '
-            'position. Novice is scored on index, so its figures are PAX times rather than raw.</p></div>')
+            'position. Novice is scored on index, so its figures are PAX times rather than raw.'
+            '</p></div>')
     return "".join(out) + "".join(tt) + note
 
 
@@ -231,38 +298,38 @@ def ranked_page(event, kind):
               if e["total"] not in ("dns", "dnf") and raw_total(e) is not None]
     if kind == "pax":
         scored.sort(key=pax_time)
-        title, head = "PAX index results", "Pax time"
+        title = "PAX index results"
+        cols = ["Pos", "Driver", "Class", "Best", "Index", "Pax time"]
     else:
         scored.sort(key=raw_total)
-        title, head = "Raw time results", "Raw time"
+        title = "Raw time results"
+        cols = ["Pos", "Driver", "Class", "Best", "Diff", "From 1st"]
     leader = pax_time(scored[0]) if kind == "pax" else raw_total(scored[0])
-    out = ['<div class="mod"><div class="mh">'
-           f'<div class="mt">{E(title)}</div>'
-           f'<div class="mn">{len(scored)} timed entries</div></div>'
-           '<div class="scroll"><table><thead><tr><th>Pos</th><th>Class</th><th>#</th><th>Driver</th>'
-           '<th>Car</th>']
-    if kind == "pax":
-        out.append('<th class="t">Best</th>')
-    if kind == "pax":
-        out.append('<th class="t">Factor</th>')
-    out.append(f'<th class="t">{E(head)}</th><th class="t">Diff</th><th class="t">From 1st</th>'
-               '</tr></thead><tbody>')
+
+    out = [f'<div class="mod rank {kind}"><div class="mh"><div class="mt">{E(title)}</div>'
+           f'<div class="mn">{len(scored)} timed entries</div></div>']
+    out.append('<div class="hdr">%s</div>' % "".join(
+        f'<span{" class=\"t\"" if i > 2 else ""}>{E(c)}</span>' for i, c in enumerate(cols)))
     prev = None
     for i, e in enumerate(scored, 1):
         value = pax_time(e) if kind == "pax" else raw_total(e)
-        diff = "" if prev is None else "%.3f" % (value - prev)
-        out.append(f'<tr><td><span class="pos">{i}</span></td>'
-                   f'<td>{E(("n" if e["cls"] == "n" else "") + (e.get("base") or e["cls"]))}</td>'
-                   f'<td class="num">{E(e["num"])}</td><td class="name">{E(e["name"])}</td>'
-                   f'<td class="car">{E(e["car"])}</td>')
+        cls = ("n" if e["cls"] == "n" else "") + (e.get("base") or e["cls"])
+        who = (f'<span class="who"><span class="nm">{E(e["name"])}</span>'
+               f'<span class="car">{E(e["car"])} &middot; #{E(e["num"])}</span></span>')
         if kind == "pax":
-            out.append(f'<td class="t">{"%.3f" % raw_total(e)}</td>'
-                       f'<td class="t m">{factor(e):.3f}</td>')
-        out.append(f'<td class="t g">{"%.3f" % value}</td>'
-                   f'<td class="t m">{E(diff)}</td>'
-                   f'<td class="t m">{"%.3f" % (value - leader)}</td></tr>')
+            five = f'<span class="t m">{factor(e):.3f}</span>'
+            six = f'<span class="t g">{"%.3f" % value}</span>'
+        else:
+            gap = "" if prev is None else "%.3f" % (value - prev)
+            five = f'<span class="t m">{E(gap)}</span>'
+            six = f'<span class="t m">{"%.3f" % (value - leader)}</span>'
+        out.append(f'<div class="row flat"><span class="pos">{i}</span>{who}'
+                   f'<span class="cl">{E(cls)}</span>'
+                   f'<span class="t{"" if kind == "pax" else " g"}">{"%.3f" % raw_total(e)}</span>'
+                   f'{five}{six}</div>')
         prev = value
-    out.append("</tbody></table></div></div>")
+    out.append("</div>")
+
     note = ('<div class="note"><p><b>Best is the raw time</b>, the driver\'s quickest counted run '
             'with cone penalties included. ')
     if kind == "pax":
