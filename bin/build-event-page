@@ -1,0 +1,266 @@
+#!/usr/bin/env python3
+"""Render one event's Class, PAX and Raw results as standalone pages.
+
+    bin/build-event-page results/events/2026-06-27-comeback-1.json --out results/build/
+
+Three files come out, one per view, each self-contained: they are uploaded to
+the Media Library and served straight off disk, so they cannot use the site's
+token snippet and carry their own copy of the palette. The look follows the
+Solo Nationals page.
+
+Input is the canonical event JSON: one entry per driver with the run strings as
+the timing system printed them. Everything else is derived here, so the two
+rankings cannot drift from the class results the way separately transcribed
+sheets would.
+"""
+import argparse, html, json, re
+from pathlib import Path
+
+E = lambda s: html.escape(str(s), quote=True)
+
+# PAX index for this season, by class.
+FACTOR = {
+    "ast": 1.000, "bst": 1.000, "cst": 1.000, "cstl": 1.000, "dst": 1.000,
+    "est": 1.000, "gst": 1.000, "am": 1.000, "rx": 1.000,
+    "hs": 0.786, "hsl": 0.786, "es": 0.792, "esl": 0.792, "gs": 0.796,
+    "csm": 0.808, "ds": 0.810, "csx": 0.811, "cs": 0.813, "fs": 0.814,
+    "bs": 0.818, "camt": 0.820, "as": 0.824, "camc": 0.826, "fsp": 0.831,
+    "evx": 0.834, "ss": 0.835, "xa": 0.844, "cams": 0.848, "camsl": 0.848,
+    "xb": 0.849, "xbl": 0.849, "smf": 0.850, "cp": 0.856, "ep": 0.858,
+    "csp": 0.860, "sm": 0.868, "xu": 0.869, "fm": 0.917, "fsae": 0.980,
+}
+
+STYLE = """<style>
+:root{--ground:#111111;--lift:#161616;--seam:#2d2d2d;--white:#e7e5df;--mist:#99978f;
+--mist-deep:#6f6d67;--gold:#e2c47c;--gold-bright:#f2d999;--green:#6cc98d;
+--display:'PT Sans Narrow','Helvetica Neue',Verdana,Arial,sans-serif;
+--body:'Inter',Verdana,Arial,sans-serif;}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--ground);color:var(--white);font-family:var(--body);font-size:14px;line-height:1.5;}
+.wrap{max-width:1180px;margin:0 auto;padding:26px 18px 60px;}
+a{color:var(--gold);}a:hover{color:var(--gold-bright);}
+.head{border-bottom:1px solid var(--seam);padding-bottom:18px;margin-bottom:24px;}
+.kicker{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:0 0 6px;}
+h1{font-family:var(--display);font-size:34px;font-weight:700;text-transform:uppercase;margin:0 0 6px;line-height:1.05;}
+.sub{color:var(--mist);font-size:13px;margin:0;}
+.views{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 0;}
+.view{display:inline-block;font-size:13px;line-height:1;font-weight:700;padding:8px 16px;border-radius:8px;
+border:1px solid #6b4d1d;color:var(--gold);text-decoration:none;}
+.view:hover{background:rgba(226,196,124,.1);border-color:#a86e1d;color:var(--gold-bright);}
+.view.on{background:var(--gold);border-color:var(--gold);color:var(--ground);}
+.mod{border:1px solid var(--seam);background:var(--ground);margin:0 0 26px;}
+.mh{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;
+padding:12px 15px;border-bottom:1px solid var(--seam);}
+.mt{font-family:var(--display);font-size:20px;color:var(--gold);}
+.mn{font-size:12px;color:var(--mist);}
+.scroll{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:720px;}
+th{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mist);
+text-align:left;padding:9px 12px;border-bottom:1px solid var(--seam);white-space:nowrap;}
+td{padding:10px 12px;border-bottom:1px solid var(--seam);vertical-align:top;}
+tr:last-child td{border-bottom:0;}
+tbody tr:hover{background:var(--lift);}
+.num,.t{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.pos{font-family:var(--display);font-size:16px;color:var(--white);white-space:nowrap;}
+.tro{color:var(--gold);}
+.name{font-weight:600;}
+.car{color:var(--mist);font-size:12.5px;}
+.b{color:var(--gold);font-weight:600;}
+.m{color:var(--mist-deep);}
+.g{color:var(--green);font-weight:600;}
+.note{background:var(--lift);border:1px solid var(--seam);padding:14px 16px;font-size:12.5px;color:var(--mist);}
+.note b{color:var(--white);}
+.foot{margin-top:26px;font-size:12px;color:var(--mist-deep);}
+@media(max-width:700px){h1{font-size:26px;}.wrap{padding:20px 12px 40px;}}
+</style>"""
+
+RUN = re.compile(r"^([\d.]+)(?:\+(\d+))?$")
+
+
+def counted(run):
+    """Time a run actually scored: printed time plus two seconds a cone. A run
+    marked dnf scores nothing."""
+    run = (run or "").strip()
+    if not run or "dnf" in run:
+        return None
+    m = RUN.match(run)
+    if not m:
+        return None
+    return float(m.group(1)) + 2.0 * int(m.group(2) or 0)
+
+
+def best(runs):
+    vals = [v for v in (counted(r) for r in runs) if v is not None]
+    return min(vals) if vals else None
+
+
+def factor(entry):
+    return FACTOR[entry.get("base") or entry["cls"]]
+
+
+def raw_total(entry):
+    """What the driver actually drove, before any index. For novice that is not
+    the printed total, which is already indexed."""
+    return best(entry["runs"])
+
+
+def pax_time(entry):
+    r = raw_total(entry)
+    return None if r is None else round(r * factor(entry), 3)
+
+
+def run_cells(entry):
+    out, mark = [], best(entry["runs"])
+    for r in entry["runs"]:
+        v = counted(r)
+        if not (r or "").strip():
+            out.append('<td class="t m">&mdash;</td>')
+        elif v is not None and abs(v - mark) < 0.0005:
+            out.append('<td class="t b">%s</td>' % E(r))
+        else:
+            out.append('<td class="t">%s</td>' % E(r))
+    return "".join(out)
+
+
+def shell(title, event, active, body):
+    views = "".join(
+        '<a class="view%s" href="%s">%s</a>' % (" on" if k == active else "", href, label)
+        for k, label, href in (
+            ("class", "Class", event["files"]["class"]),
+            ("pax", "PAX index", event["files"]["pax"]),
+            ("raw", "Raw time", event["files"]["raw"]),
+        )
+    )
+    return f"""<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{E(title)} &mdash; {E(event['name'])}, {E(event['date'])}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=PT+Sans+Narrow:wght@400;700&display=swap" rel="stylesheet">
+{STYLE}</head><body><div class="wrap">
+<div class="head"><p class="kicker">{E(event['org'])} {E(event['event_no'])}</p>
+<h1>{E(event['name'])}</h1>
+<p class="sub">{E(event['date'])} &middot; {event['registered']} registered, {event['with_times']} with times
+&middot; {E(title)}</p>
+<div class="views">{views}</div></div>
+{body}
+<div class="foot">Timing by AXWare Systems. Results generated {E(event['generated'])}.
+Posted by Kansas Region SCCA.</div>
+</div></body></html>
+"""
+
+
+def class_page(event):
+    by_class = {}
+    for e in event["entries"]:
+        by_class.setdefault(e["cls"], []).append(e)
+    out = []
+    for cls in event["class_order"]:
+        rows = sorted(by_class.get(cls, []), key=lambda r: r["pos"])
+        if not rows:
+            continue
+        indexed = cls == "n"
+        out.append('<div class="mod"><div class="mh">'
+                   f'<div class="mt">{E(cls.upper())} &middot; {E(event["class_names"][cls])}</div>'
+                   f'<div class="mn">{len(rows)} entr{"y" if len(rows)==1 else "ies"}'
+                   f'{" &middot; scored on index" if indexed else ""}</div></div>')
+        out.append('<div class="scroll"><table><thead><tr><th>Pos</th><th>Class</th><th>#</th>'
+                   '<th>Driver</th><th>Car</th><th>Color</th>'
+                   '<th class="t">Run 1</th><th class="t">Run 2</th><th class="t">Run 3</th>'
+                   '<th class="t">Run 4</th><th class="t">Total</th><th class="t">Diff</th>'
+                   '</tr></thead><tbody>')
+        for r in rows:
+            pos = '<span class="pos">%d%s</span>' % (r["pos"], '<span class="tro">T</span>' if r["trophy"] else "")
+            total = r["total"]
+            tot = ('<span class="m">%s</span>' % E(total)) if total in ("dns", "dnf") else ('<span class="g">%s</span>' % E(total))
+            out.append(
+                f'<tr><td>{pos}</td><td>{E(r.get("base") or r["cls"])}</td><td class="num">{E(r["num"])}</td>'
+                f'<td class="name">{E(r["name"])}</td><td class="car">{E(r["car"])}</td>'
+                f'<td class="car">{E(r["color"])}</td>{run_cells(r)}'
+                f'<td class="t">{tot}</td><td class="t m">{E(r["diff"])}</td></tr>')
+        out.append("</tbody></table></div></div>")
+
+    tt = ['<div class="mod"><div class="mh"><div class="mt">Top times of day</div></div>'
+          '<div class="scroll"><table><thead><tr><th>Category</th><th class="t">Time</th>'
+          '<th>Class</th><th>#</th><th>Driver</th></tr></thead><tbody>']
+    for label, time, cls, num, name in event["top_times"]:
+        tt.append(f'<tr><td class="name">{E(label)}</td><td class="t g">{E(time)}</td>'
+                  f'<td>{E(cls)}</td><td class="num">{E(num)}</td><td>{E(name)}</td></tr>')
+    tt.append("</tbody></table></div></div>")
+
+    note = ('<div class="note"><p><b>How to read this.</b> A bold run is the one that counted. '
+            'A number after a run is cones, two seconds each, already included in the total. '
+            '<b>dnf</b> is a run that did not finish and scores nothing. <b>T</b> marks a trophy '
+            'position. Novice is scored on index, so its totals are PAX times rather than raw.</p></div>')
+    return shell("Class results", event, "class", "".join(out) + "".join(tt) + note)
+
+
+def ranked_page(event, kind):
+    # A driver can have run times and still not be scored: Grant Tabler took
+    # four runs here and the timing system recorded him dns. The printed
+    # total decides, not the presence of times.
+    scored = [e for e in event["entries"]
+              if e["total"] not in ("dns", "dnf") and raw_total(e) is not None]
+    if kind == "pax":
+        scored.sort(key=pax_time)
+        title, head = "PAX index results", "Pax time"
+    else:
+        scored.sort(key=raw_total)
+        title, head = "Raw time results", "Raw time"
+    leader = pax_time(scored[0]) if kind == "pax" else raw_total(scored[0])
+    out = ['<div class="mod"><div class="mh">'
+           f'<div class="mt">{E(title)}</div>'
+           f'<div class="mn">{len(scored)} timed entries</div></div>'
+           '<div class="scroll"><table><thead><tr><th>Pos</th><th>Class</th><th>#</th><th>Driver</th>'
+           '<th>Car</th><th class="t">Total</th>']
+    if kind == "pax":
+        out.append('<th class="t">Factor</th>')
+    out.append(f'<th class="t">{E(head)}</th><th class="t">Diff</th><th class="t">From 1st</th>'
+               '</tr></thead><tbody>')
+    prev = None
+    for i, e in enumerate(scored, 1):
+        value = pax_time(e) if kind == "pax" else raw_total(e)
+        diff = "" if prev is None else "%.3f" % (value - prev)
+        out.append(f'<tr><td><span class="pos">{i}</span></td>'
+                   f'<td>{E(("n" if e["cls"] == "n" else "") + (e.get("base") or e["cls"]))}</td>'
+                   f'<td class="num">{E(e["num"])}</td><td class="name">{E(e["name"])}</td>'
+                   f'<td class="car">{E(e["car"])}</td>'
+                   f'<td class="t">{"%.3f" % raw_total(e)}</td>')
+        if kind == "pax":
+            out.append(f'<td class="t m">{factor(e):.3f}</td>')
+        out.append(f'<td class="t g">{"%.3f" % value}</td>'
+                   f'<td class="t m">{E(diff)}</td>'
+                   f'<td class="t m">{"%.3f" % (value - leader)}</td></tr>')
+        prev = value
+    out.append("</tbody></table></div></div>")
+    note = ('<div class="note"><p><b>Totals are raw</b>, the driver\'s best counted run with cone '
+            'penalties included. ')
+    if kind == "pax":
+        note += ('The PAX time is that total multiplied by the class index, which is how cars in '
+                 'different classes are compared. Novice entries carry their own class index.')
+    else:
+        note += 'Raw time ignores class entirely: it is the stopwatch, nothing else.'
+    note += "</p></div>"
+    return shell(title, event, kind, "".join(out) + note)
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__,
+                                formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("event", type=Path)
+    p.add_argument("--out", type=Path, default=Path("results/build"))
+    a = p.parse_args()
+    event = json.loads(a.event.read_text())
+    slug = a.event.stem
+    event["files"] = {k: f"{slug}-{k}.htm" for k in ("class", "pax", "raw")}
+    a.out.mkdir(parents=True, exist_ok=True)
+    for kind, body in (("class", class_page(event)),
+                       ("pax", ranked_page(event, "pax")),
+                       ("raw", ranked_page(event, "raw"))):
+        path = a.out / event["files"][kind]
+        path.write_text(body)
+        print("wrote %s (%d bytes)" % (path, len(body)))
+
+
+if __name__ == "__main__":
+    main()
