@@ -59,7 +59,7 @@ if ( ! function_exists( 'ksscca_tokens' ) ) {
 			. '--ks-seam-quiet:#4a4a4a;'
 			. '--ks-mist-deep:#6f6d67;'
 			// type
-			. "--ks-font-display:'PT Sans Narrow',Verdana,Arial,sans-serif;"
+			. "--ks-font-display:'PT Sans Narrow','Helvetica Neue',Verdana,Arial,sans-serif;"
 			. "--ks-font-body:'Inter',Verdana,Arial,sans-serif;"
 			. '--ks-label-size:12px;'
 			. '--ks-label-tracking:.08em;'
