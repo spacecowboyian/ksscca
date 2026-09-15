@@ -40,7 +40,7 @@ STYLE = r"""<style>
 --mist-deep:#6f6d67;--gold:#e2c47c;--gold-bright:#f2d999;--green:#6cc98d;
 --display:'PT Sans Narrow','Helvetica Neue',Verdana,Arial,sans-serif;
 --body:'Inter',Verdana,Arial,sans-serif;
---c-class:52px minmax(0,1fr) repeat(4,82px) 78px 88px;
+--c-class:48px minmax(0,1fr) 92px 84px;
 --c-rank:52px minmax(0,1fr) 62px 80px 76px 84px;}
 *{box-sizing:border-box;}
 body{margin:0;background:var(--ground);color:var(--white);font-family:var(--body);font-size:14px;line-height:1.5;}
@@ -56,6 +56,15 @@ border:1px solid #6b4d1d;color:var(--gold);text-decoration:none;}
 .view:hover{background:rgba(226,196,124,.1);border-color:#a86e1d;color:var(--gold-bright);}
 .view.on{background:var(--gold);border-color:var(--gold);color:var(--ground);}
 .pane-h{font-family:var(--display);font-size:22px;text-transform:uppercase;color:var(--gold);margin:26px 0 14px;}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:1px;
+background:var(--seam);border:1px solid var(--seam);margin:0 0 24px;}
+.tile{background:var(--lift);padding:10px 14px;}
+.tk{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mist);}
+.tv{margin-top:3px;display:flex;align-items:baseline;flex-wrap:wrap;gap:0 8px;font-weight:700;}
+.tn{font-size:15px;color:var(--white);}
+.tf{font-size:15px;color:var(--gold);font-variant-numeric:tabular-nums;}
+.ts{font-size:12px;color:var(--mist-deep);line-height:1.3;margin-top:1px;}
+@media(max-width:620px){.tiles{margin-left:-14px;margin-right:-14px;border-left:0;border-right:0;}}
 .filter{display:none;align-items:center;gap:9px;margin:0 0 18px;}
 html.js .filter{display:flex;}
 .filter label{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mist);}
@@ -71,7 +80,7 @@ padding:12px 15px;border-bottom:1px solid var(--seam);}
 .mn{font-size:12px;color:var(--mist);}
 /* one grid, two shapes: columns on a desktop, two lines on a phone */
 .hdr,.row>summary,.row.flat{display:grid;gap:10px;align-items:center;}
-.rc{font-variant-numeric:tabular-nums;}
+.rc{font-variant-numeric:tabular-nums;display:none;}
 .class .hdr,.class .row>summary{grid-template-columns:var(--c-class);}
 .rank .hdr,.rank .row.flat,.rank .row>summary{grid-template-columns:var(--c-rank);}
 .hdr{padding:8px 15px;border-bottom:1px solid var(--seam);font-size:10.5px;font-weight:700;
@@ -111,14 +120,8 @@ display:block;}
 .note{background:var(--lift);border:1px solid var(--seam);padding:14px 16px;font-size:12.5px;color:var(--mist);}
 .note b{color:var(--white);}
 .foot{margin-top:26px;font-size:12px;color:var(--mist-deep);}
-/* the runs need about 330px of their own. Below that they come off the row
-   and the expansion carries them, which is what it was there for. */
-@media(max-width:900px){:root{--c-class:48px minmax(0,1fr) 92px 84px;}
-.class .rc{display:none;}}
 @media(max-width:700px){:root{--c-class:44px minmax(0,1fr) 86px 74px;
 --c-rank:44px minmax(0,1fr) 54px 72px 66px 76px;}}
-/* and above it the expansion stops repeating what the row already shows */
-@media(min-width:901px){.class .runs{display:none;}}
 @media(max-width:620px){
 h1{font-size:26px;}
 .wrap{padding:18px 14px 40px;}
@@ -148,17 +151,16 @@ grid-template-areas:none;gap:7px;align-items:center;}
    line beat forty rows of two. */
 .class .row>summary{grid-template-columns:30px minmax(0,1fr) 54px 70px;
 grid-template-areas:none;gap:7px;align-items:start;}
-.class .row>summary>*:nth-child(1),.class .row>summary>*:nth-child(7),
-.class .row>summary>*:nth-child(8){padding-top:1px;}
+.class .c-pos,.class .c-diff,.class .c-best{padding-top:1px;}
 .class .who .car{display:block;font-size:11.5px;margin-top:1px;}
 .class .nm{font-size:13.5px;}
 /* the two-line rules name grid areas and match at the same specificity as a
    plain reset would, so this has to out-specify them: with no areas to match,
    those names leave every cell stacked in one column */
 .class .row>summary>*:nth-child(n){grid-area:auto;}
-.class .row>summary>*:nth-child(7),.class .row>summary>*:nth-child(8){text-align:right;}
-.class .row>summary>*:nth-child(7):before,.class .row>summary>*:nth-child(8):before{content:none;}
-.class .row>summary>*:nth-child(7){font-size:12.5px;}
+.class .c-diff,.class .c-best{text-align:right;}
+.class .c-diff:before,.class .c-best:before{content:none;}
+.class .c-diff{font-size:12.5px;}
 .class .nm{white-space:nowrap;}
 .row>summary>*:nth-child(1),.row.flat>*:nth-child(1){grid-area:pos;}
 .row>summary>*:nth-child(2),.row.flat>*:nth-child(2){grid-area:who;}
@@ -181,38 +183,79 @@ font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--mist-d
 }
 </style>"""
 
-RUN = re.compile(r"^([\d.]+)(?:\+(\d+))?$")
+RUN = re.compile(r"^([\d.]+)(?:\+(?:(\d+)?(?:/(\d+))?|dnf))?$")
 
 
-def counted(run):
-    """Time a run actually scored: printed time plus two seconds a cone. A run
-    marked dnf scores nothing."""
+def parse_run(run, pen):
+    """One run, as the timing system printed it.
+
+    "53.067+1" is a run with a cone; "45.372+0/1" adds a missed gate;
+    "87.714+dnf" did not finish. Penalty seconds come from the event, because
+    a cone is worth two seconds in autocross and a gate ten in RallyCross.
+    """
     run = (run or "").strip()
-    if not run or "dnf" in run:
+    if not run:
         return None
+    dnf = "dnf" in run
     m = RUN.match(run)
     if not m:
         return None
-    return float(m.group(1)) + 2.0 * int(m.group(2) or 0)
+    time = float(m.group(1))
+    cones = int(m.group(2) or 0)
+    gates = int(m.group(3) or 0)
+    seconds = cones * pen["cone_seconds"] + gates * pen["gate_seconds"]
+    if dnf:
+        # the event's own adjustment, once. dnf_cones describes that adjustment
+        # in cones for the paperwork; charging both double counts it.
+        seconds += pen.get("dnf_seconds", 0)
+    return {"raw": run, "time": time, "cones": cones, "gates": gates,
+            "dnf": dnf, "total": time + seconds, "penalty": seconds}
 
 
-def best(runs):
-    vals = [v for v in (counted(r) for r in runs) if v is not None]
+def counted(run, pen=None):
+    """What a run scored. A dnf scores nothing under best-run scoring."""
+    pen = pen or DEFAULT_PENALTIES
+    r = parse_run(run, pen)
+    if r is None or r["dnf"]:
+        return None
+    return r["total"]
+
+
+DEFAULT_PENALTIES = {"cone_seconds": 2.0, "gate_seconds": 10.0,
+                     "dnf_cones": 0, "dnf_seconds": 0}
+
+
+def best(runs, pen=None):
+    vals = [v for v in (counted(r, pen) for r in runs) if v is not None]
     return min(vals) if vals else None
+
+
+def summed(runs, pen):
+    """RallyCross adds every run up, penalties included, and a run that did
+    not finish still counts: it carries its own adjustment instead."""
+    parsed = [parse_run(r, pen) for r in runs]
+    parsed = [r for r in parsed if r is not None]
+    return sum(r["total"] for r in parsed) if parsed else None
 
 
 def factor(entry):
     return FACTOR[entry.get("base") or entry["cls"]]
 
 
-def raw_total(entry):
-    """What the driver actually drove, before any index. For novice that is not
-    the printed total, which is already indexed."""
-    return best(entry["runs"])
+def raw_total(entry, event=None):
+    """What the driver actually drove, before any index.
+
+    Autocross scores the best single run; RallyCross adds every run up. For an
+    autocross novice this is not the printed total, which is already indexed.
+    """
+    pen = (event or {}).get("penalties", DEFAULT_PENALTIES)
+    if (event or {}).get("scoring") == "sum":
+        return summed(entry["runs"], pen)
+    return best(entry["runs"], pen)
 
 
-def pax_time(entry):
-    r = raw_total(entry)
+def pax_time(entry, event=None):
+    r = raw_total(entry, event)
     return None if r is None else round(r * factor(entry), 3)
 
 
@@ -237,9 +280,9 @@ def cap_name(name):
     return " ".join(out)
 
 
-def run_cells(entry):
-    """The four runs as row cells, for screens wide enough to carry them."""
-    mark = best(entry["runs"])
+def run_cells(entry, event):
+    """The runs as row cells, for screens wide enough to carry them."""
+    mark = None if event.get("scoring") == "sum" else best(entry["runs"], event.get("penalties"))
     out = []
     for r in entry["runs"]:
         v = counted(r)
@@ -252,9 +295,10 @@ def run_cells(entry):
     return "".join(out)
 
 
-def run_boxes(entry):
-    """The four runs, as labelled boxes. The one that counted is marked."""
-    mark = best(entry["runs"])
+def run_boxes(entry, event):
+    """The runs, as labelled boxes. Under best-run scoring the one that counted
+    is marked; under sum scoring they all count, so none is."""
+    mark = None if event.get("scoring") == "sum" else best(entry["runs"], event.get("penalties"))
     out = []
     for i, r in enumerate(entry["runs"], 1):
         v = counted(r)
@@ -271,7 +315,7 @@ def info_list(pairs):
         f"<div><b>{E(k)}</b>{E(v) if v else '&mdash;'}</div>" for k, v in pairs)
 
 
-VIEWS = (("class", "Class"), ("pax", "PAX index"), ("raw", "Raw time"))
+ALL_VIEWS = (("class", "Class"), ("pax", "PAX index"), ("raw", "Raw time"))
 
 TABS = """<script>
 (function(){var r=document.documentElement;r.className+=' js';
@@ -279,7 +323,7 @@ function show(k){var ok=false;VIEWS.forEach(function(v){var s=document.getElemen
 var b=document.getElementById('tab-'+v);if(!s||!b){return;}var on=v===k;s.hidden=!on;
 b.className='view'+(on?' on':'');b.setAttribute('aria-selected',on?'true':'false');if(on){ok=true;}});
 return ok;}
-var VIEWS=['class','pax','raw'];
+var VIEWS=[].map.call(document.querySelectorAll('.view'),function(a){return a.id.slice(4);});
 function fromHash(){var k=(location.hash||'').replace('#','');return VIEWS.indexOf(k)>-1?k:'class';}
 VIEWS.forEach(function(v){var b=document.getElementById('tab-'+v);if(b){b.addEventListener('click',
 function(e){e.preventDefault();location.hash=v;show(v);});}});
@@ -294,14 +338,16 @@ m.hidden=!(v==='all'||c===v);});});}
 
 
 def shell(title, event, sections):
+    wanted = event.get("views") or [k for k, _ in ALL_VIEWS]
+    views_list = [(k, label) for k, label in ALL_VIEWS if k in wanted]
     views = "".join(
         '<a class="view%s" id="tab-%s" href="#%s" role="tab" aria-selected="%s">%s</a>'
         % (" on" if k == "class" else "", k, k, "true" if k == "class" else "false", label)
-        for k, label in VIEWS
+        for k, label in views_list
     )
     body = "".join(
         f'<section id="view-{k}" class="view-pane"><h2 class="pane-h">{E(label)} results</h2>{sections[k]}</section>'
-        for k, label in VIEWS
+        for k, label in views_list
     )
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
@@ -309,16 +355,168 @@ def shell(title, event, sections):
 <title>{E(title)} &mdash; {E(event['name'])}, {E(event['date'])}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=PT+Sans+Narrow:wght@400;700&display=swap" rel="stylesheet">
-{STYLE}</head><body><div class="wrap">
+{STYLE}
+<style>{runs_css(event)}</style></head><body><div class="wrap">
 <div class="head"><p class="kicker">{E(event['org'])} {E(event['event_no'])}</p>
 <h1>{E(event['name'])}</h1>
 <p class="sub">{E(event['date'])} &middot; {event['registered']} registered, {event['with_times']} with times</p>
 <div class="views" role="tablist">{views}</div></div>
+{tiles(event)}
 {body}
 <div class="foot">Timing by AXWare Systems. Results generated {E(event['generated'])}.
 Posted by Kansas Region SCCA.</div>
 </div>{TABS}</body></html>
 """
+
+
+def runs_css(event):
+    """Show the runs on the row only where they actually fit.
+
+    A day can be three runs or fifteen, so the width at which they earn their
+    place moves with the count rather than sitting at one breakpoint. Below it
+    the runs stay in the expansion, which is where they always were.
+    """
+    n = run_count(event)
+    # size the column to the widest run this event actually printed rather than
+    # to a guess: "53.067+1" needs 67px at 14px, and a clipped run time is
+    # worse than no run time.
+    lens = sorted(len(r) for e in event["entries"] for r in e["runs"] if r)
+    # the ninetieth percentile, not the longest: one "45.372+0/1" should not
+    # set the width of every column for the day. The columns can grow into
+    # spare space, so a rare long one still fits.
+    p90 = lens[int(len(lens) * 0.9)] if lens else 6
+    size = 13 if n > 6 else 14
+    w = max(52, int(p90 * size * 0.62) + 10)
+    need = 46 + 210 + (n * (w + 10)) + 72 + 86 + 60   # pos, name, runs, diff, best, chrome
+    return ("@media(min-width:%dpx){"
+            ":root{--c-class:46px minmax(0,1fr) repeat(%d,minmax(%dpx,max-content)) 72px 86px;}"
+            ".class .rc{display:block;font-size:%dpx;}"
+            ".class .runs{display:none;}"
+            "}" % (need, n, w, size))
+
+
+def run_count(event):
+    return max(len(e["runs"]) for e in event["entries"])
+
+
+def score_label(event):
+    """A sum of nine runs is a total; a single counted run is a best."""
+    return "Total" if event.get("scoring") == "sum" else "Best"
+
+
+def tiles(event):
+    """The half dozen things worth noticing that a results table does not say.
+
+    Ported from the RallyCross prototype so both disciplines read the same.
+    What counts as clean differs: RallyCross has gates and did-not-finish
+    adjustments to avoid as well, autocross only has cones.
+    """
+    pen = event.get("penalties", DEFAULT_PENALTIES)
+    summing = event.get("scoring") == "sum"
+    names = event["class_names"]
+    ents = [e for e in event["entries"] if e["total"] not in ("dns", "dnf")
+            and raw_total(e, event) is not None]
+    if not ents:
+        return ""
+
+    def runs_of(e):
+        return [r for r in (parse_run(x, pen) for x in e["runs"]) if r]
+
+    def total_of(e):
+        return raw_total(e, event)
+
+    out = []
+    def add(k, name, fig, sub_):
+        out.append((k, name, fig, sub_))
+
+    # most improved: the first timed run against the driver's best
+    imp = None
+    for e in ents:
+        rs = [r for r in runs_of(e) if not r["dnf"]]
+        if len(rs) < 2:
+            continue
+        gain = rs[0]["total"] - min(r["total"] for r in rs)
+        if gain > 0 and (imp is None or gain > imp[0]):
+            imp = (gain, e, rs[0]["total"], min(r["total"] for r in rs))
+    if imp:
+        add("Most improved", cap_name(imp[1]["name"]), "\u2212%.3f" % imp[0],
+            "%.3f to %.3f" % (imp[2], imp[3]))
+
+    # the class that came down to the least
+    close = None
+    by_class = {}
+    for e in ents:
+        by_class.setdefault(e["cls"], []).append(e)
+    for cls, rows in by_class.items():
+        rows = sorted(rows, key=lambda r: r["pos"])
+        if len(rows) < 2:
+            continue
+        margin = float(rows[1]["total"]) - float(rows[0]["total"])
+        if close is None or margin < close[0]:
+            close = (margin, cls, rows[0], rows[1])
+    if close:
+        add("Closest class", cap_name(close[2]["name"]), "%.3f" % close[0],
+            "%s \u00b7 over %s" % (names.get(close[1], close[1].upper()),
+                                   cap_name(close[3]["name"])))
+
+    # the quickest driver who kept it clean all day
+    def clean(e):
+        rs = runs_of(e)
+        if not rs:
+            return False
+        if summing:
+            return all(r["penalty"] == 0 and not r["dnf"] for r in rs)
+        return all(r["cones"] == 0 for r in rs)
+    spotless = [e for e in ents if clean(e)]
+    if spotless:
+        b = min(spotless, key=total_of)
+        rs = runs_of(b)
+        add("Fastest clean all day", cap_name(b["name"]), "%.3f" % total_of(b),
+            "%s \u00b7 %s" % (names.get(b["cls"], b["cls"].upper()),
+                              "no penalties in %d runs" % len(rs) if summing
+                              else "not a cone all day"))
+
+    # cones, and the seconds they cost
+    cones = sum(r["cones"] for e in ents for r in runs_of(e))
+    gates = sum(r["gates"] for e in ents for r in runs_of(e))
+    dnfs = sum(1 for e in ents for r in runs_of(e) if r["dnf"])
+    secs = sum(r["penalty"] for e in ents for r in runs_of(e))
+    if cones or gates or dnfs:
+        bits = []
+        if cones:
+            bits.append("%d cone%s" % (cones, "" if cones == 1 else "s"))
+        if gates:
+            bits.append("%d gate%s" % (gates, "" if gates == 1 else "s"))
+        if dnfs:
+            bits.append("%d DNF" % dnfs)
+        add("Penalties", None, "+%.3f" % secs, " \u00b7 ".join(bits))
+
+    worst = max((sum(r["cones"] for r in runs_of(e)) for e in ents), default=0)
+    if worst:
+        tied = [e for e in ents if sum(r["cones"] for r in runs_of(e)) == worst]
+        who = min(tied, key=total_of)
+        add("Most cones", cap_name(who["name"]), "%d" % worst,
+            names.get(who["cls"], who["cls"].upper())
+            + (" \u00b7 fastest of %d tied" % len(tied) if len(tied) > 1 else ""))
+
+    # the single quickest run anyone put in, which sum scoring hides
+    if summing:
+        quick = None
+        for e in ents:
+            for r in runs_of(e):
+                if not r["dnf"] and (quick is None or r["total"] < quick[0]):
+                    quick = (r["total"], e)
+        if quick:
+            add("Quickest single run", cap_name(quick[1]["name"]), "%.3f" % quick[0],
+                names.get(quick[1]["cls"], quick[1]["cls"].upper()))
+
+    cells = []
+    for k, name, fig, sub_ in out:
+        who = f'<span class="tn">{E(name)}</span>' if name else ""
+        cells.append(f'<div class="tile"><div class="tk">{E(k)}</div>'
+                     f'<div class="tv">{who}<span class="tf">{fig}</span></div>'
+                     f'<div class="ts">{E(sub_)}</div></div>')
+    return '<div class="tiles">%s</div>' % "".join(cells)
 
 
 def class_page(event):
@@ -340,17 +538,21 @@ def class_page(event):
         rows = sorted(by_class.get(cls, []), key=lambda r: r["pos"])
         if not rows:
             continue
-        indexed = cls == "n"
+        # autocross scores its novice class on index; a RallyCross novice is
+        # simply a novice, and their total is a sum like everyone else's
+        indexed = cls == "n" and event.get("scoring") != "sum"
         out.append(f'<div class="mod class" data-cls="{E(cls)}"><div class="mh">'
                    f'<div class="mt">{E(cls.upper())} &middot; {E(event["class_names"][cls])}</div>'
                    f'<div class="mn">{len(rows)} entr{"y" if len(rows)==1 else "ies"}'
                    f'{" &middot; scored on index" if indexed else ""}</div></div>')
-        out.append('<div class="hdr"><span>Pos</span><span>Driver</span>'
-                   '<span class="t rc">Run 1</span><span class="t rc">Run 2</span>'
-                   '<span class="t rc">Run 3</span><span class="t rc">Run 4</span>'
-                   '<span class="t">Diff</span><span class="t">Best</span></div>')
+        runs_head = "".join(f'<span class="t rc">Run {i}</span>'
+                            for i in range(1, run_count(event) + 1))
+        out.append('<div class="hdr"><span class="c-pos">Pos</span>'
+                   f'<span class="c-who">Driver</span>{runs_head}'
+                   f'<span class="t c-diff">Diff</span>'
+                   f'<span class="t c-best">{E(score_label(event))}</span></div>')
         for r in rows:
-            pos = ('<span class="pos">%d%s</span>'
+            pos = ('<span class="pos c-pos">%d%s</span>'
                    % (r["pos"], '<span class="tro">T</span>' if r["trophy"] else ""))
             total = r["total"]
             bestc = (f'<span class="m">{E(total)}</span>' if total in ("dns", "dnf")
@@ -359,9 +561,9 @@ def class_page(event):
             # prints their lead over second here, in a column that otherwise
             # says how far back you are.
             diff = "-" if r["pos"] == 1 else r["diff"]
-            who = (f'<span class="who"><span class="nm">{E(cap_name(r["name"]))}</span>'
+            who = (f'<span class="who c-who"><span class="nm">{E(cap_name(r["name"]))}</span>'
                    f'<span class="car">{E(r["car"])}</span></span>')
-            body = run_boxes(r) + info_list([
+            body = run_boxes(r, event) + info_list([
                 ("Driver", cap_name(r["name"])),
                 ("Class", (r.get("base") or r["cls"]).upper()),
                 ("Car number", r["num"]),
@@ -370,8 +572,9 @@ def class_page(event):
             ])
             # Best sits on the right in every view, so the time is always in
             # the same place whichever tab you are on.
-            out.append(f'<details class="row"><summary>{pos}{who}{run_cells(r)}'
-                       f'<span class="t m">{E(diff)}</span><span class="t">{bestc}</span>'
+            out.append(f'<details class="row"><summary>{pos}{who}{run_cells(r, event)}'
+                       f'<span class="t m c-diff">{E(diff)}</span>'
+                       f'<span class="t c-best">{bestc}</span>'
                        f'</summary><div class="body">{body}</div></details>')
         out.append("</div>")
 
@@ -384,11 +587,23 @@ def class_page(event):
                   f'<span class="t g">{E(time)}</span></div>')
     tt.append("</div>")
 
-    note = ('<div class="note"><p><b>How to read this.</b> Tap a driver for their four runs. '
-            'A number after a run is cones, two seconds each, already included in the best. '
-            '<b>dnf</b> is a run that did not finish and scores nothing. <b>T</b> marks a trophy '
-            'position. Novice is scored on index, so its figures are PAX times rather than raw.'
-            '</p></div>')
+    pen = event.get("penalties", DEFAULT_PENALTIES)
+    if event.get("scoring") == "sum":
+        note = ('<div class="note"><p><b>How to read this.</b> Tap a driver for their runs. '
+                'Every run counts: the total is all of them added up, penalties included. '
+                'A number after a run is cones at %g seconds each, and a second number after a '
+                'slash is missed gates at %g. <b>dnf</b> is a run that did not finish and carries '
+                'a %g second adjustment rather than being thrown away. <b>T</b> marks a trophy '
+                'position.</p>%s</div>'
+                % (pen["cone_seconds"], pen["gate_seconds"], pen.get("dnf_seconds", 0),
+                   ("<p>%s</p>" % E(event["note"])) if event.get("note") else ""))
+    else:
+        note = ('<div class="note"><p><b>How to read this.</b> Tap a driver for their runs. '
+                'Only the best one counts. A number after a run is cones, %g seconds each, '
+                'already included in the best. <b>dnf</b> is a run that did not finish and '
+                'scores nothing. <b>T</b> marks a trophy position. Novice is scored on index, '
+                'so its figures are PAX times rather than raw.</p></div>'
+                % pen["cone_seconds"])
     return "".join(out) + "".join(tt) + note
 
 
@@ -397,16 +612,16 @@ def ranked_page(event, kind):
     # four runs here and the timing system recorded him dns. The printed
     # total decides, not the presence of times.
     scored = [e for e in event["entries"]
-              if e["total"] not in ("dns", "dnf") and raw_total(e) is not None]
+              if e["total"] not in ("dns", "dnf") and raw_total(e, event) is not None]
     if kind == "pax":
-        scored.sort(key=pax_time)
+        scored.sort(key=lambda e: pax_time(e, event))
         title = "PAX index results"
         cols = ["Pos", "Driver", "Class", "Best", "Index", "Pax time"]
     else:
         scored.sort(key=raw_total)
         title = "Raw time results"
         cols = ["Pos", "Driver", "Class", "Diff", "From 1st", "Best"]
-    leader = pax_time(scored[0]) if kind == "pax" else raw_total(scored[0])
+    leader = pax_time(scored[0], event) if kind == "pax" else raw_total(scored[0], event)
 
     out = [f'<div class="mod rank {kind}"><div class="mh"><div class="mt">{E(title)}</div>'
            f'<div class="mn">{len(scored)} timed entries</div></div>']
@@ -414,13 +629,13 @@ def ranked_page(event, kind):
         f'<span{" class=\"t\"" if i > 2 else ""}>{E(c)}</span>' for i, c in enumerate(cols)))
     prev = None
     for i, e in enumerate(scored, 1):
-        value = pax_time(e) if kind == "pax" else raw_total(e)
+        value = pax_time(e, event) if kind == "pax" else raw_total(e, event)
         cls = ("n" if e["cls"] == "n" else "") + (e.get("base") or e["cls"])
         who = (f'<span class="who"><span class="nm">{E(cap_name(e["name"]))}</span>'
                f'<span class="car">{E(e["car"])} &middot; #{E(e["num"])}</span></span>')
         gap = ""
         best_cell = ('<span class="t%s">%s</span>'
-                     % ("" if kind == "pax" else " g", "%.3f" % raw_total(e)))
+                     % ("" if kind == "pax" else " g", "%.3f" % raw_total(e, event)))
         if kind == "pax":
             rest = (best_cell
                     + f'<span class="t m">{factor(e):.3f}</span>'
@@ -434,7 +649,7 @@ def ranked_page(event, kind):
         # driver, the number they are ranked on. The workings are a tap away.
         common = [("Driver", cap_name(e["name"])), ("Class", cls.upper()), ("Car number", e["num"])]
         if kind == "pax":
-            extra = [("Best", "%.3f" % raw_total(e)), ("Index", "%.3f" % factor(e))]
+            extra = [("Best", "%.3f" % raw_total(e, event)), ("Index", "%.3f" % factor(e))]
         else:
             extra = [("Gap to the car ahead", gap or "-"),
                      ("From 1st", "%.3f" % (value - leader))]
@@ -464,9 +679,13 @@ def main():
     a = p.parse_args()
     event = json.loads(a.event.read_text())
     a.out.mkdir(parents=True, exist_ok=True)
-    sections = {"class": class_page(event),
-                "pax": ranked_page(event, "pax"),
-                "raw": ranked_page(event, "raw")}
+    wanted = event.get("views") or ["class", "pax", "raw"]
+    sections = {}
+    if "class" in wanted:
+        sections["class"] = class_page(event)
+    for kind in ("pax", "raw"):
+        if kind in wanted:
+            sections[kind] = ranked_page(event, kind)
     path = a.out / (a.event.stem + ".htm")
     path.write_text(shell("Results", event, sections))
     print("wrote %s (%d bytes)" % (path, len(path.read_text())))
