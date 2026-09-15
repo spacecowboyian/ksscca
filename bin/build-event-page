@@ -114,24 +114,39 @@ h1{font-size:26px;}
 .hdr{display:none;}
 /* these have to out-specify .class .row>summary and .rank .row.flat above,
    or the desktop track sizes win inside the media query and cells collapse */
-.class .row>summary,.rank .row.flat{grid-template-columns:repeat(4,1fr);
+.rank .row.flat{grid-template-columns:repeat(4,1fr);
 grid-template-areas:"pos who who who" "a b c d";gap:8px 10px;align-items:end;}
+/* A class row is four short facts, and three of them fit beside the name.
+   Position, driver and the time that counted stay on one line; the gap and
+   the car move into the expansion, which is a tap away. Forty rows of one
+   line beat forty rows of two. */
+.class .row>summary{grid-template-columns:40px minmax(0,1fr) 78px;
+grid-template-areas:none;gap:10px;align-items:center;}
+/* the two-line rules name grid areas and match at the same specificity as a
+   plain reset would, so this has to out-specify them: with no areas to match,
+   those names leave every cell stacked in one column */
+.class .row>summary>*:nth-child(n){grid-area:auto;}
+.class .row>summary>*:nth-child(3){display:none;}
+.class .row>summary>*:nth-child(4){text-align:right;}
+.class .row>summary>*:nth-child(4):before{content:none;}
+.class .who .car{display:none;}
+.class .nm{white-space:nowrap;}
 .row>summary>*:nth-child(1),.row.flat>*:nth-child(1){grid-area:pos;}
 .row>summary>*:nth-child(2),.row.flat>*:nth-child(2){grid-area:who;}
 .row>summary>*:nth-child(3),.row.flat>*:nth-child(3){grid-area:a;text-align:left;}
 .row>summary>*:nth-child(4),.row.flat>*:nth-child(4){grid-area:b;text-align:left;}
 .row.flat>*:nth-child(5){grid-area:c;text-align:left;}
 .row.flat>*:nth-child(6){grid-area:d;text-align:right;}
+.class .row>summary>*:nth-child(4){text-align:right;}
 .row>summary>*:nth-child(n+3):before,.row.flat>*:nth-child(n+3):before{display:block;font-size:9.5px;
 font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--mist-deep);margin-bottom:2px;}
-.class .row>summary>*:nth-child(3):before{content:'Best';}
-.class .row>summary>*:nth-child(4):before{content:'Diff';}
 .rank .row.flat>*:nth-child(3):before{content:'Class';}
-.rank .row.flat>*:nth-child(4):before{content:'Best';}
+.rank.pax .row.flat>*:nth-child(4):before{content:'Best';}
 .rank.pax .row.flat>*:nth-child(5):before{content:'Index';}
 .rank.pax .row.flat>*:nth-child(6):before{content:'Pax';}
-.rank.raw .row.flat>*:nth-child(5):before{content:'Diff';}
-.rank.raw .row.flat>*:nth-child(6):before{content:'From 1st';}
+.rank.raw .row.flat>*:nth-child(4):before{content:'Diff';}
+.rank.raw .row.flat>*:nth-child(5):before{content:'From 1st';}
+.rank.raw .row.flat>*:nth-child(6):before{content:'Best';}
 .runs{grid-template-columns:repeat(2,1fr);}
 .nm{white-space:normal;}
 }
@@ -250,7 +265,7 @@ def class_page(event):
                    f'<div class="mn">{len(rows)} entr{"y" if len(rows)==1 else "ies"}'
                    f'{" &middot; scored on index" if indexed else ""}</div></div>')
         out.append('<div class="hdr"><span>Pos</span><span>Driver</span>'
-                   '<span class="t">Best</span><span class="t">Diff</span></div>')
+                   '<span class="t">Diff</span><span class="t">Best</span></div>')
         for r in rows:
             pos = ('<span class="pos">%d%s</span>'
                    % (r["pos"], '<span class="tro">T</span>' if r["trophy"] else ""))
@@ -266,11 +281,14 @@ def class_page(event):
             body = run_boxes(r) + info_list([
                 ("Class", (r.get("base") or r["cls"]).upper()),
                 ("Car number", r["num"]),
+                ("Diff", diff),
                 ("Colour", r["color"]),
                 ("Car", r["car"]),
             ])
+            # Best sits on the right in every view, so the time is always in
+            # the same place whichever tab you are on.
             out.append(f'<details class="row"><summary>{pos}{who}'
-                       f'<span class="t">{bestc}</span><span class="t m">{E(diff)}</span>'
+                       f'<span class="t m">{E(diff)}</span><span class="t">{bestc}</span>'
                        f'</summary><div class="body">{body}</div></details>')
         out.append("</div>")
 
@@ -303,7 +321,7 @@ def ranked_page(event, kind):
     else:
         scored.sort(key=raw_total)
         title = "Raw time results"
-        cols = ["Pos", "Driver", "Class", "Best", "Diff", "From 1st"]
+        cols = ["Pos", "Driver", "Class", "Diff", "From 1st", "Best"]
     leader = pax_time(scored[0]) if kind == "pax" else raw_total(scored[0])
 
     out = [f'<div class="mod rank {kind}"><div class="mh"><div class="mt">{E(title)}</div>'
@@ -316,17 +334,19 @@ def ranked_page(event, kind):
         cls = ("n" if e["cls"] == "n" else "") + (e.get("base") or e["cls"])
         who = (f'<span class="who"><span class="nm">{E(e["name"])}</span>'
                f'<span class="car">{E(e["car"])} &middot; #{E(e["num"])}</span></span>')
+        best_cell = ('<span class="t%s">%s</span>'
+                     % ("" if kind == "pax" else " g", "%.3f" % raw_total(e)))
         if kind == "pax":
-            five = f'<span class="t m">{factor(e):.3f}</span>'
-            six = f'<span class="t g">{"%.3f" % value}</span>'
+            rest = (best_cell
+                    + f'<span class="t m">{factor(e):.3f}</span>'
+                    + f'<span class="t g">{"%.3f" % value}</span>')
         else:
             gap = "" if prev is None else "%.3f" % (value - prev)
-            five = f'<span class="t m">{E(gap)}</span>'
-            six = f'<span class="t m">{"%.3f" % (value - leader)}</span>'
+            rest = (f'<span class="t m">{E(gap)}</span>'
+                    + f'<span class="t m">{"%.3f" % (value - leader)}</span>'
+                    + best_cell)
         out.append(f'<div class="row flat"><span class="pos">{i}</span>{who}'
-                   f'<span class="cl">{E(cls)}</span>'
-                   f'<span class="t{"" if kind == "pax" else " g"}">{"%.3f" % raw_total(e)}</span>'
-                   f'{five}{six}</div>')
+                   f'<span class="cl">{E(cls)}</span>{rest}</div>')
         prev = value
     out.append("</div>")
 
