@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
-"""Render one event's Class, PAX and Raw results as standalone pages.
+"""Render one event's Class, PAX and Raw results as a single standalone page.
 
     bin/build-event-page results/events/2026-06-27-comeback-1.json --out results/build/
 
-Three files come out, one per view, each self-contained: they are uploaded to
-the Media Library and served straight off disk, so they cannot use the site's
-token snippet and carry their own copy of the palette. The look follows the
-Solo Nationals page.
+One file comes out, with the three views as tabs. It is uploaded to the Media
+Library and served straight off disk, so it cannot use the site's token snippet
+and carries its own copy of the palette. The look follows the Solo Nationals
+page.
+
+The archive still links all three views: each tab has a fragment, and the page
+opens on whichever one the link names. With JavaScript off every view is simply
+shown in turn, so the results are never hidden behind a control that cannot
+run.
 
 Input is the canonical event JSON: one entry per driver with the run strings as
 the timing system printed them. Everything else is derived here, so the two
@@ -48,6 +53,9 @@ h1{font-family:var(--display);font-size:34px;font-weight:700;text-transform:uppe
 border:1px solid #6b4d1d;color:var(--gold);text-decoration:none;}
 .view:hover{background:rgba(226,196,124,.1);border-color:#a86e1d;color:var(--gold-bright);}
 .view.on{background:var(--gold);border-color:var(--gold);color:var(--ground);}
+.pane-h{font-family:var(--display);font-size:22px;text-transform:uppercase;color:var(--gold);margin:26px 0 14px;}
+html.js .pane-h{display:none;}
+[hidden]{display:none !important;}
 .mod{border:1px solid var(--seam);background:var(--ground);margin:0 0 26px;}
 .mh{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;
 padding:12px 15px;border-bottom:1px solid var(--seam);}
@@ -122,14 +130,31 @@ def run_cells(entry):
     return "".join(out)
 
 
-def shell(title, event, active, body):
+VIEWS = (("class", "Class"), ("pax", "PAX index"), ("raw", "Raw time"))
+
+TABS = """<script>
+(function(){var r=document.documentElement;r.className+=' js';
+function show(k){var ok=false;VIEWS.forEach(function(v){var s=document.getElementById('view-'+v);
+var b=document.getElementById('tab-'+v);if(!s||!b){return;}var on=v===k;s.hidden=!on;
+b.className='view'+(on?' on':'');b.setAttribute('aria-selected',on?'true':'false');if(on){ok=true;}});
+return ok;}
+var VIEWS=['class','pax','raw'];
+function fromHash(){var k=(location.hash||'').replace('#','');return VIEWS.indexOf(k)>-1?k:'class';}
+VIEWS.forEach(function(v){var b=document.getElementById('tab-'+v);if(b){b.addEventListener('click',
+function(e){e.preventDefault();location.hash=v;show(v);});}});
+addEventListener('hashchange',function(){show(fromHash());});show(fromHash());})();
+</script>"""
+
+
+def shell(title, event, sections):
     views = "".join(
-        '<a class="view%s" href="%s">%s</a>' % (" on" if k == active else "", href, label)
-        for k, label, href in (
-            ("class", "Class", event["files"]["class"]),
-            ("pax", "PAX index", event["files"]["pax"]),
-            ("raw", "Raw time", event["files"]["raw"]),
-        )
+        '<a class="view%s" id="tab-%s" href="#%s" role="tab" aria-selected="%s">%s</a>'
+        % (" on" if k == "class" else "", k, k, "true" if k == "class" else "false", label)
+        for k, label in VIEWS
+    )
+    body = "".join(
+        f'<section id="view-{k}" class="view-pane"><h2 class="pane-h">{E(label)} results</h2>{sections[k]}</section>'
+        for k, label in VIEWS
     )
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
@@ -140,13 +165,12 @@ def shell(title, event, active, body):
 {STYLE}</head><body><div class="wrap">
 <div class="head"><p class="kicker">{E(event['org'])} {E(event['event_no'])}</p>
 <h1>{E(event['name'])}</h1>
-<p class="sub">{E(event['date'])} &middot; {event['registered']} registered, {event['with_times']} with times
-&middot; {E(title)}</p>
-<div class="views">{views}</div></div>
+<p class="sub">{E(event['date'])} &middot; {event['registered']} registered, {event['with_times']} with times</p>
+<div class="views" role="tablist">{views}</div></div>
 {body}
 <div class="foot">Timing by AXWare Systems. Results generated {E(event['generated'])}.
 Posted by Kansas Region SCCA.</div>
-</div></body></html>
+</div>{TABS}</body></html>
 """
 
 
@@ -167,17 +191,21 @@ def class_page(event):
         out.append('<div class="scroll"><table><thead><tr><th>Pos</th><th>Class</th><th>#</th>'
                    '<th>Driver</th><th>Car</th><th>Color</th>'
                    '<th class="t">Run 1</th><th class="t">Run 2</th><th class="t">Run 3</th>'
-                   '<th class="t">Run 4</th><th class="t">Total</th><th class="t">Diff</th>'
+                   '<th class="t">Run 4</th><th class="t">Best</th><th class="t">Diff</th>'
                    '</tr></thead><tbody>')
         for r in rows:
             pos = '<span class="pos">%d%s</span>' % (r["pos"], '<span class="tro">T</span>' if r["trophy"] else "")
             total = r["total"]
             tot = ('<span class="m">%s</span>' % E(total)) if total in ("dns", "dnf") else ('<span class="g">%s</span>' % E(total))
+            # The class winner has nobody ahead of them. The timing system prints
+            # their gap back to second here, which reads as though they were
+            # behind it.
+            diff = "-" if r["pos"] == 1 else r["diff"]
             out.append(
                 f'<tr><td>{pos}</td><td>{E(r.get("base") or r["cls"])}</td><td class="num">{E(r["num"])}</td>'
                 f'<td class="name">{E(r["name"])}</td><td class="car">{E(r["car"])}</td>'
                 f'<td class="car">{E(r["color"])}</td>{run_cells(r)}'
-                f'<td class="t">{tot}</td><td class="t m">{E(r["diff"])}</td></tr>')
+                f'<td class="t">{tot}</td><td class="t m">{E(diff)}</td></tr>')
         out.append("</tbody></table></div></div>")
 
     tt = ['<div class="mod"><div class="mh"><div class="mt">Top times of day</div></div>'
@@ -189,10 +217,10 @@ def class_page(event):
     tt.append("</tbody></table></div></div>")
 
     note = ('<div class="note"><p><b>How to read this.</b> A bold run is the one that counted. '
-            'A number after a run is cones, two seconds each, already included in the total. '
+            'A number after a run is cones, two seconds each, already included in the best. '
             '<b>dnf</b> is a run that did not finish and scores nothing. <b>T</b> marks a trophy '
-            'position. Novice is scored on index, so its totals are PAX times rather than raw.</p></div>')
-    return shell("Class results", event, "class", "".join(out) + "".join(tt) + note)
+            'position. Novice is scored on index, so its figures are PAX times rather than raw.</p></div>')
+    return "".join(out) + "".join(tt) + note
 
 
 def ranked_page(event, kind):
@@ -212,7 +240,9 @@ def ranked_page(event, kind):
            f'<div class="mt">{E(title)}</div>'
            f'<div class="mn">{len(scored)} timed entries</div></div>'
            '<div class="scroll"><table><thead><tr><th>Pos</th><th>Class</th><th>#</th><th>Driver</th>'
-           '<th>Car</th><th class="t">Total</th>']
+           '<th>Car</th>']
+    if kind == "pax":
+        out.append('<th class="t">Best</th>')
     if kind == "pax":
         out.append('<th class="t">Factor</th>')
     out.append(f'<th class="t">{E(head)}</th><th class="t">Diff</th><th class="t">From 1st</th>'
@@ -224,24 +254,24 @@ def ranked_page(event, kind):
         out.append(f'<tr><td><span class="pos">{i}</span></td>'
                    f'<td>{E(("n" if e["cls"] == "n" else "") + (e.get("base") or e["cls"]))}</td>'
                    f'<td class="num">{E(e["num"])}</td><td class="name">{E(e["name"])}</td>'
-                   f'<td class="car">{E(e["car"])}</td>'
-                   f'<td class="t">{"%.3f" % raw_total(e)}</td>')
+                   f'<td class="car">{E(e["car"])}</td>')
         if kind == "pax":
-            out.append(f'<td class="t m">{factor(e):.3f}</td>')
+            out.append(f'<td class="t">{"%.3f" % raw_total(e)}</td>'
+                       f'<td class="t m">{factor(e):.3f}</td>')
         out.append(f'<td class="t g">{"%.3f" % value}</td>'
                    f'<td class="t m">{E(diff)}</td>'
                    f'<td class="t m">{"%.3f" % (value - leader)}</td></tr>')
         prev = value
     out.append("</tbody></table></div></div>")
-    note = ('<div class="note"><p><b>Totals are raw</b>, the driver\'s best counted run with cone '
-            'penalties included. ')
+    note = ('<div class="note"><p><b>Best is the raw time</b>, the driver\'s quickest counted run '
+            'with cone penalties included. ')
     if kind == "pax":
-        note += ('The PAX time is that total multiplied by the class index, which is how cars in '
+        note += ('The PAX time is that best multiplied by the class index, which is how cars in '
                  'different classes are compared. Novice entries carry their own class index.')
     else:
         note += 'Raw time ignores class entirely: it is the stopwatch, nothing else.'
     note += "</p></div>"
-    return shell(title, event, kind, "".join(out) + note)
+    return "".join(out) + note
 
 
 def main():
@@ -251,15 +281,13 @@ def main():
     p.add_argument("--out", type=Path, default=Path("results/build"))
     a = p.parse_args()
     event = json.loads(a.event.read_text())
-    slug = a.event.stem
-    event["files"] = {k: f"{slug}-{k}.htm" for k in ("class", "pax", "raw")}
     a.out.mkdir(parents=True, exist_ok=True)
-    for kind, body in (("class", class_page(event)),
-                       ("pax", ranked_page(event, "pax")),
-                       ("raw", ranked_page(event, "raw"))):
-        path = a.out / event["files"][kind]
-        path.write_text(body)
-        print("wrote %s (%d bytes)" % (path, len(body)))
+    sections = {"class": class_page(event),
+                "pax": ranked_page(event, "pax"),
+                "raw": ranked_page(event, "raw")}
+    path = a.out / (a.event.stem + ".htm")
+    path.write_text(shell("Results", event, sections))
+    print("wrote %s (%d bytes)" % (path, len(path.read_text())))
 
 
 if __name__ == "__main__":
