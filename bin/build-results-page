@@ -205,6 +205,9 @@ def render(data):
             )
             out.append('<div class="ksr-points">')
             out.append('<div class="ksr-col-head"><span>Season points</span><span>Standings</span></div>')
+            # "Final" is safe here: every season in the archive is a past
+            # season, and a season tally from a past year is its last word,
+            # whatever the export happens to be named.
             out.append(f'<div class="ksr-row ksr-prow"><div class="ksr-event-name">{y} final standings</div>'
                        f'<div class="ksr-meta"><div class="ksr-links">{btns}</div></div></div>')
             out.append("</div>")
