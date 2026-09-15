@@ -158,7 +158,10 @@ def render(data):
     # comes back for. Seasons that have not posted standings yet still show the
     # control, inert and explained, so the page does not simply omit the thing
     # they were looking for.
-    cur_points = season_points(data["seasons"].get(season, []))
+    # A season in progress has no archive entry yet, so its standings link
+    # lives on "current" itself; once the season is archived, its Season Points
+    # row takes over.
+    cur_points = current.get("points") or season_points(data["seasons"].get(season, []))
     if cur_points:
         href, label = cur_points[0][1], "Season points"
         btn = f'<a class="ksr-btn" href="{esc(href)}">{label}</a>'
