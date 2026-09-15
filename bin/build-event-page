@@ -56,6 +56,12 @@ border:1px solid #6b4d1d;color:var(--gold);text-decoration:none;}
 .view:hover{background:rgba(226,196,124,.1);border-color:#a86e1d;color:var(--gold-bright);}
 .view.on{background:var(--gold);border-color:var(--gold);color:var(--ground);}
 .pane-h{font-family:var(--display);font-size:22px;text-transform:uppercase;color:var(--gold);margin:26px 0 14px;}
+.filter{display:none;align-items:center;gap:9px;margin:0 0 18px;}
+html.js .filter{display:flex;}
+.filter label{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mist);}
+.filter select{font:inherit;font-size:13px;color:var(--white);background:var(--lift);
+border:1px solid var(--seam);border-radius:8px;padding:8px 10px;max-width:100%;}
+.filter select:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
 html.js .pane-h{display:none;}
 [hidden]{display:none !important;}
 .mod{border:1px solid var(--seam);background:var(--ground);margin:0 0 22px;}
@@ -274,7 +280,13 @@ var VIEWS=['class','pax','raw'];
 function fromHash(){var k=(location.hash||'').replace('#','');return VIEWS.indexOf(k)>-1?k:'class';}
 VIEWS.forEach(function(v){var b=document.getElementById('tab-'+v);if(b){b.addEventListener('click',
 function(e){e.preventDefault();location.hash=v;show(v);});}});
-addEventListener('hashchange',function(){show(fromHash());});show(fromHash());})();
+addEventListener('hashchange',function(){show(fromHash());});show(fromHash());
+var pick=document.getElementById('class-pick');
+if(pick){var mods=[].slice.call(document.querySelectorAll('#view-class .mod'));
+pick.addEventListener('change',function(){var v=pick.value;
+mods.forEach(function(m){var c=m.getAttribute('data-cls');
+m.hidden=!(v==='all'||c===v);});});}
+})();
 </script>"""
 
 
@@ -310,13 +322,23 @@ def class_page(event):
     by_class = {}
     for e in event["entries"]:
         by_class.setdefault(e["cls"], []).append(e)
-    out = []
+
+    # Forty classes is a long scroll when you came to read one of them. The
+    # control only appears with script running, since it is the script that
+    # makes it do anything.
+    present = [c for c in event["class_order"] if by_class.get(c)]
+    opts = "".join(
+        f'<option value="{E(c)}">{E(c.upper())} &middot; {E(event["class_names"][c])}'
+        f' ({len(by_class[c])})</option>' for c in present)
+    out = ['<div class="filter"><label for="class-pick">Show</label>'
+           f'<select id="class-pick"><option value="all">All classes '
+           f'({len(present)})</option>{opts}</select></div>']
     for cls in event["class_order"]:
         rows = sorted(by_class.get(cls, []), key=lambda r: r["pos"])
         if not rows:
             continue
         indexed = cls == "n"
-        out.append('<div class="mod class"><div class="mh">'
+        out.append(f'<div class="mod class" data-cls="{E(cls)}"><div class="mh">'
                    f'<div class="mt">{E(cls.upper())} &middot; {E(event["class_names"][cls])}</div>'
                    f'<div class="mn">{len(rows)} entr{"y" if len(rows)==1 else "ies"}'
                    f'{" &middot; scored on index" if indexed else ""}</div></div>')
@@ -350,7 +372,8 @@ def class_page(event):
                        f'</summary><div class="body">{body}</div></details>')
         out.append("</div>")
 
-    tt = ['<div class="mod"><div class="mh"><div class="mt">Top times of day</div></div>']
+    tt = ['<div class="mod" data-cls="_ttod"><div class="mh">'
+          '<div class="mt">Top times of day</div></div>']
     for label, time, cls, num, name in event["top_times"]:
         tt.append('<div class="row flat" style="grid-template-columns:minmax(0,1fr) 92px">'
                   f'<span class="who"><span class="nm">{E(label)}</span>'
