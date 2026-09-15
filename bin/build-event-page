@@ -88,7 +88,7 @@ padding:12px 15px;border-bottom:1px solid var(--seam);}
 .rc{font-variant-numeric:tabular-nums;display:none;}
 .class .hdr,.class .row>summary{grid-template-columns:var(--c-class);}
 .rank .hdr,.rank .row.flat,.rank .row>summary{grid-template-columns:var(--c-rank);}
-.hdr{padding:8px 15px;border-bottom:1px solid var(--seam);font-size:10.5px;font-weight:700;
+.hdr{padding:8px 32px 8px 15px;border-bottom:1px solid var(--seam);font-size:10.5px;font-weight:700;
 letter-spacing:.08em;text-transform:uppercase;color:var(--mist);}
 .row{border-bottom:1px solid var(--seam);}
 .row:last-child{border-bottom:0;}
@@ -145,7 +145,8 @@ grid-template-areas:none;gap:7px;align-items:center;}
 .pax .row>summary>*:nth-child(n),.raw .row>summary>*:nth-child(n){grid-area:auto;}
 .pax .row>summary>*:nth-child(3),.pax .row>summary>*:nth-child(4),
 .pax .row>summary>*:nth-child(5),.raw .row>summary>*:nth-child(3),
-.raw .row>summary>*:nth-child(4),.raw .row>summary>*:nth-child(5){display:none;}
+.raw .row>summary>*:nth-child(4),.raw .row>summary>*:nth-child(5),
+.raw .row>summary>*:nth-child(7){display:none;}
 .pax .row>summary>*:nth-child(6),.raw .row>summary>*:nth-child(6){text-align:right;}
 .pax .row>summary>*:nth-child(6):before,.raw .row>summary>*:nth-child(6):before{content:none;}
 .pax .who .car,.raw .who .car{display:none;}
@@ -166,6 +167,9 @@ grid-template-areas:none;gap:7px;align-items:start;}
 .class .c-diff,.class .c-best{text-align:right;}
 .class .c-diff:before,.class .c-best:before{content:none;}
 .class .c-diff{font-size:12.5px;}
+/* RallyCross puts total before diff on a desktop; a phone keeps diff first */
+.class .c-fast,.class .c-slow{display:none;}
+.class .c-diff{order:1;}.class .c-best{order:2;}
 .class .nm{white-space:nowrap;}
 .row>summary>*:nth-child(1),.row.flat>*:nth-child(1){grid-area:pos;}
 .row>summary>*:nth-child(2),.row.flat>*:nth-child(2){grid-area:who;}
@@ -300,6 +304,26 @@ def run_cells(entry, event):
     return "".join(out)
 
 
+def extremes(entry, event):
+    """A RallyCross driver's quickest and slowest runs, as the timing system
+    printed them. Penalties decide the order, so a clean 66 beats a 65 with a
+    cone. A run that did not finish cannot be the quickest, but it counted, so
+    it can be the slowest."""
+    pen = event.get("penalties", DEFAULT_PENALTIES)
+    rs = [r for r in (parse_run(x, pen) for x in entry["runs"]) if r is not None]
+    finished = [r for r in rs if not r["dnf"]]
+    fast = min(finished, key=lambda r: r["total"])["raw"] if finished else None
+    slow = max(rs, key=lambda r: r["total"])["raw"] if rs else None
+    return fast, slow
+
+
+def extreme_cells(entry, event):
+    fast, slow = extremes(entry, event)
+    cell = lambda v, c: (f'<span class="t {c}">{E(v)}</span>' if v
+                         else f'<span class="t m {c}">&mdash;</span>')
+    return cell(slow, "c-slow") + cell(fast, "c-fast")
+
+
 def run_boxes(entry, event):
     """The runs, as labelled boxes. Under best-run scoring the one that counted
     is marked; under sum scoring they all count, so none is."""
@@ -406,6 +430,11 @@ def runs_css(event):
     place moves with the count rather than sitting at one breakpoint. Below it
     the runs stay in the expansion, which is where they always were.
     """
+    if event.get("scoring") == "sum":
+        return ("@media(min-width:621px){"
+                ":root{--c-class:46px minmax(0,1fr) 96px 96px 86px 76px;"
+                "--c-rank:52px minmax(0,1fr) 56px 96px 96px 86px 76px;}"
+                "}")
     n = run_count(event)
     # size the column to the widest run this event actually printed rather than
     # to a guess: "53.067+1" needs 67px at 14px, and a clipped run time is
@@ -432,6 +461,10 @@ def run_count(event):
 def score_label(event):
     """A sum of nine runs is a total; a single counted run is a best."""
     return "Total" if event.get("scoring") == "sum" else "Best"
+
+
+def ordinal(n):
+    return "%d%s" % (n, "th" if 10 <= n % 100 <= 20 else {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th"))
 
 
 def tiles(event):
@@ -533,26 +566,42 @@ def tiles(event):
         lost = total_of(e) - clean
         if lost <= 0:
             continue
-        leader = min(by_class[e["cls"]], key=total_of)
-        wins = e is not leader and clean < total_of(leader)
-        if ghost is None or (wins, lost) > (ghost[0], ghost[1]):
-            ghost = (wins, lost, e, clean)
+        # the highest place that clean total would have taken, and who from
+        grid = sorted(by_class[e["cls"]], key=total_of)
+        here = grid.index(e)
+        took = next((j for j in range(here) if clean < total_of(grid[j])), None)
+        if took is None:
+            continue
+        rival = grid[took]
+        key = (took == 0, here - took, lost)
+        if ghost is None or key > ghost[0]:
+            ghost = (key, e, clean, rival, took + 1)
     if ghost:
-        wins, lost, e, clean = ghost
-        add("One clean run away", cap_name(e["name"]), "%.3f" % clean,
-            "%s \u00b7 %s" % (cname(e),
-                              "would have won the class" if wins
-                              else "%.3f quicker than the run that counted" % lost))
+        _, e, clean, rival, place = ghost
+        # the figure is what the title is about: how far ahead of the driver
+        # above them a clean day would have finished
+        add("One clean run away", cap_name(e["name"]), "%.3f" % (total_of(rival) - clean),
+            "%s \u00b7 clean, %.3f beats %s's %.3f for %s" % (
+                cname(e), clean, cap_name(rival["name"]), total_of(rival), ordinal(place)))
 
-    # the biggest grid of the day and who came out on top of it
-    # autocross novice is an overlay: every novice is also entered in a real
-    # class, so counting it as the biggest grid of the day says nothing
-    grids = {c: rows for c, rows in by_class.items() if not (indexed and c == "n")}
-    big = max(grids.items(), key=lambda kv: (len(kv[1]), -min(total_of(e) for e in kv[1])))
-    if len(big[1]) > 2:
-        winner = min(big[1], key=total_of)
-        add("Biggest class", names.get(big[0], big[0].upper()), "%d" % len(big[1]),
-            "%s took it in %.3f" % (cap_name(winner["name"]), total_of(winner)))
+    # the steadiest driver: the smallest spread across every run they took.
+    # Clock times, cones and gates aside, since a penalty is a mistake rather
+    # than a slower lap. Only drivers who finished every run of the day count,
+    # or two tidy runs and a dns would beat nine.
+    full = max(len(e["runs"]) for e in ents)
+    steady = []
+    for e in ents:
+        rs = runs_of(e)
+        if len(rs) < max(3, full) or any(r["dnf"] for r in rs):
+            continue
+        times = [r["time"] for r in rs]
+        mean = sum(times) / len(times)
+        sd = (sum((t - mean) ** 2 for t in times) / len(times)) ** 0.5
+        steady.append((sd, min(times), max(times), e))
+    if steady:
+        sd, lo, hi, e = min(steady, key=lambda x: x[0])
+        add("Most consistent", cap_name(e["name"]), "\u00b1%.3f" % sd,
+            "%s \u00b7 %d runs, all between %.3f and %.3f" % (cname(e), len(e["runs"]), lo, hi))
 
     # the newcomers' race within the race
     novices = by_class.get("n") or []
@@ -612,6 +661,7 @@ def class_page(event):
     # Forty classes is a long scroll when you came to read one of them. The
     # control only appears with script running, since it is the script that
     # makes it do anything.
+    summing = event.get("scoring") == "sum"
     present = [c for c in event["class_order"] if by_class.get(c)]
     opts = "".join(
         f'<option value="{E(c)}">{E(c.upper())} &middot; {E(event["class_names"][c])}'
@@ -630,12 +680,21 @@ def class_page(event):
                    f'<div class="mt">{E(cls.upper())} &middot; {E(event["class_names"][cls])}</div>'
                    f'<div class="mn">{len(rows)} entr{"y" if len(rows)==1 else "ies"}'
                    f'{" &middot; scored on index" if indexed else ""}</div></div>')
-        runs_head = "".join(f'<span class="t rc">Run {i}</span>'
-                            for i in range(1, run_count(event) + 1))
-        out.append('<div class="hdr"><span class="c-pos">Pos</span>'
-                   f'<span class="c-who">Driver</span>{runs_head}'
-                   f'<span class="t c-diff">Diff</span>'
-                   f'<span class="t c-best">{E(score_label(event))}</span></div>')
+        if summing:
+            # RallyCross reads the same in every view: the slowest run, the
+            # quickest, what they added up to, and the gap. The runs themselves
+            # are a click away.
+            out.append('<div class="hdr"><span class="c-pos">Pos</span>'
+                       '<span class="c-who">Driver</span>'
+                       '<span class="t c-slow">Slowest</span><span class="t c-fast">Fastest</span>'
+                       '<span class="t c-best">Total</span><span class="t c-diff">Diff</span></div>')
+        else:
+            runs_head = "".join(f'<span class="t rc">Run {i}</span>'
+                                for i in range(1, run_count(event) + 1))
+            out.append('<div class="hdr"><span class="c-pos">Pos</span>'
+                       f'<span class="c-who">Driver</span>{runs_head}'
+                       f'<span class="t c-diff">Diff</span>'
+                       f'<span class="t c-best">{E(score_label(event))}</span></div>')
         for r in rows:
             pos = ('<span class="pos c-pos">%d%s</span>'
                    % (r["pos"], '<span class="tro">T</span>' if r["trophy"] else ""))
@@ -655,11 +714,17 @@ def class_page(event):
                 ("Colour", r["color"]),
                 ("Car", r["car"]),
             ])
-            # Best sits on the right in every view, so the time is always in
-            # the same place whichever tab you are on.
-            out.append(f'<details class="row"><summary>{pos}{who}{run_cells(r, event)}'
-                       f'<span class="t m c-diff">{E(diff)}</span>'
-                       f'<span class="t c-best">{bestc}</span>'
+            if summing:
+                cells = (extreme_cells(r, event)
+                         + f'<span class="t c-best">{bestc}</span>'
+                         + f'<span class="t m c-diff">{E(diff)}</span>')
+            else:
+                # Best sits on the right in every autocross view, so the time
+                # is always in the same place whichever tab you are on.
+                cells = (run_cells(r, event)
+                         + f'<span class="t m c-diff">{E(diff)}</span>'
+                         + f'<span class="t c-best">{bestc}</span>')
+            out.append(f'<details class="row"><summary>{pos}{who}{cells}'
                        f'</summary><div class="body">{body}</div></details>')
         out.append("</div>")
 
@@ -703,9 +768,12 @@ def ranked_page(event, kind):
         title = "PAX index results"
         cols = ["Pos", "Driver", "Class", "Best", "Index", "Pax time"]
     else:
-        scored.sort(key=raw_total)
+        scored.sort(key=lambda e: raw_total(e, event))
         title = "Raw time results"
         cols = ["Pos", "Driver", "Class", "Diff", "From 1st", "Best"]
+    summing = kind == "raw" and event.get("scoring") == "sum"
+    if summing:
+        cols = ["Pos", "Driver", "Class", "Slowest", "Fastest", "Total", "Diff"]
     leader = pax_time(scored[0], event) if kind == "pax" else raw_total(scored[0], event)
 
     out = [f'<div class="mod rank {kind}"><div class="mh"><div class="mt">{E(title)}</div>'
@@ -725,6 +793,10 @@ def ranked_page(event, kind):
             rest = (best_cell
                     + f'<span class="t m">{factor(e):.3f}</span>'
                     + f'<span class="t g">{"%.3f" % value}</span>')
+        elif summing:
+            gap = "" if prev is None else "%.3f" % (value - prev)
+            rest = (extreme_cells(e, event) + best_cell
+                    + f'<span class="t m">{E(gap or "-")}</span>')
         else:
             gap = "" if prev is None else "%.3f" % (value - prev)
             rest = (f'<span class="t m">{E(gap)}</span>'
@@ -745,8 +817,13 @@ def ranked_page(event, kind):
         prev = value
     out.append("</div>")
 
-    note = ('<div class="note"><p><b>Best is the raw time</b>, the driver\'s quickest counted run '
-            'with cone penalties included. ')
+    if event.get("scoring") == "sum":
+        note = ('<div class="note"><p><b>Total is the raw time</b>, every run added up '
+                'with cone and gate penalties included. Slowest and fastest are single runs, '
+                'as the timing system printed them. ')
+    else:
+        note = ('<div class="note"><p><b>Best is the raw time</b>, the driver\'s quickest counted run '
+                'with cone penalties included. ')
     if kind == "pax":
         note += ('The PAX time is that best multiplied by the class index, which is how cars in '
                  'different classes are compared. Novice entries carry their own class index.')
