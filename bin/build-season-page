@@ -295,6 +295,15 @@ body.page-id-PAGE_ID .row.header .title-page{display:none;}
 #ksp .ksp-note b{color:var(--ks-paddock-white);}
 #ksp .ksp-note a{color:var(--ks-wheat-gold);font-weight:600;}
 #ksp [hidden]{display:none !important;}
+#ksp .ksp-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 18px;}
+#ksp .ksp-views{display:none;gap:8px;}
+#ksp.js .ksp-views{display:flex;}
+#ksp .ksp-view{display:inline-block;font-family:var(--ks-font-body);font-size:13px;line-height:1;font-weight:700;padding:8px 16px;border-radius:8px;background:transparent;border:1px solid var(--ks-wheat-gold-edge);color:var(--ks-wheat-gold);text-decoration:none;white-space:nowrap;cursor:pointer;}
+#ksp .ksp-view:hover{background:var(--ks-wheat-gold-wash);border-color:var(--ks-wheat-gold-edge-hover);color:var(--ks-wheat-gold-bright);}
+#ksp .ksp-view.on{background:var(--ks-wheat-gold-wash);border-color:var(--ks-wheat-gold-edge-hover);color:var(--ks-wheat-gold-bright);}
+#ksp.js .ksp-pane{display:none;}
+#ksp.js .ksp-pane.on{display:block;}
+#ksp.js.is-pax .ksp-filter{display:none;}
 @media (max-width:700px){
 #ksp .ksp-cols{display:none;}
 #ksp .ksp-row>summary{grid-template-columns:30px minmax(0,1fr) 60px;padding:10px 34px 10px 14px;}
@@ -306,10 +315,17 @@ body.page-id-PAGE_ID .row.header .title-page{display:none;}
 
 WP_SCRIPT = """<script>
 (function(){var root=document.getElementById('ksp');if(!root)return;root.className+=' js';
-var pick=document.getElementById('ksp-pick');if(!pick)return;
-pick.addEventListener('change',function(){var v=pick.value;
-[].forEach.call(root.querySelectorAll('.ksp-cls'),function(m){m.hidden=!(v==='all'||m.getAttribute('data-cls')===v);});
-[].forEach.call(root.querySelectorAll('.ksp-grp'),function(g){g.hidden=![].some.call(g.querySelectorAll('.ksp-cls'),function(m){return !m.hidden;});});});
+var pick=document.getElementById('ksp-pick');
+if(pick){pick.addEventListener('change',function(){var v=pick.value;
+[].forEach.call(root.querySelectorAll('.ksp-cls[data-cls]'),function(m){m.hidden=!(v==='all'||m.getAttribute('data-cls')===v);});
+[].forEach.call(root.querySelectorAll('.ksp-grp'),function(g){g.hidden=![].some.call(g.querySelectorAll('.ksp-cls'),function(m){return !m.hidden;});});});}
+var tabs=root.querySelectorAll('.ksp-view'),panes=root.querySelectorAll('.ksp-pane');
+function show(v){var ok=false;[].forEach.call(panes,function(p){var on=p.getAttribute('data-view')===v;p.classList.toggle('on',on);if(on)ok=true;});
+if(!ok)return false;[].forEach.call(tabs,function(t){var on=t.getAttribute('data-view')===v;t.classList.toggle('on',on);t.setAttribute('aria-selected',on?'true':'false');});
+root.classList.toggle('is-pax',v==='pax');return true;}
+[].forEach.call(tabs,function(t){t.addEventListener('click',function(e){e.preventDefault();var v=t.getAttribute('data-view');show(v);
+if(history.replaceState){history.replaceState(null,'','#'+v);}});});
+if(!show((location.hash||'').replace('#',''))){show('class');}
 })();
 </script>"""
 
@@ -320,7 +336,7 @@ def short_date(event):
     return "%s %s" % (month[:3], day)
 
 
-def wp_row(r, events):
+def wp_row(r, events, sub=None):
     evs = "".join('<span class="ksp-n ksp-ev-n%s">%s</span>' % ("" if p else " ksp-m", p if p else "&mdash;")
                   for p in r["points"])
     boxes = []
@@ -332,12 +348,12 @@ def wp_row(r, events):
             boxes.append(f'<div class="ksp-ev is-out"><b>{E(event["date"])}</b>Did not score</div>')
     return (f'<details class="ksp-row"><summary><span class="ksp-pos">{r["place"]}</span>'
             f'<span class="ksp-who"><span class="ksp-nm">{E(cap_name(r["name"]))}</span>'
-            f'<span class="ksp-car">{E(r["car"])}</span></span>{evs}'
+            f'<span class="ksp-car">{E(sub if sub is not None else r["car"])}</span></span>{evs}'
             f'<span class="ksp-n ksp-tot">{r["counted"]}</span></summary>'
             f'<div class="ksp-body"><div class="ksp-evs">{"".join(boxes)}</div></div></details>')
 
 
-def wp_page(season, events, by_class):
+def wp_page(season, events, by_class, pax=None):
     order, names = [], {}
     for event in events:
         for c in event["class_order"]:
@@ -360,9 +376,20 @@ def wp_page(season, events, by_class):
            f'<h1 class="ksp-eyebrow">{E(season["page_title"])}</h1>',
            f'<p class="ksp-intro">{E(season["season"])} standings after {n} event{"" if n == 1 else "s"} '
            f'({E(dates)}), {drivers} drivers scored. Tap a driver for their results at each event.</p>',
-           f'<div class="ksp-head"><h2 class="ksp-h">{E(season["season"])} Season</h2>'
-           f'<div class="ksp-filter"><label for="ksp-pick">Show</label><select id="ksp-pick">'
-           f'<option value="all">All classes</option>{opts}</select></div></div>']
+           ]
+    filt = ('<div class="ksp-filter"><label for="ksp-pick">Show</label><select id="ksp-pick">'
+            f'<option value="all">All classes</option>{opts}</select></div>')
+    if not pax:
+        out.append(f'<div class="ksp-head"><h2 class="ksp-h">{E(season["season"])} Season</h2>{filt}</div>')
+    else:
+        out.append(f'<div class="ksp-head"><h2 class="ksp-h">{E(season["season"])} Season</h2></div>')
+        # Class and PAX are two views of one season; the buttons switch
+        # between them and the picker only means something on the class view.
+        out.append('<div class="ksp-bar"><div class="ksp-views" role="tablist">'
+                   '<a class="ksp-view on" href="#class" data-view="class" role="tab" aria-selected="true">Class points</a>'
+                   '<a class="ksp-view" href="#pax" data-view="pax" role="tab" aria-selected="false">PAX points</a>'
+                   f'</div>{filt}</div>')
+    out.append('<div class="ksp-pane on" data-view="class">')
     for g, members in groups:
         out.append(f'<div class="ksp-grp"><h3 class="ksp-grp-h">{E(g)}</h3>')
         for c in members:
@@ -375,13 +402,25 @@ def wp_page(season, events, by_class):
             out.extend(wp_row(r, events) for r in rows)
             out.append("</div>")
         out.append("</div>")
+    out.append("</div>")
+    if pax:
+        out.append('<div class="ksp-pane" data-view="pax"><div class="ksp-cls"><div class="ksp-cls-head">'
+                   f'<div class="ksp-cls-name">PAX points</div><div class="ksp-cls-count">{len(pax)} drivers</div></div>')
+        out.append(f'<div class="ksp-cols"><span>Pos</span><span>Driver</span>{heads}<span class="ksp-n">Points</span></div>')
+        out.extend(wp_row(r, events, "%s \u00b7 %s" % (r["cls"].upper(), r["car"])) for r in pax)
+        out.append("</div></div>")
     scale = ", ".join(str(p) for p in season["class_points"])
     after = (", then %d for every place after that" % season["class_points_after"]
              if season.get("class_points_after") else "")
     archive = (f' Final standings for past seasons are in the <a href="{E(season["archive_url"])}">'
                f'results archive</a>.' if season.get("archive_url") else "")
-    out.append(f'<div class="ksp-note"><b>How points work.</b> Points go by finishing position in class: '
-               f'{scale}{after}. A driver with no time scores nothing, and every event counts.{archive}</div>')
+    pax_note = (f' PAX points start at {season["pax_points_first"]} for the top PAX time of the day and drop '
+                'by one per place.' if pax else "")
+    drops = (" Only the best %d events count." % season["counted_events"] if season.get("counted_events") else
+             " Every event counts so far; once the season is long enough, the lowest scores are dropped."
+             if season.get("drops_later") else " Every event counts.")
+    out.append(f'<div class="ksp-note"><b>How points work.</b> Class points go by finishing position in class: '
+               f'{scale}{after}.{pax_note} A driver with no time scores nothing.{drops}{archive}</div>')
     out.append("</div>")
     out.append(WP_SCRIPT)
     return "\n".join(out) + "\n"
@@ -409,7 +448,7 @@ def main():
     a.out.mkdir(parents=True, exist_ok=True)
     if a.wp:
         path = a.out / (a.season.stem + "-points.html")
-        path.write_text(wp_page(season, events, by_class))
+        path.write_text(wp_page(season, events, by_class, pax if season.get("pax_points_first") else None))
     else:
         path = a.out / (a.season.stem + "-points.htm")
         path.write_text(page(season, events, by_class, pax))
