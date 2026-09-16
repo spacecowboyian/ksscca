@@ -40,7 +40,7 @@ if ( ! function_exists( 'ksscca_calendar_fetch_events' ) ) {
 	 *                                            fetch/parse failure.
 	 */
 	function ksscca_calendar_fetch_events() {
-		$cache_key = 'ksscca_calendar_events_v1';
+		$cache_key = 'ksscca_calendar_events_v2';
 		$cached    = get_transient( $cache_key );
 		if ( false !== $cached ) {
 			return $cached;
@@ -83,6 +83,10 @@ if ( ! function_exists( 'ksscca_calendar_fetch_events' ) ) {
 				'venue'     => (string) $event->venue->name,
 				'city'      => (string) $event->venue->city,
 				'region'    => (string) $event->venue->region,
+				// Registration window, "YYYY-MM-DD HH:MM" in UTC. Used by the
+				// season rows to swap Register for Live Timing once it closes.
+				'reg_start' => (string) $event->registration->start,
+				'reg_end'   => (string) $event->registration->end,
 			);
 		}
 
