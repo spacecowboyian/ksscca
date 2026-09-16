@@ -16,10 +16,10 @@
  *          results row is added and the page rebuilt
  *   timing the discipline's live timing page
  *
- * An upcoming event offers Register and Live Timing while registration is
- * open (or not yet open). Once its registration window closes, the event is
- * about to run or running, so the row offers Live Timing alone. The day after,
- * it becomes "Results pending". The window comes from the feed, in UTC.
+ * An upcoming event offers Register until its registration window closes.
+ * From then the event is about to run or running, so the row offers Live
+ * Timing instead. The day after, it becomes "Results pending". The window
+ * comes from the feed, in UTC.
  *
  * The feed lists upcoming events only: an event drops out of it the day it
  * runs. Every event this shortcode has seen is remembered in an option, so an
@@ -91,7 +91,6 @@ if ( ! function_exists( 'ksscca_season_rows_shortcode' ) ) {
 			$live     = '<a class="ksr-link" href="' . esc_url( $atts['timing'] ) . '"'
 				. ( $external ? ' target="_blank" rel="noopener"' : '' ) . '>Live Timing</a>';
 		}
-		$sep = '<span class="ksr-sep"> &middot; </span>';
 		$year  = substr( $today, 0, 4 );
 		$rows  = array();
 		$next  = false;
@@ -111,13 +110,7 @@ if ( ! function_exists( 'ksscca_season_rows_shortcode' ) ) {
 			} else {
 				$register = '<a class="ksr-link" href="' . esc_url( $event['detailuri'] ) . '" target="_blank" rel="noopener">Register</a>';
 				$closed   = ! empty( $event['reg_end'] ) && $now >= $event['reg_end'];
-				if ( $closed && '' !== $live ) {
-					$action = $live;
-				} elseif ( '' !== $live ) {
-					$action = $register . $sep . $live;
-				} else {
-					$action = $register;
-				}
+				$action   = ( $closed && '' !== $live ) ? $live : $register;
 				$class  = 'ksr-row ksr-cal-row is-upcoming' . ( $next ? '' : ' is-next' );
 				$next   = true;
 			}
