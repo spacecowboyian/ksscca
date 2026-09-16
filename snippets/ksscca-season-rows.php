@@ -8,12 +8,18 @@
  * rendered here at request time, in the same row markup the results rows use.
  *
  * Usage (page content, on its own line inside the current-season list):
- *   [ksscca_season_rows type="autocross" after="2026-06-27"]
+ *   [ksscca_season_rows type="autocross" after="2026-06-27" timing="https://..."]
  *
  *   type   case-insensitive substring of the MotorsportReg event type
  *   after  the date of the last row the page already carries; only events
  *          after it are drawn, so an event never appears twice once its
  *          results row is added and the page rebuilt
+ *   timing the discipline's live timing page
+ *
+ * An upcoming event offers Register until its registration window closes.
+ * From then the event is about to run or running, so the row offers Live
+ * Timing instead. The day after, it becomes "Results pending". The window
+ * comes from the feed, in UTC.
  *
  * The feed lists upcoming events only: an event drops out of it the day it
  * runs. Every event this shortcode has seen is remembered in an option, so an
@@ -71,8 +77,20 @@ if ( ! function_exists( 'ksscca_season_rows_events' ) ) {
 
 if ( ! function_exists( 'ksscca_season_rows_shortcode' ) ) {
 	function ksscca_season_rows_shortcode( $atts ) {
-		$atts  = shortcode_atts( array( 'type' => '', 'after' => '' ), $atts, 'ksscca_season_rows' );
+		$atts  = shortcode_atts( array( 'type' => '', 'after' => '', 'timing' => '' ), $atts, 'ksscca_season_rows' );
 		$today = current_time( 'Y-m-d' );
+		$now   = gmdate( 'Y-m-d H:i' );
+		// Preview another moment: ?ksr_now=2026-09-18+12:00 (UTC), admins only.
+		if ( isset( $_GET['ksr_now'] ) && current_user_can( 'manage_options' ) ) {
+			$now   = substr( sanitize_text_field( wp_unslash( $_GET['ksr_now'] ) ), 0, 16 );
+			$today = substr( $now, 0, 10 );
+		}
+		$live  = '';
+		if ( '' !== $atts['timing'] ) {
+			$external = 0 === strpos( $atts['timing'], 'http' );
+			$live     = '<a class="ksr-link" href="' . esc_url( $atts['timing'] ) . '"'
+				. ( $external ? ' target="_blank" rel="noopener"' : '' ) . '>Live Timing</a>';
+		}
 		$year  = substr( $today, 0, 4 );
 		$rows  = array();
 		$next  = false;
@@ -90,7 +108,9 @@ if ( ! function_exists( 'ksscca_season_rows_shortcode' ) ) {
 				$action = '<span class="ksr-pending">Results pending</span>';
 				$class  = 'ksr-row ksr-cal-row';
 			} else {
-				$action = '<a class="ksr-link" href="' . esc_url( $event['detailuri'] ) . '" target="_blank" rel="noopener">Register</a>';
+				$register = '<a class="ksr-link" href="' . esc_url( $event['detailuri'] ) . '" target="_blank" rel="noopener">Register</a>';
+				$closed   = ! empty( $event['reg_end'] ) && $now >= $event['reg_end'];
+				$action   = ( $closed && '' !== $live ) ? $live : $register;
 				$class  = 'ksr-row ksr-cal-row is-upcoming' . ( $next ? '' : ' is-next' );
 				$next   = true;
 			}

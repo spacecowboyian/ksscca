@@ -219,7 +219,8 @@ def render(data, schedule=False):
         for r in dated:
             out.append(render_cal_row(r))
         after = max(event_day(r) for r in dated).isoformat() if dated else ""
-        out.append(f'[ksscca_season_rows type="{esc(sched["feed_type"])}" after="{after}"]')
+        timing = f' timing="{esc(sched["live_timing"])}"' if sched.get("live_timing") else ""
+        out.append(f'[ksscca_season_rows type="{esc(sched["feed_type"])}" after="{after}"{timing}]')
         out.append("</div>")
         return "\n".join(out + archive(data, years, disc)) + "\n"
     out.append(f'<div class="ksr-head"><h2 class="ksr-h">Current Results</h2>{btn}</div>')
