@@ -40,7 +40,7 @@ if ( ! function_exists( 'ksscca_calendar_fetch_events' ) ) {
 	 *                                            fetch/parse failure.
 	 */
 	function ksscca_calendar_fetch_events() {
-		$cache_key = 'ksscca_calendar_events_v1';
+		$cache_key = 'ksscca_calendar_events_v2';
 		$cached    = get_transient( $cache_key );
 		if ( false !== $cached ) {
 			return $cached;
@@ -83,6 +83,10 @@ if ( ! function_exists( 'ksscca_calendar_fetch_events' ) ) {
 				'venue'     => (string) $event->venue->name,
 				'city'      => (string) $event->venue->city,
 				'region'    => (string) $event->venue->region,
+				// Registration window, "YYYY-MM-DD HH:MM" in UTC. Used by the
+				// season rows to swap Register for Live Timing once it closes.
+				'reg_start' => (string) $event->registration->start,
+				'reg_end'   => (string) $event->registration->end,
 			);
 		}
 
@@ -100,6 +104,41 @@ if ( ! function_exists( 'ksscca_calendar_fetch_events' ) ) {
 		update_option( 'ksscca_calendar_events_stale', $events, false );
 
 		return $events;
+	}
+}
+
+if ( ! function_exists( 'ksscca_calendar_live_timing' ) ) {
+	/**
+	 * Live timing page for an event, by its MotorsportReg type. The Schedule
+	 * and Results pages carry the same two addresses in results/*.json.
+	 */
+	function ksscca_calendar_live_timing( $type ) {
+		if ( false !== stripos( $type, 'autocross' ) ) {
+			return 'https://ksscca.prontolivetiming.com/';
+		}
+		if ( false !== stripos( $type, 'rallycross' ) ) {
+			return '/livetiming/';
+		}
+		return '';
+	}
+}
+
+if ( ! function_exists( 'ksscca_calendar_registration_closed' ) ) {
+	/**
+	 * True once the event's registration window has ended (feed times are UTC).
+	 * From then until the event drops out of the feed, the row offers Live
+	 * Timing in place of Register.
+	 * Admins can preview another moment with ?ksr_now=YYYY-MM-DD+HH:MM.
+	 */
+	function ksscca_calendar_registration_closed( $event ) {
+		if ( empty( $event['reg_end'] ) ) {
+			return false;
+		}
+		$now = gmdate( 'Y-m-d H:i' );
+		if ( isset( $_GET['ksr_now'] ) && current_user_can( 'manage_options' ) ) {
+			$now = substr( sanitize_text_field( wp_unslash( $_GET['ksr_now'] ) ), 0, 16 );
+		}
+		return $now >= $event['reg_end'];
 	}
 }
 
@@ -123,11 +162,11 @@ if ( ! function_exists( 'ksscca_calendar_assets' ) ) {
 		$done = true;
 
 		$css = <<<'KSSCCA_CSS'
-.msrcalendar{text-align:left;}.msrcalendar h2{display:none;}.msrcalendar .morelink{margin-top:14px;font-family:var(--ks-font-body);font-size:12.5px;color:var(--ks-morning-mist);text-align:left;}.msrcalendar .morelink a{color:var(--ks-floodlight-blue);text-decoration:none;}.msrcalendar .morelink a:hover{text-decoration:underline;}.ksscca-card{background:transparent;}.ksscca-row{display:grid;grid-template-columns:68px 1fr 90px;align-items:center;padding:14px 18px;border-bottom:1px solid var(--ks-ground-seam);}.ksscca-card>.ksscca-row:last-child{border-bottom:none;}.ksscca-row:hover:not(.ksscca-head-row){background:var(--ks-fog-lift);}.ksscca-head-row{background:transparent;}.ksscca-h{font-family:var(--ks-font-body);font-size:var(--ks-label-size);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ks-morning-mist);}.ksscca-date{display:flex;flex-direction:column;align-items:center;justify-content:center;width:52px;height:52px;border-radius:10px;background:var(--ks-paddock-lamp-well);color:var(--ks-paddock-lamp-blue);}.ksscca-date .mon{font-family:var(--ks-font-body);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;line-height:1;}.ksscca-date .day{font-family:var(--ks-font-display);font-size:22px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums;}.ksscca-cell-name{display:flex;flex-direction:column;gap:2px;min-width:0;padding-right:12px;font-family:var(--ks-font-body);}.ksscca-cell-name .name{font-weight:600;font-size:15px;color:var(--ks-paddock-white);line-height:1.35;}.ksscca-cell-name .venue{font-size:13px;color:var(--ks-morning-mist);}.ksscca-cell-action{display:flex;justify-content:flex-end;}.ksscca-register{display:inline-block;font-family:var(--ks-font-body);padding:8px 16px;border-radius:8px;background:transparent;border:1px solid var(--ks-wheat-gold-edge);color:var(--ks-wheat-gold) !important;font-size:13px;line-height:1;font-weight:700;text-decoration:none;white-space:nowrap;}.ksscca-register:hover{background:var(--ks-wheat-gold-wash);border-color:var(--ks-wheat-gold-edge-hover);color:var(--ks-wheat-gold-bright) !important;}.ksscca-cards{display:none;}@media (max-width:700px){.ksscca-card{display:none;}.ksscca-cards{display:flex;flex-direction:column;gap:12px;font-family:var(--ks-font-body);}.ksscca-event-card{background:var(--ks-fog-lift);border:1px solid var(--ks-ground-seam);padding:16px;display:flex;gap:14px;}.ksscca-event-card .ksscca-date{width:48px;height:48px;flex:none;}.ksscca-event-card .body{flex:1;min-width:0;}.ksscca-event-card .name{font-weight:600;font-size:15px;color:var(--ks-paddock-white);}.ksscca-event-card .venue{font-size:13px;color:var(--ks-morning-mist);margin-top:3px;}}
+.msrcalendar{text-align:left;}.msrcalendar h2{display:none;}.msrcalendar .morelink{margin-top:14px;font-family:var(--ks-font-body);font-size:12.5px;color:var(--ks-morning-mist);text-align:left;}.msrcalendar .morelink a{color:var(--ks-floodlight-blue);text-decoration:none;}.msrcalendar .morelink a:hover{text-decoration:underline;}.ksscca-card{background:transparent;}.ksscca-row{display:grid;grid-template-columns:68px 1fr auto;align-items:center;padding:14px 18px;border-bottom:1px solid var(--ks-ground-seam);}.ksscca-card>.ksscca-row:last-child{border-bottom:none;}.ksscca-row:hover:not(.ksscca-head-row){background:var(--ks-fog-lift);}.ksscca-head-row{background:transparent;}.ksscca-h{font-family:var(--ks-font-body);font-size:var(--ks-label-size);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ks-morning-mist);}.ksscca-date{display:flex;flex-direction:column;align-items:center;justify-content:center;width:52px;height:52px;border-radius:10px;background:var(--ks-paddock-lamp-well);color:var(--ks-paddock-lamp-blue);}.ksscca-date .mon{font-family:var(--ks-font-body);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;line-height:1;}.ksscca-date .day{font-family:var(--ks-font-display);font-size:22px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums;}.ksscca-cell-name{display:flex;flex-direction:column;gap:2px;min-width:0;padding-right:12px;font-family:var(--ks-font-body);}.ksscca-cell-name .name{font-weight:600;font-size:15px;color:var(--ks-paddock-white);line-height:1.35;}.ksscca-cell-name .venue{font-size:13px;color:var(--ks-morning-mist);}.ksscca-cell-action{display:flex;justify-content:flex-end;gap:8px;}.ksscca-card-actions{display:flex;gap:8px;margin-top:12px;}.ksscca-card-actions a{flex:1;text-align:center;}.ksscca-register{display:inline-block;font-family:var(--ks-font-body);padding:8px 16px;border-radius:8px;background:transparent;border:1px solid var(--ks-wheat-gold-edge);color:var(--ks-wheat-gold) !important;font-size:13px;line-height:1;font-weight:700;text-decoration:none;white-space:nowrap;}.ksscca-register:hover{background:var(--ks-wheat-gold-wash);border-color:var(--ks-wheat-gold-edge-hover);color:var(--ks-wheat-gold-bright) !important;}.ksscca-cards{display:none;}@media (max-width:700px){.ksscca-card{display:none;}.ksscca-cards{display:flex;flex-direction:column;gap:12px;font-family:var(--ks-font-body);}.ksscca-event-card{background:var(--ks-fog-lift);border:1px solid var(--ks-ground-seam);padding:16px;display:flex;gap:14px;}.ksscca-event-card .ksscca-date{width:48px;height:48px;flex:none;}.ksscca-event-card .body{flex:1;min-width:0;}.ksscca-event-card .name{font-weight:600;font-size:15px;color:var(--ks-paddock-white);}.ksscca-event-card .venue{font-size:13px;color:var(--ks-morning-mist);margin-top:3px;}}
 KSSCCA_CSS;
 
 		$js = <<<'KSSCCA_JS'
-(function () { function el(tag, className) { var e = document.createElement(tag); if (className) e.className = className; return e; } function dateBlock(ev) { var d = el('div', 'ksscca-date'); var mon = el('span', 'mon'); mon.textContent = ev.month; var day = el('span', 'day'); day.textContent = ev.day; d.appendChild(mon); d.appendChild(day); return d; } function registerLink(ev, block) { var a = document.createElement('a'); a.className = 'ksscca-register'; a.href = ev.href; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Register'; if (block) { a.style.display = 'block'; a.style.textAlign = 'center'; a.style.marginTop = '12px'; } return a; } function enhance() { var cal = document.querySelector('.msrcalendar'); if (!cal) return; var table = cal.querySelector('table'); if (!table || table.dataset.ksscca) return; var rows = table.querySelectorAll('tbody tr'); var events = []; rows.forEach(function (tr) { var tds = tr.querySelectorAll('td'); if (!tds[5]) return; var dp = tds[0].textContent.trim().split(/\s+/); var link = tds[5].querySelector('a'); var venue = tds[2].textContent.trim(); var location = tds[3].textContent.trim(); events.push({ month: dp[0] || '', day: dp[1] || '', type: tds[4].textContent.trim(), venueLocation: venue + (location ? ' - ' + location : ''), href: link ? link.href : '#' }); }); if (!events.length) return; var wrap = el('div', 'ksscca-card'); var headRow = el('div', 'ksscca-row ksscca-head-row'); ['Date', 'Event', ''].forEach(function (h) { var s = el('span', 'ksscca-h'); s.textContent = h; headRow.appendChild(s); }); wrap.appendChild(headRow); events.forEach(function (ev) { var row = el('div', 'ksscca-row'); var dateCell = el('div', 'ksscca-cell-date'); dateCell.appendChild(dateBlock(ev)); row.appendChild(dateCell); var nameCell = el('div', 'ksscca-cell-name'); var nm = el('span', 'name'); nm.textContent = ev.type; var vn = el('span', 'venue'); vn.textContent = ev.venueLocation; nameCell.appendChild(nm); nameCell.appendChild(vn); row.appendChild(nameCell); var actionCell = el('div', 'ksscca-cell-action'); actionCell.appendChild(registerLink(ev, false)); row.appendChild(actionCell); wrap.appendChild(row); }); var cardsWrap = el('div', 'ksscca-cards'); events.forEach(function (ev) { var card = el('div', 'ksscca-event-card'); card.appendChild(dateBlock(ev)); var body = el('div', 'body'); var nm = el('div', 'name'); nm.textContent = ev.type; var vn = el('div', 'venue'); vn.textContent = ev.venueLocation; body.appendChild(nm); body.appendChild(vn); body.appendChild(registerLink(ev, true)); card.appendChild(body); cardsWrap.appendChild(card); }); table.dataset.ksscca = '1'; var parent = table.parentNode; parent.replaceChild(wrap, table); parent.insertBefore(cardsWrap, wrap.nextSibling); } if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', enhance); } else { enhance(); } })();
+(function () { function el(tag, className) { var e = document.createElement(tag); if (className) e.className = className; return e; } function dateBlock(ev) { var d = el('div', 'ksscca-date'); var mon = el('span', 'mon'); mon.textContent = ev.month; var day = el('span', 'day'); day.textContent = ev.day; d.appendChild(mon); d.appendChild(day); return d; } function link(cls, href, text) { var a = document.createElement('a'); a.className = cls; a.href = href; if (/^https?:/.test(href)) { a.target = '_blank'; a.rel = 'noopener'; } a.textContent = text; return a; } function actions(ev, box) { box.appendChild(ev.closed && ev.timing ? link('ksscca-register', ev.timing, 'Live Timing') : link('ksscca-register', ev.href, 'Register')); return box; } function enhance() { var cal = document.querySelector('.msrcalendar'); if (!cal) return; var table = cal.querySelector('table'); if (!table || table.dataset.ksscca) return; var rows = table.querySelectorAll('tbody tr'); var events = []; rows.forEach(function (tr) { var tds = tr.querySelectorAll('td'); if (!tds[5]) return; var dp = tds[0].textContent.trim().split(/\s+/); var reg = tds[5].querySelector('a'); var venue = tds[2].textContent.trim(); var location = tds[3].textContent.trim(); events.push({ month: dp[0] || '', day: dp[1] || '', type: tds[4].textContent.trim(), venueLocation: venue + (location ? ' - ' + location : ''), href: reg ? reg.href : '#', timing: tr.getAttribute('data-timing') || '', closed: tr.getAttribute('data-reg') === 'closed' }); }); if (!events.length) return; var wrap = el('div', 'ksscca-card'); var headRow = el('div', 'ksscca-row ksscca-head-row'); ['Date', 'Event', ''].forEach(function (h) { var s = el('span', 'ksscca-h'); s.textContent = h; headRow.appendChild(s); }); wrap.appendChild(headRow); events.forEach(function (ev) { var row = el('div', 'ksscca-row'); var dateCell = el('div', 'ksscca-cell-date'); dateCell.appendChild(dateBlock(ev)); row.appendChild(dateCell); var nameCell = el('div', 'ksscca-cell-name'); var nm = el('span', 'name'); nm.textContent = ev.type; var vn = el('span', 'venue'); vn.textContent = ev.venueLocation; nameCell.appendChild(nm); nameCell.appendChild(vn); row.appendChild(nameCell); row.appendChild(actions(ev, el('div', 'ksscca-cell-action'))); wrap.appendChild(row); }); var cardsWrap = el('div', 'ksscca-cards'); events.forEach(function (ev) { var card = el('div', 'ksscca-event-card'); card.appendChild(dateBlock(ev)); var body = el('div', 'body'); var nm = el('div', 'name'); nm.textContent = ev.type; var vn = el('div', 'venue'); vn.textContent = ev.venueLocation; body.appendChild(nm); body.appendChild(vn); body.appendChild(actions(ev, el('div', 'ksscca-card-actions'))); card.appendChild(body); cardsWrap.appendChild(card); }); table.dataset.ksscca = '1'; var parent = table.parentNode; parent.replaceChild(wrap, table); parent.insertBefore(cardsWrap, wrap.nextSibling); } if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', enhance); } else { enhance(); } })();
 KSSCCA_JS;
 
 		return '<style>' . $css . '</style>' . '<script>' . $js . '</script>';
@@ -179,7 +218,7 @@ if ( ! function_exists( 'ksscca_calendar_shortcode' ) ) {
 					</thead>
 					<tbody>
 						<?php foreach ( $events as $event ) : ?>
-							<tr>
+							<tr data-timing="<?php echo esc_attr( ksscca_calendar_live_timing( $event['type'] ) ); ?>" data-reg="<?php echo ksscca_calendar_registration_closed( $event ) ? 'closed' : 'open'; ?>">
 								<td><?php echo esc_html( date_i18n( 'M j', strtotime( $event['start'] ) ) ); ?></td>
 								<td><?php echo esc_html( $event['name'] ); ?></td>
 								<td><?php echo esc_html( $event['venue'] ); ?></td>
