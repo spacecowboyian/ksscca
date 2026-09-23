@@ -18,8 +18,9 @@
  *
  * An upcoming event offers Register until its registration window closes.
  * From then the event is about to run or running, so the row offers Live
- * Timing instead. The day after, it becomes "Results pending". The window
- * comes from the feed, in UTC.
+ * Timing instead. The day after, it reads "Results pending" alongside a link
+ * to the timing system's own unofficial results, until the official results
+ * row replaces it. The registration window comes from the feed, in UTC.
  *
  * The feed lists upcoming events only: an event drops out of it the day it
  * runs. Every event this shortcode has seen is remembered in an option, so an
@@ -85,6 +86,7 @@ if ( ! function_exists( 'ksscca_season_rows_shortcode' ) ) {
 			$now   = substr( sanitize_text_field( wp_unslash( $_GET['ksr_now'] ) ), 0, 16 );
 			$today = substr( $now, 0, 10 );
 		}
+		$sep   = '<span class="ksr-sep"> &middot; </span>';
 		$live  = '';
 		if ( '' !== $atts['timing'] ) {
 			$external = 0 === strpos( $atts['timing'], 'http' );
@@ -105,7 +107,12 @@ if ( ! function_exists( 'ksscca_season_rows_shortcode' ) ) {
 			}
 			$ts = strtotime( $day . ' 12:00:00' );
 			if ( $day < $today ) {
+				// The timing system posts its own unofficial results as soon as
+				// the event ends, days before the official files are up.
 				$action = '<span class="ksr-pending">Results pending</span>';
+				if ( '' !== $live ) {
+					$action .= $sep . str_replace( '>Live Timing<', '>Unofficial results<', $live );
+				}
 				$class  = 'ksr-row ksr-cal-row';
 			} else {
 				$register = '<a class="ksr-link" href="' . esc_url( $event['detailuri'] ) . '" target="_blank" rel="noopener">Register</a>';
