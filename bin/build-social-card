@@ -1,0 +1,105 @@
+#!/usr/bin/env python3
+"""Render an event's fact tiles as a social image.
+
+    bin/build-social-card results/events/2026-09-19-solo.json
+    bin/build-social-card results/events/2026-09-19-solo.json --size square
+
+Writes an HTML card and, when headless Chrome is around, the PNG to post.
+The card carries the same header as the event's results page -- the same
+kicker, title, date line and typefaces -- so the post and the page it points
+at read as one thing. The tiles are the page's own, computed from the event
+data by bin/build-event-page, laid out as a grid rather than the page's
+carousel: a still image cannot scroll.
+"""
+import argparse, json, subprocess, sys
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+ev = {"__name__": "event_page"}
+exec(compile((HERE / "build-event-page").read_text(), "build-event-page", "exec"), ev)
+E, tiles = ev["E"], ev["tiles"]
+
+SIZES = {"portrait": (1080, 1350), "square": (1080, 1080), "story": (1080, 1920)}
+CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+
+CSS = """*{box-sizing:border-box;margin:0;padding:0;}
+:root{--ink:#0b0b0b;--lift:#141414;--seam:#262626;--white:#f4f1ea;--mist:#9a958c;
+--mist-deep:#6f6b64;--gold:#e2c47c;--green:#7bbf8a;--s:SCALE;
+--display:'PT Sans Narrow',Arial Narrow,sans-serif;--body:Inter,Helvetica,Arial,sans-serif;}
+body{width:WIDTHpx;height:HEIGHTpx;background:var(--ink);color:var(--white);
+font-family:var(--body);display:flex;flex-direction:column;overflow:hidden;}
+.head{padding:calc(60px*var(--s)) 64px calc(34px*var(--s));border-bottom:1px solid var(--seam);}
+.kicker{font-size:22px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);}
+h1{font-family:var(--display);font-size:HEADpx;line-height:1.02;font-weight:700;
+text-transform:uppercase;margin-top:14px;letter-spacing:.01em;}
+.sub{margin-top:12px;font-size:calc(26px*var(--s));color:var(--mist);}
+.grid{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--seam);
+border-top:1px solid var(--seam);}
+.tile{background:var(--lift);padding:calc(30px*var(--s)) 34px;display:flex;flex-direction:column;
+justify-content:center;overflow:hidden;}
+.tk{font-size:calc(19px*var(--s));font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist);}
+.tv{margin-top:calc(12px*var(--s));display:flex;align-items:baseline;flex-wrap:wrap;gap:0 16px;font-weight:700;}
+.tn{font-size:calc(36px*var(--s));color:var(--white);}
+.tf{font-size:calc(36px*var(--s));color:var(--gold);font-variant-numeric:tabular-nums;}
+.ts{margin-top:calc(8px*var(--s));font-size:calc(21px*var(--s));line-height:1.3;color:var(--mist-deep);}
+.foot{flex:none;padding:calc(24px*var(--s)) 64px;display:flex;justify-content:space-between;
+align-items:center;font-size:22px;color:var(--mist);border-top:1px solid var(--seam);}
+.foot b{color:var(--gold);font-weight:700;}"""
+
+
+
+def card(event, size, url):
+    w, h = SIZES[size]
+    cells = tiles(event)
+    cells = cells[cells.index(">") + 1:cells.rindex("</div>")]
+    name = event["name"]
+    # the tiles fill whatever is left under the header, so a shorter card
+    # takes the type and padding down with it rather than cropping the footer
+    scale = round(min(1.0, (h - 460) / 890.0), 3)
+    head = 84 if len(name) < 26 else (68 if len(name) < 40 else 56)
+    head = int(head * min(1.0, scale + 0.15))
+    css = (CSS.replace("WIDTH", str(w)).replace("HEIGHT", str(h))
+              .replace("HEAD", str(head)).replace("SCALE", str(scale)))
+    where = f'<span>Full results at <b>{E(url)}</b></span>' if url else "<span></span>"
+    return f"""<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=PT+Sans+Narrow:wght@400;700&display=swap" rel="stylesheet">
+<style>{css}</style></head><body>
+<div class="head"><p class="kicker">{E(event['org'])} {E(event['event_no'])}</p>
+<h1>{E(name)}</h1>
+<p class="sub">{E(event['date'])} &middot; {event['with_times']} drivers</p></div>
+<div class="grid">{cells}</div>
+<div class="foot">{where}<span>Kansas Region SCCA</span></div>
+</body></html>
+"""
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__,
+                                formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("event", type=Path)
+    p.add_argument("--size", choices=sorted(SIZES), default="portrait")
+    p.add_argument("--url", default="", help="line in the footer, e.g. ksscca.org/autocross-schedule-and-results")
+    p.add_argument("--out", type=Path, default=Path("results/build/social"))
+    a = p.parse_args()
+    event = json.loads(a.event.read_text())
+    a.out.mkdir(parents=True, exist_ok=True)
+    stem = "%s-%s" % (a.event.stem, a.size)
+    html = a.out / (stem + ".html")
+    html.write_text(card(event, a.size, a.url))
+    print("wrote %s" % html)
+    if not Path(CHROME).exists():
+        sys.exit("no headless Chrome at %s; open the HTML and screenshot it instead" % CHROME)
+    w, h = SIZES[a.size]
+    png = a.out / (stem + ".png")
+    subprocess.run([CHROME, "--headless", "--disable-gpu", "--hide-scrollbars",
+                    "--force-device-scale-factor=1", "--virtual-time-budget=4000",
+                    "--window-size=%d,%d" % (w, h),
+                    "--screenshot=%s" % png, html.resolve().as_uri()],
+                   check=True, capture_output=True)
+    print("wrote %s (%d bytes)" % (png, png.stat().st_size))
+
+
+if __name__ == "__main__":
+    main()
