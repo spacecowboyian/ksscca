@@ -192,23 +192,27 @@ font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--mist-d
 }
 </style>"""
 
-RUN = re.compile(r"^([\d.]+)(?:\+(?:(\d+)?(?:/(\d+))?|dnf))?$")
+RUN = re.compile(r"^([\d.]+)(?:\+(\d+)?(?:/(\d+))?)?(?:\+(dnf|rrn))?$")
 
 
 def parse_run(run, pen):
     """One run, as the timing system printed it.
 
     "53.067+1" is a run with a cone; "45.372+0/1" adds a missed gate;
-    "87.714+dnf" did not finish. Penalty seconds come from the event, because
-    a cone is worth two seconds in autocross and a gate ten in RallyCross.
+    "87.714+dnf" did not finish, and "76.849+1+dnf" did both. "93.036+rrn" was
+    a re-run: the driver takes it again and this one scores nothing. Penalty
+    seconds come from the event, because a cone is worth two seconds in
+    autocross and a gate ten in RallyCross.
     """
     run = (run or "").strip()
     if not run:
         return None
-    dnf = "dnf" in run
     m = RUN.match(run)
     if not m:
         return None
+    flag = m.group(4)
+    dnf = flag == "dnf"
+    rerun = flag == "rrn"
     time = float(m.group(1))
     cones = int(m.group(2) or 0)
     gates = int(m.group(3) or 0)
@@ -218,14 +222,15 @@ def parse_run(run, pen):
         # in cones for the paperwork; charging both double counts it.
         seconds += pen.get("dnf_seconds", 0)
     return {"raw": run, "time": time, "cones": cones, "gates": gates,
-            "dnf": dnf, "total": time + seconds, "penalty": seconds}
+            "dnf": dnf, "rerun": rerun, "total": time + seconds, "penalty": seconds}
 
 
 def counted(run, pen=None):
-    """What a run scored. A dnf scores nothing under best-run scoring."""
+    """What a run scored. A dnf scores nothing under best-run scoring, and
+    neither does a re-run: the driver gets another attempt instead."""
     pen = pen or DEFAULT_PENALTIES
     r = parse_run(run, pen)
-    if r is None or r["dnf"]:
+    if r is None or r["dnf"] or r["rerun"]:
         return None
     return r["total"]
 
@@ -243,6 +248,7 @@ def summed(runs, pen):
     """RallyCross adds every run up, penalties included, and a run that did
     not finish still counts: it carries its own adjustment instead."""
     parsed = [parse_run(r, pen) for r in runs]
+    parsed = [r for r in parsed if r is None or not r["rerun"]]
     parsed = [r for r in parsed if r is not None]
     return sum(r["total"] for r in parsed) if parsed else None
 
@@ -753,6 +759,8 @@ def class_page(event):
     out = ['<div class="filter"><label for="class-pick">Show</label>'
            f'<select id="class-pick"><option value="all">All classes '
            f'({len(present)})</option>{opts}</select></div>']
+    carried = {k for k, f in (("Colour", "color"), ("Car", "car"))
+               if any(e.get(f) for e in event["entries"])}
     for cls in event["class_order"]:
         # a driver with no time has no position: they sort last, not first
         rows = sorted(by_class.get(cls, []), key=lambda r: r["pos"] or 1e9)
@@ -801,11 +809,9 @@ def class_page(event):
                      ("Car number", r["num"]),
                      ("Colour", r["color"]),
                      ("Car", r["car"])]
-            # an export that never carried the car or its colour should not
-            # print a row of dashes where they would have been; an export that
-            # usually does keeps the blank, so a missing one is visible
-            if not event.get("runs_known", True):
-                facts = [(k, v) for k, v in facts if v]
+            # a field the whole export left out is dropped; one this export
+            # usually carries keeps its blank, so a gap stays visible
+            facts = [(k, v) for k, v in facts if v or k in carried]
             body = run_boxes(r, event) + info_list(facts)
             if summing:
                 cells = (extreme_cells(r, event)
@@ -847,12 +853,21 @@ def class_page(event):
                 'second.</p>%s</div>'
                 % (("<p>%s</p>" % E(event["note"])) if event.get("note") else ""))
     else:
+        rerun_note = ""
+        if any("rrn" in r for e in event["entries"] for r in e["runs"]):
+            rerun_note = (' <b>rrn</b> is a re-run: that attempt is scrubbed and the driver '
+                          'takes it again, so it scores nothing.')
+        table = event.get("factors")
+        novice_note = ""
+        if table is None or table.get("n") is not None:
+            novice_note = (' Novice is scored on index, so its figures are PAX times rather '
+                           'than raw.')
         note = ('<div class="note"><p><b>How to read this.</b> Tap a driver for their runs. '
                 'Only the best one counts. A number after a run is cones, %g seconds each, '
                 'already included in the best. <b>dnf</b> is a run that did not finish and '
-                'scores nothing. <b>T</b> marks a trophy position. Novice is scored on index, '
-                'so its figures are PAX times rather than raw.</p></div>'
-                % pen["cone_seconds"])
+                'scores nothing.%s <b>T</b> marks a trophy position.%s</p>%s</div>'
+                % (pen["cone_seconds"], rerun_note, novice_note,
+                   ("<p>%s</p>" % E(event["note"])) if event.get("note") else ""))
     return "".join(out) + "".join(tt) + note
 
 
