@@ -15,12 +15,16 @@ text-transform:uppercase;margin-top:14px;letter-spacing:.01em;}
 .sub{margin-top:12px;font-size:calc(26px*var(--s));color:var(--mist);}
 .grid{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--seam);
 border-top:1px solid var(--seam);}
-.tile{background:var(--lift);padding:calc(30px*var(--s)) 34px;display:flex;flex-direction:column;
+.tile{background:var(--lift);padding:calc(30px*var(--s)) 22px;display:flex;flex-direction:column;
 justify-content:center;overflow:hidden;}
+/* the outer edge of every tile lines up with the header and footer; the two
+   either side of the seam share the gutter between them */
+.tile:nth-child(odd){padding-left:64px;}
+.tile:nth-child(even){padding-right:64px;}
 .tk{font-size:calc(19px*var(--s));font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist);}
-.tv{margin-top:calc(12px*var(--s));display:flex;align-items:baseline;flex-wrap:wrap;gap:0 16px;font-weight:700;}
-.tn{font-size:calc(36px*var(--s));color:var(--white);}
-.tf{font-size:calc(36px*var(--s));color:var(--gold);font-variant-numeric:tabular-nums;}
+.tv{margin-top:calc(12px*var(--s));display:flex;align-items:baseline;flex-wrap:wrap;gap:0 14px;font-weight:700;}
+.tn{font-size:calc(34px*var(--s));color:var(--white);}
+.tf{font-size:calc(34px*var(--s));color:var(--gold);font-variant-numeric:tabular-nums;}
 .ts{margin-top:calc(8px*var(--s));font-size:calc(21px*var(--s));line-height:1.3;color:var(--mist-deep);}
 .foot{flex:none;padding:calc(24px*var(--s)) 64px;display:flex;justify-content:space-between;
 align-items:center;font-size:22px;color:var(--mist);border-top:1px solid var(--seam);}
