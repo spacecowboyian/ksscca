@@ -1,0 +1,965 @@
+{
+ "name": "Solo, 19 September",
+ "event_no": "",
+ "org": "KS SCCA",
+ "date": "September 19, 2026",
+ "generated": "September 2026",
+ "registered": 61,
+ "with_times": 60,
+ "scoring": "best",
+ "runs_known": false,
+ "views": [
+  "class",
+  "pax",
+  "raw"
+ ],
+ "note": "The timing export for this event carries each driver's counted time only, so there are no individual runs to show. Cone and other penalties are already included in the time.",
+ "class_order": [
+  "n",
+  "am",
+  "as",
+  "ast",
+  "bs",
+  "camc",
+  "cams",
+  "camt",
+  "cp",
+  "cs",
+  "csp",
+  "cst",
+  "csx",
+  "ds",
+  "dsp",
+  "dst",
+  "es",
+  "est",
+  "fs",
+  "fsp",
+  "gs",
+  "hs",
+  "sm",
+  "ssm",
+  "sst",
+  "xa",
+  "xal",
+  "xb",
+  "xp"
+ ],
+ "class_names": {
+  "n": "Novice",
+  "am": "A Modified",
+  "as": "A Street",
+  "ast": "A Street Touring",
+  "bs": "B Street",
+  "camc": "CAM Contemporary",
+  "cams": "CAM Sport",
+  "camt": "CAM Traditional",
+  "cp": "C Prepared",
+  "cs": "C Street",
+  "csp": "C Street Prepared",
+  "cst": "C Street Touring",
+  "csx": "Club Spec MX-5",
+  "ds": "D Street",
+  "dsp": "D Street Prepared",
+  "dst": "D Street Touring",
+  "es": "E Street",
+  "est": "E Street Touring",
+  "fs": "F Street",
+  "fsp": "F Street Prepared",
+  "gs": "G Street",
+  "hs": "H Street",
+  "sm": "Street Modified",
+  "ssm": "Super Street Modified",
+  "sst": "Super Street Touring",
+  "xa": "Xtreme Street A",
+  "xal": "Xtreme Street A",
+  "xb": "Xtreme Street B",
+  "xp": "X Prepared"
+ },
+ "factors": {
+  "n": null,
+  "am": 1.0,
+  "as": 0.83,
+  "ast": 0.836,
+  "bs": 0.823,
+  "camc": 0.828,
+  "cams": 0.847,
+  "camt": 0.819,
+  "cp": 0.862,
+  "cs": 0.814,
+  "csp": 0.858,
+  "cst": 0.829,
+  "csx": 0.803,
+  "ds": 0.811,
+  "dsp": 0.854,
+  "dst": 0.82,
+  "es": 0.788,
+  "est": 0.815,
+  "fs": 0.817,
+  "fsp": 0.833,
+  "gs": 0.809,
+  "hs": 0.78,
+  "sm": 0.87,
+  "ssm": 0.878,
+  "sst": 0.838,
+  "xa": 0.861,
+  "xal": 0.861,
+  "xb": 0.859,
+  "xp": 0.892
+ },
+ "top_times": [],
+ "entries": [
+  {
+   "cls": "am",
+   "pos": 1,
+   "trophy": false,
+   "num": "57",
+   "name": "Scott Allison",
+   "car": "",
+   "color": "",
+   "runs": [
+    "83.516"
+   ],
+   "total": "83.516",
+   "diff": "-"
+  },
+  {
+   "cls": "as",
+   "pos": 1,
+   "trophy": false,
+   "num": "63",
+   "name": "Frank Wietharn",
+   "car": "",
+   "color": "",
+   "runs": [
+    "71.603"
+   ],
+   "total": "71.603",
+   "diff": "-"
+  },
+  {
+   "cls": "ast",
+   "pos": 1,
+   "trophy": false,
+   "num": "113",
+   "name": "Roger Hill",
+   "car": "",
+   "color": "",
+   "runs": [
+    "73.688"
+   ],
+   "total": "73.688",
+   "diff": "-"
+  },
+  {
+   "cls": "ast",
+   "pos": 0,
+   "trophy": false,
+   "num": "13",
+   "name": "Mark Shackelford",
+   "car": "",
+   "color": "",
+   "runs": [],
+   "total": "dns",
+   "diff": "-"
+  },
+  {
+   "cls": "bs",
+   "pos": 1,
+   "trophy": false,
+   "num": "47",
+   "name": "Stefanie Kenney",
+   "car": "",
+   "color": "",
+   "runs": [
+    "81.906"
+   ],
+   "total": "81.906",
+   "diff": "-"
+  },
+  {
+   "cls": "camc",
+   "pos": 1,
+   "trophy": false,
+   "num": "30",
+   "name": "Matthew Kuffel",
+   "car": "",
+   "color": "",
+   "runs": [
+    "70.590"
+   ],
+   "total": "70.590",
+   "diff": "[-]6.234"
+  },
+  {
+   "cls": "camc",
+   "pos": 2,
+   "trophy": false,
+   "num": "13",
+   "name": "Russell Williams",
+   "car": "",
+   "color": "",
+   "runs": [
+    "76.824"
+   ],
+   "total": "76.824",
+   "diff": "+6.234"
+  },
+  {
+   "cls": "camc",
+   "pos": 3,
+   "trophy": false,
+   "num": "68",
+   "name": "Ben Florance",
+   "car": "",
+   "color": "",
+   "runs": [
+    "83.384"
+   ],
+   "total": "83.384",
+   "diff": "+6.560"
+  },
+  {
+   "cls": "camc",
+   "pos": 4,
+   "trophy": false,
+   "num": "77",
+   "name": "David Witt",
+   "car": "",
+   "color": "",
+   "runs": [
+    "99.205"
+   ],
+   "total": "99.205",
+   "diff": "+15.821"
+  },
+  {
+   "cls": "cams",
+   "pos": 1,
+   "trophy": false,
+   "num": "24",
+   "name": "James Woodward",
+   "car": "",
+   "color": "",
+   "runs": [
+    "69.350"
+   ],
+   "total": "69.350",
+   "diff": "-"
+  },
+  {
+   "cls": "camt",
+   "pos": 1,
+   "trophy": false,
+   "num": "8",
+   "name": "Jeff Houseman",
+   "car": "",
+   "color": "",
+   "runs": [
+    "120.168"
+   ],
+   "total": "120.168",
+   "diff": "-"
+  },
+  {
+   "cls": "cp",
+   "pos": 1,
+   "trophy": false,
+   "num": "49",
+   "name": "Albert Hermans",
+   "car": "",
+   "color": "",
+   "runs": [
+    "79.142"
+   ],
+   "total": "79.142",
+   "diff": "-"
+  },
+  {
+   "cls": "cs",
+   "pos": 1,
+   "trophy": false,
+   "num": "66",
+   "name": "Rodney Giebel",
+   "car": "",
+   "color": "",
+   "runs": [
+    "75.226"
+   ],
+   "total": "75.226",
+   "diff": "[-]0.793"
+  },
+  {
+   "cls": "cs",
+   "pos": 2,
+   "trophy": false,
+   "num": "197",
+   "name": "Hank Dunham",
+   "car": "",
+   "color": "",
+   "runs": [
+    "76.019"
+   ],
+   "total": "76.019",
+   "diff": "+0.793"
+  },
+  {
+   "cls": "cs",
+   "pos": 3,
+   "trophy": false,
+   "num": "34",
+   "name": "Christian Els",
+   "car": "",
+   "color": "",
+   "runs": [
+    "76.691"
+   ],
+   "total": "76.691",
+   "diff": "+0.672"
+  },
+  {
+   "cls": "cs",
+   "pos": 4,
+   "trophy": false,
+   "num": "97",
+   "name": "Greg Dunham",
+   "car": "",
+   "color": "",
+   "runs": [
+    "78.848"
+   ],
+   "total": "78.848",
+   "diff": "+2.157"
+  },
+  {
+   "cls": "csp",
+   "pos": 1,
+   "trophy": false,
+   "num": "95",
+   "name": "Kevin Lynn",
+   "car": "",
+   "color": "",
+   "runs": [
+    "76.294"
+   ],
+   "total": "76.294",
+   "diff": "-"
+  },
+  {
+   "cls": "cst",
+   "pos": 1,
+   "trophy": false,
+   "num": "162",
+   "name": "Jerry Irvine",
+   "car": "",
+   "color": "",
+   "runs": [
+    "73.384"
+   ],
+   "total": "73.384",
+   "diff": "[-]0.265"
+  },
+  {
+   "cls": "cst",
+   "pos": 2,
+   "trophy": false,
+   "num": "97",
+   "name": "Alex Redman",
+   "car": "",
+   "color": "",
+   "runs": [
+    "73.649"
+   ],
+   "total": "73.649",
+   "diff": "+0.265"
+  },
+  {
+   "cls": "cst",
+   "pos": 3,
+   "trophy": false,
+   "num": "197",
+   "name": "Bret Vaughn",
+   "car": "",
+   "color": "",
+   "runs": [
+    "75.790"
+   ],
+   "total": "75.790",
+   "diff": "+2.141"
+  },
+  {
+   "cls": "cst",
+   "pos": 4,
+   "trophy": false,
+   "num": "47",
+   "name": "Peter Monshizadeh",
+   "car": "",
+   "color": "",
+   "runs": [
+    "75.916"
+   ],
+   "total": "75.916",
+   "diff": "+0.126"
+  },
+  {
+   "cls": "csx",
+   "pos": 1,
+   "trophy": false,
+   "num": "44",
+   "name": "Andrew Benagh",
+   "car": "",
+   "color": "",
+   "runs": [
+    "72.266"
+   ],
+   "total": "72.266",
+   "diff": "[-]0.888"
+  },
+  {
+   "cls": "csx",
+   "pos": 2,
+   "trophy": false,
+   "num": "90",
+   "name": "Scott Dobler II",
+   "car": "",
+   "color": "",
+   "runs": [
+    "73.154"
+   ],
+   "total": "73.154",
+   "diff": "+0.888"
+  },
+  {
+   "cls": "ds",
+   "pos": 1,
+   "trophy": false,
+   "num": "42",
+   "name": "Greg Cheney",
+   "car": "",
+   "color": "",
+   "runs": [
+    "75.032"
+   ],
+   "total": "75.032",
+   "diff": "[-]1.255"
+  },
+  {
+   "cls": "ds",
+   "pos": 2,
+   "trophy": false,
+   "num": "1",
+   "name": "Kevin Brown",
+   "car": "",
+   "color": "",
+   "runs": [
+    "76.287"
+   ],
+   "total": "76.287",
+   "diff": "+1.255"
+  },
+  {
+   "cls": "ds",
+   "pos": 3,
+   "trophy": false,
+   "num": "71",
+   "name": "David Hoang",
+   "car": "",
+   "color": "",
+   "runs": [
+    "76.516"
+   ],
+   "total": "76.516",
+   "diff": "+0.229"
+  },
+  {
+   "cls": "ds",
+   "pos": 4,
+   "trophy": false,
+   "num": "28",
+   "name": "Everett Hopkins",
+   "car": "",
+   "color": "",
+   "runs": [
+    "77.968"
+   ],
+   "total": "77.968",
+   "diff": "+1.452"
+  },
+  {
+   "cls": "ds",
+   "pos": 5,
+   "trophy": false,
+   "num": "171",
+   "name": "German Flores Ortega",
+   "car": "",
+   "color": "",
+   "runs": [
+    "78.544"
+   ],
+   "total": "78.544",
+   "diff": "+0.576"
+  },
+  {
+   "cls": "dsp",
+   "pos": 1,
+   "trophy": false,
+   "num": "42",
+   "name": "Jeremy Utterback",
+   "car": "",
+   "color": "",
+   "runs": [
+    "80.646"
+   ],
+   "total": "80.646",
+   "diff": "-"
+  },
+  {
+   "cls": "dst",
+   "pos": 1,
+   "trophy": false,
+   "num": "69",
+   "name": "Ben Ellsworth",
+   "car": "",
+   "color": "",
+   "runs": [
+    "71.583"
+   ],
+   "total": "71.583",
+   "diff": "-"
+  },
+  {
+   "cls": "es",
+   "pos": 1,
+   "trophy": false,
+   "num": "131",
+   "name": "Janet Bauman",
+   "car": "",
+   "color": "",
+   "runs": [
+    "80.204"
+   ],
+   "total": "80.204",
+   "diff": "[-]1.167"
+  },
+  {
+   "cls": "es",
+   "pos": 2,
+   "trophy": false,
+   "num": "31",
+   "name": "Bill Bauman",
+   "car": "",
+   "color": "",
+   "runs": [
+    "81.371"
+   ],
+   "total": "81.371",
+   "diff": "+1.167"
+  },
+  {
+   "cls": "est",
+   "pos": 1,
+   "trophy": false,
+   "num": "71",
+   "name": "Blayne Rios",
+   "car": "",
+   "color": "",
+   "runs": [
+    "69.919"
+   ],
+   "total": "69.919",
+   "diff": "[-]5.249"
+  },
+  {
+   "cls": "est",
+   "pos": 2,
+   "trophy": false,
+   "num": "13",
+   "name": "Ryan Redenbaugh",
+   "car": "",
+   "color": "",
+   "runs": [
+    "75.168"
+   ],
+   "total": "75.168",
+   "diff": "+5.249"
+  },
+  {
+   "cls": "est",
+   "pos": 3,
+   "trophy": false,
+   "num": "3",
+   "name": "Larry G Smith",
+   "car": "",
+   "color": "",
+   "runs": [
+    "75.934"
+   ],
+   "total": "75.934",
+   "diff": "+0.766"
+  },
+  {
+   "cls": "est",
+   "pos": 4,
+   "trophy": false,
+   "num": "39",
+   "name": "Logan Satterfield",
+   "car": "",
+   "color": "",
+   "runs": [
+    "76.328"
+   ],
+   "total": "76.328",
+   "diff": "+0.394"
+  },
+  {
+   "cls": "est",
+   "pos": 5,
+   "trophy": false,
+   "num": "26",
+   "name": "Mitchell Johnson",
+   "car": "",
+   "color": "",
+   "runs": [
+    "76.862"
+   ],
+   "total": "76.862",
+   "diff": "+0.534"
+  },
+  {
+   "cls": "est",
+   "pos": 6,
+   "trophy": false,
+   "num": "38",
+   "name": "Justin Florance",
+   "car": "",
+   "color": "",
+   "runs": [
+    "78.149"
+   ],
+   "total": "78.149",
+   "diff": "+1.287"
+  },
+  {
+   "cls": "est",
+   "pos": 7,
+   "trophy": false,
+   "num": "171",
+   "name": "Henry Savasten",
+   "car": "",
+   "color": "",
+   "runs": [
+    "79.556"
+   ],
+   "total": "79.556",
+   "diff": "+1.407"
+  },
+  {
+   "cls": "fs",
+   "pos": 1,
+   "trophy": false,
+   "num": "18",
+   "name": "Elly Richardson",
+   "car": "",
+   "color": "",
+   "runs": [
+    "86.077"
+   ],
+   "total": "86.077",
+   "diff": "-"
+  },
+  {
+   "cls": "fsp",
+   "pos": 1,
+   "trophy": false,
+   "num": "38",
+   "name": "Steve Maloney",
+   "car": "",
+   "color": "",
+   "runs": [
+    "93.797"
+   ],
+   "total": "93.797",
+   "diff": "-"
+  },
+  {
+   "cls": "gs",
+   "pos": 1,
+   "trophy": false,
+   "num": "66",
+   "name": "Phillip Meredith",
+   "car": "",
+   "color": "",
+   "runs": [
+    "73.789"
+   ],
+   "total": "73.789",
+   "diff": "[-]5.410"
+  },
+  {
+   "cls": "gs",
+   "pos": 2,
+   "trophy": false,
+   "num": "62",
+   "name": "Terry Irvine",
+   "car": "",
+   "color": "",
+   "runs": [
+    "79.199"
+   ],
+   "total": "79.199",
+   "diff": "+5.410"
+  },
+  {
+   "cls": "gs",
+   "pos": 3,
+   "trophy": false,
+   "num": "15",
+   "name": "James Greeson",
+   "car": "",
+   "color": "",
+   "runs": [
+    "84.161"
+   ],
+   "total": "84.161",
+   "diff": "+4.962"
+  },
+  {
+   "cls": "hs",
+   "pos": 1,
+   "trophy": false,
+   "num": "54",
+   "name": "Nik Pearce",
+   "car": "",
+   "color": "",
+   "runs": [
+    "81.887"
+   ],
+   "total": "81.887",
+   "diff": "-"
+  },
+  {
+   "cls": "sm",
+   "pos": 1,
+   "trophy": false,
+   "num": "277",
+   "name": "Adrian Tubis",
+   "car": "",
+   "color": "",
+   "runs": [
+    "79.307"
+   ],
+   "total": "79.307",
+   "diff": "[-]2.881"
+  },
+  {
+   "cls": "sm",
+   "pos": 2,
+   "trophy": false,
+   "num": "47",
+   "name": "Lorenzo Rossillon",
+   "car": "",
+   "color": "",
+   "runs": [
+    "82.188"
+   ],
+   "total": "82.188",
+   "diff": "+2.881"
+  },
+  {
+   "cls": "ssm",
+   "pos": 1,
+   "trophy": false,
+   "num": "32",
+   "name": "Mitchell DeWalt",
+   "car": "",
+   "color": "",
+   "runs": [
+    "83.025"
+   ],
+   "total": "83.025",
+   "diff": "-"
+  },
+  {
+   "cls": "sst",
+   "pos": 1,
+   "trophy": false,
+   "num": "57",
+   "name": "Zachary Nusbaum",
+   "car": "",
+   "color": "",
+   "runs": [
+    "80.947"
+   ],
+   "total": "80.947",
+   "diff": "-"
+  },
+  {
+   "cls": "xa",
+   "pos": 1,
+   "trophy": false,
+   "num": "56",
+   "name": "Gus Eulitt",
+   "car": "",
+   "color": "",
+   "runs": [
+    "73.031"
+   ],
+   "total": "73.031",
+   "diff": "[-]1.343"
+  },
+  {
+   "cls": "xa",
+   "pos": 2,
+   "trophy": false,
+   "num": "184",
+   "name": "Jonathan Griffith",
+   "car": "",
+   "color": "",
+   "runs": [
+    "74.374"
+   ],
+   "total": "74.374",
+   "diff": "+1.343"
+  },
+  {
+   "cls": "xa",
+   "pos": 3,
+   "trophy": false,
+   "num": "84",
+   "name": "April Griffith",
+   "car": "",
+   "color": "",
+   "runs": [
+    "84.669"
+   ],
+   "total": "84.669",
+   "diff": "+10.295"
+  },
+  {
+   "cls": "xa",
+   "pos": 4,
+   "trophy": false,
+   "num": "129",
+   "name": "Cary Mah",
+   "car": "",
+   "color": "",
+   "runs": [
+    "85.127"
+   ],
+   "total": "85.127",
+   "diff": "+0.458"
+  },
+  {
+   "cls": "xa",
+   "pos": 5,
+   "trophy": false,
+   "num": "14",
+   "name": "Forrest Nicholson",
+   "car": "",
+   "color": "",
+   "runs": [
+    "88.336"
+   ],
+   "total": "88.336",
+   "diff": "+3.209"
+  },
+  {
+   "cls": "xal",
+   "pos": 1,
+   "trophy": false,
+   "num": "29",
+   "name": "Sally Mah",
+   "car": "",
+   "color": "",
+   "runs": [
+    "96.416"
+   ],
+   "total": "96.416",
+   "diff": "-"
+  },
+  {
+   "cls": "xb",
+   "pos": 1,
+   "trophy": false,
+   "num": "1",
+   "name": "Kevin Sullivan",
+   "car": "",
+   "color": "",
+   "runs": [
+    "91.520"
+   ],
+   "total": "91.520",
+   "diff": "-"
+  },
+  {
+   "cls": "xp",
+   "pos": 1,
+   "trophy": false,
+   "num": "11",
+   "name": "Tyler Gibson",
+   "car": "",
+   "color": "",
+   "runs": [
+    "71.919"
+   ],
+   "total": "71.919",
+   "diff": "[-]4.930"
+  },
+  {
+   "cls": "xp",
+   "pos": 2,
+   "trophy": false,
+   "num": "117",
+   "name": "Nick Angell",
+   "car": "",
+   "color": "",
+   "runs": [
+    "76.849"
+   ],
+   "total": "76.849",
+   "diff": "+4.930"
+  },
+  {
+   "cls": "n",
+   "pos": 1,
+   "trophy": false,
+   "num": "7",
+   "name": "Graham Matlock",
+   "car": "",
+   "color": "",
+   "runs": [
+    "79.743"
+   ],
+   "total": "79.743",
+   "diff": "[-]9.586"
+  },
+  {
+   "cls": "n",
+   "pos": 2,
+   "trophy": false,
+   "num": "90",
+   "name": "Aimee Thoennes",
+   "car": "",
+   "color": "",
+   "runs": [
+    "89.329"
+   ],
+   "total": "89.329",
+   "diff": "+9.586"
+  },
+  {
+   "cls": "n",
+   "pos": 3,
+   "trophy": false,
+   "num": "3",
+   "name": "Gaige Thomas",
+   "car": "",
+   "color": "",
+   "runs": [
+    "89.909"
+   ],
+   "total": "89.909",
+   "diff": "+10.166"
+  }
+ ]
+}
