@@ -1627,6 +1627,24 @@
       "/wp-content/uploads/2026/09/2026-06-27-comeback-1-3.htm?v=b69203ae#raw"
      ]
     ]
+   },
+   {
+    "title": "Darana Heartland Solo September 19th",
+    "date": "September 19, 2026",
+    "links": [
+     [
+      "Class",
+      "/wp-content/uploads/2026/09/2026-09-19-solo.htm?v=7944220a#class"
+     ],
+     [
+      "PAX",
+      "/wp-content/uploads/2026/09/2026-09-19-solo.htm?v=7944220a#pax"
+     ],
+     [
+      "Raw",
+      "/wp-content/uploads/2026/09/2026-09-19-solo.htm?v=7944220a#raw"
+     ]
+    ]
    }
   ],
   "points": [
@@ -1640,6 +1658,7 @@
   "page_id": 2139,
   "title": "Kansas Region SCCA Autocross Schedule and Results",
   "feed_type": "autocross",
-  "intro": "The current autocross season in one place: results for events that have run, and registration for the ones coming up. Earlier seasons are in the archive below."
+  "intro": "The current autocross season in one place: results for events that have run, and registration for the ones coming up. Earlier seasons are in the archive below.",
+  "live_timing": "https://ksscca.prontolivetiming.com/"
  }
 }
