@@ -115,7 +115,7 @@
  "entries": [
   {
    "cls": "n",
-   "pos": 1,
+   "pos": 2,
    "trophy": false,
    "num": "90",
    "name": "Aimee Thoennes",
@@ -125,10 +125,10 @@
     "111.833+dnf",
     "100.018",
     "89.329",
-    "60.185"
+    "60.185+dnf"
    ],
-   "total": "60.185",
-   "diff": "[-]19.558"
+   "total": "89.329",
+   "diff": "+9.586"
   },
   {
    "cls": "cams",
@@ -536,7 +536,7 @@
   },
   {
    "cls": "ds",
-   "pos": 4,
+   "pos": 3,
    "trophy": false,
    "num": "71",
    "name": "David Hoang",
@@ -549,7 +549,7 @@
     "76.774"
    ],
    "total": "76.516",
-   "diff": "+0.188"
+   "diff": "+0.229"
   },
   {
    "cls": "cs",
@@ -621,20 +621,19 @@
   },
   {
    "cls": "ds",
-   "pos": 3,
+   "pos": 4,
    "trophy": false,
    "num": "28",
    "name": "Everett Hopkins",
    "car": "2005 Chrysler Crossfire",
    "color": "",
    "runs": [
-    "77.968",
-    "72.328+2",
+    "",
     "77.968",
     "87.891"
    ],
-   "total": "76.328",
-   "diff": "+0.041"
+   "total": "77.968",
+   "diff": "+1.452"
   },
   {
    "cls": "est",
@@ -668,7 +667,7 @@
     "78.369+dnf"
    ],
    "total": "78.544",
-   "diff": "+2.028"
+   "diff": "+0.576"
   },
   {
    "cls": "cs",
@@ -757,7 +756,7 @@
   },
   {
    "cls": "n",
-   "pos": 2,
+   "pos": 1,
    "trophy": false,
    "num": "7",
    "name": "Graham Matlock",
@@ -770,7 +769,7 @@
     "87.019+2"
    ],
    "total": "79.743",
-   "diff": "+19.558"
+   "diff": "[-]9.586"
   },
   {
    "cls": "es",
