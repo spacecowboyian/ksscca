@@ -115,20 +115,20 @@
  "entries": [
   {
    "cls": "n",
-   "pos": 2,
+   "pos": 1,
    "trophy": false,
    "num": "90",
    "name": "Aimee Thoennes",
-   "car": "",
+   "car": "2006 Mazda Miata MX5",
    "color": "",
    "runs": [
     "111.833+dnf",
     "100.018",
     "89.329",
-    "60.185+dnf"
+    "60.185"
    ],
-   "total": "89.329",
-   "diff": "+9.586"
+   "total": "60.185",
+   "diff": "[-]19.558"
   },
   {
    "cls": "cams",
@@ -136,7 +136,7 @@
    "trophy": false,
    "num": "24",
    "name": "James Woodward",
-   "car": "",
+   "car": "2008 Pontiac Solstice GXP",
    "color": "",
    "runs": [
     "71.230+1",
@@ -153,7 +153,7 @@
    "trophy": false,
    "num": "71",
    "name": "Blayne Rios",
-   "car": "",
+   "car": "2016 Mazda MX-5",
    "color": "",
    "runs": [
     "73.505+2",
@@ -170,7 +170,7 @@
    "trophy": false,
    "num": "30",
    "name": "Matthew Kuffel",
-   "car": "",
+   "car": "2015 Ford Mustang GT",
    "color": "",
    "runs": [
     "76.946",
@@ -187,7 +187,7 @@
    "trophy": false,
    "num": "69",
    "name": "Ben Ellsworth",
-   "car": "",
+   "car": "2005 Mini Cooper S",
    "color": "",
    "runs": [
     "82.141",
@@ -204,7 +204,7 @@
    "trophy": false,
    "num": "63",
    "name": "Frank Wietharn",
-   "car": "",
+   "car": "2007 Chevrolet Corvette Z06",
    "color": "",
    "runs": [
     "75.325+dnf",
@@ -221,7 +221,7 @@
    "trophy": false,
    "num": "11",
    "name": "Tyler Gibson",
-   "car": "",
+   "car": "1971 Chevrolet C10",
    "color": "",
    "runs": [
     "80.965+3",
@@ -238,7 +238,7 @@
    "trophy": false,
    "num": "44",
    "name": "Andrew Benagh",
-   "car": "",
+   "car": "2010 Mazda MX-5",
    "color": "",
    "runs": [
     "74.491+1",
@@ -255,7 +255,7 @@
    "trophy": false,
    "num": "56",
    "name": "Gus Eulitt",
-   "car": "",
+   "car": "2003 Nissan 350Z",
    "color": "",
    "runs": [
     "71.004+3",
@@ -272,7 +272,7 @@
    "trophy": false,
    "num": "90",
    "name": "Scott Dobler II",
-   "car": "",
+   "car": "2006 Mazda Miata MX-5",
    "color": "",
    "runs": [
     "72.158+dnf",
@@ -289,7 +289,7 @@
    "trophy": false,
    "num": "162",
    "name": "Jerry Irvine",
-   "car": "",
+   "car": "2007 BMW Z4 Coupe 3.0si",
    "color": "",
    "runs": [
     "74.995+dnf",
@@ -306,7 +306,7 @@
    "trophy": false,
    "num": "97",
    "name": "Alex Redman",
-   "car": "",
+   "car": "2001 Toyota MR2 Spyder",
    "color": "",
    "runs": [
     "93.656+dnf",
@@ -323,7 +323,7 @@
    "trophy": false,
    "num": "113",
    "name": "roger hill",
-   "car": "",
+   "car": "2008 Saturn sky redline",
    "color": "",
    "runs": [
     "87.603+dnf",
@@ -340,7 +340,7 @@
    "trophy": false,
    "num": "66",
    "name": "Phillip Meredith",
-   "car": "",
+   "car": "Volkswagen GTI",
    "color": "",
    "runs": [
     "73.789",
@@ -357,7 +357,7 @@
    "trophy": false,
    "num": "184",
    "name": "Jonathan Griffith",
-   "car": "",
+   "car": "2005 Mazda Rx8",
    "color": "",
    "runs": [
     "70.374+2"
@@ -371,7 +371,7 @@
    "trophy": false,
    "num": "42",
    "name": "Greg Cheney",
-   "car": "",
+   "car": "2023 Toyota GR 86",
    "color": "",
    "runs": [
     "80.208+dnf",
@@ -388,7 +388,7 @@
    "trophy": false,
    "num": "13",
    "name": "Ryan Redenbaugh",
-   "car": "",
+   "car": "1990 Mazda Miata",
    "color": "",
    "runs": [
     "79.731+2",
@@ -405,7 +405,7 @@
    "trophy": false,
    "num": "66",
    "name": "Rodney Giebel",
-   "car": "",
+   "car": "2020 Mazda MX-5 Miata",
    "color": "",
    "runs": [
     "80.098",
@@ -422,7 +422,7 @@
    "trophy": false,
    "num": "197",
    "name": "Bret Vaughn",
-   "car": "",
+   "car": "2001 Toyota MR2 Spyder",
    "color": "",
    "runs": [
     "80.729+1",
@@ -439,7 +439,7 @@
    "trophy": false,
    "num": "47",
    "name": "Peter Monshizadeh",
-   "car": "",
+   "car": "2003 Honda S2000",
    "color": "",
    "runs": [
     "77.415",
@@ -456,7 +456,7 @@
    "trophy": false,
    "num": "3",
    "name": "Larry g Smith",
-   "car": "",
+   "car": "1990 Mazda Miata MX5",
    "color": "",
    "runs": [
     "81.769+2",
@@ -473,7 +473,7 @@
    "trophy": false,
    "num": "197",
    "name": "Hank Dunham",
-   "car": "",
+   "car": "2004 Honda S2000",
    "color": "",
    "runs": [
     "79.327",
@@ -490,7 +490,7 @@
    "trophy": false,
    "num": "1",
    "name": "Kevin Brown",
-   "car": "",
+   "car": "2011 Subaru STI",
    "color": "",
    "runs": [
     "80.465+dnf",
@@ -507,7 +507,7 @@
    "trophy": false,
    "num": "95",
    "name": "Kevin Lynn",
-   "car": "",
+   "car": "2002 Honda S2000",
    "color": "",
    "runs": [
     "81.316",
@@ -523,7 +523,7 @@
    "trophy": false,
    "num": "39",
    "name": "Logan Satterfield",
-   "car": "",
+   "car": "1990 Mazda Miata",
    "color": "",
    "runs": [
     "81.468+3",
@@ -536,11 +536,11 @@
   },
   {
    "cls": "ds",
-   "pos": 3,
+   "pos": 4,
    "trophy": false,
    "num": "71",
    "name": "David Hoang",
-   "car": "",
+   "car": "2023 Subaru BRZ",
    "color": "",
    "runs": [
     "76.516",
@@ -549,7 +549,7 @@
     "76.774"
    ],
    "total": "76.516",
-   "diff": "+0.229"
+   "diff": "+0.188"
   },
   {
    "cls": "cs",
@@ -557,7 +557,7 @@
    "trophy": false,
    "num": "34",
    "name": "Christian Els",
-   "car": "",
+   "car": "1999 BMW Z3 M Coupe",
    "color": "",
    "runs": [
     "81.157",
@@ -574,7 +574,7 @@
    "trophy": false,
    "num": "13",
    "name": "Russell Williams",
-   "car": "",
+   "car": "2016 Ford Mustang PP1",
    "color": "",
    "runs": [
     "77.977+dnf",
@@ -591,7 +591,7 @@
    "trophy": false,
    "num": "117",
    "name": "Nick Angell",
-   "car": "",
+   "car": "1971 Chevrolet C10",
    "color": "",
    "runs": [
     "76.597+1",
@@ -608,7 +608,7 @@
    "trophy": false,
    "num": "26",
    "name": "Mitchell Johnson",
-   "car": "",
+   "car": "2013 Honda Fit",
    "color": "",
    "runs": [
     "79.276+dnf",
@@ -621,19 +621,20 @@
   },
   {
    "cls": "ds",
-   "pos": 4,
+   "pos": 3,
    "trophy": false,
    "num": "28",
    "name": "Everett Hopkins",
-   "car": "",
+   "car": "2005 Chrysler Crossfire",
    "color": "",
    "runs": [
-    "",
+    "77.968",
+    "72.328+2",
     "77.968",
     "87.891"
    ],
-   "total": "77.968",
-   "diff": "+1.452"
+   "total": "76.328",
+   "diff": "+0.041"
   },
   {
    "cls": "est",
@@ -641,7 +642,7 @@
    "trophy": false,
    "num": "38",
    "name": "Justin Florance",
-   "car": "",
+   "car": "2001 Mazda Miata",
    "color": "",
    "runs": [
     "71.255+dnf",
@@ -658,7 +659,7 @@
    "trophy": false,
    "num": "171",
    "name": "German Flores Ortega",
-   "car": "",
+   "car": "2023 Subaru BRZ",
    "color": "",
    "runs": [
     "74.387+dnf",
@@ -667,7 +668,7 @@
     "78.369+dnf"
    ],
    "total": "78.544",
-   "diff": "+0.576"
+   "diff": "+2.028"
   },
   {
    "cls": "cs",
@@ -675,7 +676,7 @@
    "trophy": false,
    "num": "97",
    "name": "Greg Dunham",
-   "car": "",
+   "car": "2004 Honda S2000",
    "color": "",
    "runs": [
     "79.417+2",
@@ -692,7 +693,7 @@
    "trophy": false,
    "num": "49",
    "name": "Albert Hermans",
-   "car": "",
+   "car": "1997 Ford Mustang Cobra",
    "color": "",
    "runs": [
     "77.423+1",
@@ -709,7 +710,7 @@
    "trophy": false,
    "num": "62",
    "name": "Terry Irvine",
-   "car": "",
+   "car": "2024 Honda Civic Si",
    "color": "",
    "runs": [
     "81.530+dnf",
@@ -726,7 +727,7 @@
    "trophy": false,
    "num": "277",
    "name": "Adrian Tubis",
-   "car": "",
+   "car": "1990 Mazda Miata",
    "color": "",
    "runs": [
     "82.846",
@@ -743,7 +744,7 @@
    "trophy": false,
    "num": "171",
    "name": "Henry Savasten",
-   "car": "",
+   "car": "1991 Mazda Miata",
    "color": "",
    "runs": [
     "85.767+1",
@@ -756,11 +757,11 @@
   },
   {
    "cls": "n",
-   "pos": 1,
+   "pos": 2,
    "trophy": false,
    "num": "7",
    "name": "Graham Matlock",
-   "car": "",
+   "car": "2004 Volvo V70R",
    "color": "",
    "runs": [
     "80.955+3",
@@ -769,7 +770,7 @@
     "87.019+2"
    ],
    "total": "79.743",
-   "diff": "[-]9.586"
+   "diff": "+19.558"
   },
   {
    "cls": "es",
@@ -777,7 +778,7 @@
    "trophy": false,
    "num": "131",
    "name": "Janet Bauman",
-   "car": "",
+   "car": "1999 Mazda Miata",
    "color": "",
    "runs": [
     "84.822+3",
@@ -794,7 +795,7 @@
    "trophy": false,
    "num": "42",
    "name": "Jeremy Utterback",
-   "car": "",
+   "car": "1991 Chevrolet Corvette",
    "color": "",
    "runs": [
     "81.790",
@@ -811,7 +812,7 @@
    "trophy": false,
    "num": "57",
    "name": "Zachary Nusbaum",
-   "car": "",
+   "car": "2001 Chevrolet Z06",
    "color": "",
    "runs": [
     "74.947+3",
@@ -827,7 +828,7 @@
    "trophy": false,
    "num": "31",
    "name": "Bill Bauman",
-   "car": "",
+   "car": "1999 Mazda Miata",
    "color": "",
    "runs": [
     "81.992+dnf",
@@ -844,7 +845,7 @@
    "trophy": false,
    "num": "54",
    "name": "Nik Pearce",
-   "car": "",
+   "car": "2016 Honda Civic",
    "color": "",
    "runs": [
     "86.228",
@@ -861,7 +862,7 @@
    "trophy": false,
    "num": "47",
    "name": "Stefanie Kenney",
-   "car": "",
+   "car": "2023 Toyota GR Corolla",
    "color": "",
    "runs": [
     "81.906",
@@ -878,7 +879,7 @@
    "trophy": false,
    "num": "47",
    "name": "Lorenzo Rossillon",
-   "car": "",
+   "car": "2011 Subaru Wrx",
    "color": "",
    "runs": [
     "81.401+dnf",
@@ -894,7 +895,7 @@
    "trophy": false,
    "num": "32",
    "name": "Mitchell DeWalt",
-   "car": "",
+   "car": "2017 Porsche 911 C2",
    "color": "",
    "runs": [
     "90.885+dnf",
@@ -911,7 +912,7 @@
    "trophy": false,
    "num": "68",
    "name": "Ben Florance",
-   "car": "",
+   "car": "2017 Chevrolet Camaro",
    "color": "",
    "runs": [
     "87.342+dnf",
@@ -928,7 +929,7 @@
    "trophy": false,
    "num": "57",
    "name": "Scott Allison",
-   "car": "",
+   "car": "Formula Corvair Powered Formula",
    "color": "",
    "runs": [
     "89.320",
@@ -945,7 +946,7 @@
    "trophy": false,
    "num": "15",
    "name": "James Greeson",
-   "car": "",
+   "car": "2023 Hyundai Elantra N",
    "color": "",
    "runs": [
     "89.663+dnf",
@@ -962,7 +963,7 @@
    "trophy": false,
    "num": "84",
    "name": "April Griffith",
-   "car": "",
+   "car": "2005 Mazda Rx8",
    "color": "",
    "runs": [
     "76.669+4"
@@ -976,7 +977,7 @@
    "trophy": false,
    "num": "129",
    "name": "Cary Mah",
-   "car": "",
+   "car": "2013 Subaru BRZ",
    "color": "",
    "runs": [
     "85.483",
@@ -993,7 +994,7 @@
    "trophy": false,
    "num": "18",
    "name": "Elly Richardson",
-   "car": "",
+   "car": "2020 Ford Mustang Ecoboost",
    "color": "",
    "runs": [
     "87.603",
@@ -1010,7 +1011,7 @@
    "trophy": false,
    "num": "14",
    "name": "Forrest Nicholson",
-   "car": "",
+   "car": "2000 BMW 328Ci",
    "color": "",
    "runs": [
     "94.564",
@@ -1027,7 +1028,7 @@
    "trophy": false,
    "num": "3",
    "name": "Gaige Thomas",
-   "car": "",
+   "car": "1997 Mazda Miata",
    "color": "",
    "runs": [
     "94.526+dnf",
@@ -1044,7 +1045,7 @@
    "trophy": false,
    "num": "1",
    "name": "Kevin Sullivan",
-   "car": "",
+   "car": "1992 Suzuki Cappuccino EA11R",
    "color": "",
    "runs": [
     "142.256+2",
@@ -1061,7 +1062,7 @@
    "trophy": false,
    "num": "38",
    "name": "Steve Maloney",
-   "car": "",
+   "car": "1966 Chevrolet Corvair",
    "color": "",
    "runs": [
     "100.154",
@@ -1078,7 +1079,7 @@
    "trophy": false,
    "num": "29",
    "name": "Sally Mah",
-   "car": "",
+   "car": "2013 Subaru BRZ",
    "color": "",
    "runs": [
     "104.385",
@@ -1095,7 +1096,7 @@
    "trophy": false,
    "num": "77",
    "name": "David Witt",
-   "car": "",
+   "car": "2006 Ford Mustang",
    "color": "",
    "runs": [
     "99.205",
@@ -1112,7 +1113,7 @@
    "trophy": false,
    "num": "8",
    "name": "Jeff Houseman",
-   "car": "",
+   "car": "Ford 2017 Mustang",
    "color": "",
    "runs": [
     "120.168",
@@ -1129,7 +1130,7 @@
    "trophy": false,
    "num": "13",
    "name": "Mark Shackelford",
-   "car": "",
+   "car": "2008 Saturn sky redline",
    "color": "",
    "runs": [],
    "total": "dns",
