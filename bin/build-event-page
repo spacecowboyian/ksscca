@@ -309,7 +309,10 @@ def run_cells(entry, event):
         return ""
     mark = None if event.get("scoring") == "sum" else best(entry["runs"], event.get("penalties"))
     out = []
-    for r in entry["runs"]:
+    # every row gets a cell for every run of the day, so a driver who took
+    # fewer keeps the rest of the row under the right headings
+    runs = entry["runs"] + [""] * (run_count(event) - len(entry["runs"]))
+    for r in runs:
         v = counted(r)
         if not (r or "").strip():
             out.append('<span class="t rc m">&mdash;</span>')
