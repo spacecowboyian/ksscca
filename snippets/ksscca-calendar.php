@@ -40,7 +40,7 @@ if ( ! function_exists( 'ksscca_calendar_fetch_events' ) ) {
 	 *                                            fetch/parse failure.
 	 */
 	function ksscca_calendar_fetch_events() {
-		$cache_key = 'ksscca_calendar_events_v2';
+		$cache_key = 'ksscca_calendar_events_v3';
 		$cached    = get_transient( $cache_key );
 		if ( false !== $cached ) {
 			return $cached;
@@ -78,6 +78,9 @@ if ( ! function_exists( 'ksscca_calendar_fetch_events' ) ) {
 			$events[] = array(
 				'name'      => (string) $event->name,
 				'start'     => (string) $event->start,
+				// A weekend runs as two competition days under one entry, so
+				// the end date matters: each day is its own event on the site.
+				'end'       => (string) $event->end,
 				'type'      => (string) $event->type,
 				'detailuri' => (string) $event->detailuri,
 				'venue'     => (string) $event->venue->name,
@@ -104,6 +107,33 @@ if ( ! function_exists( 'ksscca_calendar_fetch_events' ) ) {
 		update_option( 'ksscca_calendar_events_stale', $events, false );
 
 		return $events;
+	}
+}
+
+if ( ! function_exists( 'ksscca_calendar_event_days' ) ) {
+	/**
+	 * The competition days an entry covers, as array( array( 'Y-m-d', day
+	 * number, day count ), ... ). A one day event gives one row with a count
+	 * of 1; October 17 to 18 gives two.
+	 */
+	function ksscca_calendar_event_days( $event ) {
+		$start = substr( (string) $event['start'], 0, 10 );
+		$end   = substr( (string) ( isset( $event['end'] ) ? $event['end'] : '' ), 0, 10 );
+		if ( '' === $end || $end <= $start ) {
+			return array( array( $start, 1, 1 ) );
+		}
+		$days = array();
+		$at   = strtotime( $start );
+		$last = strtotime( $end );
+		while ( $at <= $last && count( $days ) < 7 ) {
+			$days[] = date( 'Y-m-d', $at );
+			$at     = strtotime( '+1 day', $at );
+		}
+		$out = array();
+		foreach ( $days as $i => $d ) {
+			$out[] = array( $d, $i + 1, count( $days ) );
+		}
+		return $out;
 	}
 }
 
@@ -218,8 +248,9 @@ if ( ! function_exists( 'ksscca_calendar_shortcode' ) ) {
 					</thead>
 					<tbody>
 						<?php foreach ( $events as $event ) : ?>
+							<?php foreach ( ksscca_calendar_event_days( $event ) as $day ) : ?>
 							<tr data-timing="<?php echo esc_attr( ksscca_calendar_live_timing( $event['type'] ) ); ?>" data-reg="<?php echo ksscca_calendar_registration_closed( $event ) ? 'closed' : 'open'; ?>">
-								<td><?php echo esc_html( date_i18n( 'M j', strtotime( $event['start'] ) ) ); ?></td>
+								<td><?php echo esc_html( date_i18n( 'M j', strtotime( $day[0] ) ) ); ?></td>
 								<td><?php echo esc_html( $event['name'] ); ?></td>
 								<td><?php echo esc_html( $event['venue'] ); ?></td>
 								<td><?php echo esc_html( $event['city'] . ', ' . $event['region'] ); ?></td>
@@ -230,6 +261,7 @@ if ( ! function_exists( 'ksscca_calendar_shortcode' ) ) {
 									</a>
 								</td>
 							</tr>
+							<?php endforeach; ?>
 						<?php endforeach; ?>
 					</tbody>
 				</table>

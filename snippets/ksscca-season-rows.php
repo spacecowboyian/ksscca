@@ -98,35 +98,43 @@ if ( ! function_exists( 'ksscca_season_rows_shortcode' ) ) {
 		$next  = false;
 
 		foreach ( ksscca_season_rows_events() as $event ) {
-			$day = substr( $event['start'], 0, 10 );
 			if ( '' !== $atts['type'] && false === stripos( $event['type'], $atts['type'] ) ) {
 				continue;
 			}
-			if ( substr( $day, 0, 4 ) !== $year || ( '' !== $atts['after'] && $day <= $atts['after'] ) ) {
-				continue;
-			}
-			$ts = strtotime( $day . ' 12:00:00' );
-			if ( $day < $today ) {
-				// The timing system posts its own unofficial results as soon as
-				// the event ends, days before the official files are up.
-				$action = '<span class="ksr-pending">Results pending</span>';
-				if ( '' !== $live ) {
-					$action .= $sep . str_replace( '>Live Timing<', '>Unofficial results<', $live );
+			// A weekend is one entry on MotorsportReg and two events here, so
+			// each competition day gets its own row and its own results.
+			$days = function_exists( 'ksscca_calendar_event_days' )
+				? ksscca_calendar_event_days( $event )
+				: array( array( substr( $event['start'], 0, 10 ), 1, 1 ) );
+			foreach ( $days as $part ) {
+				list( $day, $day_no, $day_count ) = $part;
+				if ( substr( $day, 0, 4 ) !== $year || ( '' !== $atts['after'] && $day <= $atts['after'] ) ) {
+					continue;
 				}
-				$class  = 'ksr-row ksr-cal-row';
-			} else {
-				$register = '<a class="ksr-link" href="' . esc_url( $event['detailuri'] ) . '" target="_blank" rel="noopener">Register</a>';
-				$closed   = ! empty( $event['reg_end'] ) && $now >= $event['reg_end'];
-				$action   = ( $closed && '' !== $live ) ? $live : $register;
-				$class  = 'ksr-row ksr-cal-row is-upcoming' . ( $next ? '' : ' is-next' );
-				$next   = true;
+				$name = $event['name'] . ( $day_count > 1 ? ' Day ' . $day_no : '' );
+				$ts = strtotime( $day . ' 12:00:00' );
+				if ( $day < $today ) {
+					// The timing system posts its own unofficial results as soon as
+					// the event ends, days before the official files are up.
+					$action = '<span class="ksr-pending">Results pending</span>';
+					if ( '' !== $live ) {
+						$action .= $sep . str_replace( '>Live Timing<', '>Unofficial results<', $live );
+					}
+					$class  = 'ksr-row ksr-cal-row';
+				} else {
+					$register = '<a class="ksr-link" href="' . esc_url( $event['detailuri'] ) . '" target="_blank" rel="noopener">Register</a>';
+					$closed   = ! empty( $event['reg_end'] ) && $now >= $event['reg_end'];
+					$action   = ( $closed && '' !== $live ) ? $live : $register;
+					$class  = 'ksr-row ksr-cal-row is-upcoming' . ( $next ? '' : ' is-next' );
+					$next   = true;
+				}
+				$rows[] = '<div class="' . $class . '"><div class="ksr-cal" aria-hidden="true"><span class="ksr-cal-m">'
+					. esc_html( strtoupper( date( 'M', $ts ) ) ) . '</span><span class="ksr-cal-d">' . esc_html( date( 'j', $ts ) )
+					. '</span></div><div class="ksr-cal-main"><div class="ksr-event-name">' . esc_html( $name )
+					. '</div><div class="ksr-meta"><div class="ksr-event-sub"><span class="ksr-dl">' . esc_html( date( 'l', $ts ) )
+					. '</span><span class="ksr-ds">' . esc_html( date( 'D', $ts ) ) . '</span>, ' . esc_html( date( 'F j', $ts ) )
+					. '</div><div class="ksr-links">' . $action . '</div></div></div></div>';
 			}
-			$rows[] = '<div class="' . $class . '"><div class="ksr-cal" aria-hidden="true"><span class="ksr-cal-m">'
-				. esc_html( strtoupper( date( 'M', $ts ) ) ) . '</span><span class="ksr-cal-d">' . esc_html( date( 'j', $ts ) )
-				. '</span></div><div class="ksr-cal-main"><div class="ksr-event-name">' . esc_html( $event['name'] )
-				. '</div><div class="ksr-meta"><div class="ksr-event-sub"><span class="ksr-dl">' . esc_html( date( 'l', $ts ) )
-				. '</span><span class="ksr-ds">' . esc_html( date( 'D', $ts ) ) . '</span>, ' . esc_html( date( 'F j', $ts ) )
-				. '</div><div class="ksr-links">' . $action . '</div></div></div></div>';
 		}
 
 		if ( ! $next ) {
