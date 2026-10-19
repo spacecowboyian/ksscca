@@ -16,10 +16,37 @@
  *   [ksscca_calendar]                 all upcoming events, unfiltered
  *   [ksscca_calendar type="autocross"]  only events whose type contains "autocross"
  *   [ksscca_calendar type="rallycross"] only events whose type contains "rallycross"
+ *   [ksscca_calendar completed="https://www.motorsportreg.com/events/example"]
+ *                                    hide completed events by exact detailuri
  *
  * The match is a case-insensitive substring against the raw MotorsportReg type
  * field, so type="autocross" matches "Autocross/Solo" and type="time trial"
  * would match "Time Trial/HPDE" if that ever shows up in this feed.
+ *
+ * Completion: date-only events remain through their end date in America/Chicago
+ * (start date if end is absent), disappearing at midnight the following day.
+ * For results posted sooner, add the event's exact feed detailuri to `completed`
+ * (comma-separated for multiple events). This affects only this calendar, not
+ * the shared feed used by season rows or SportsEvent schema.
+ *
+ * Deployment for #105 (merging this file does NOT update WordPress):
+ * 1. Back up the existing WPCode calendar snippet and page 1655's full content.
+ * 2. Replace that snippet's PHP with this file (omit <?php in WPCode's editor).
+ *    Keep Insert Method: Auto Insert, location: Run Everywhere; save active.
+ *    The v3 transient forces a fresh fetch including end dates. If the API is
+ *    down, legacy fallback rows without end dates use their start date.
+ * 3. Test on a temporary published page with [ksscca_calendar], then delete it.
+ * 4. On page 1655 replace only [ksscca_calendar type="rallycross"] with
+ *    [ksscca_calendar]. If deploying on an event's final day after results are
+ *    posted, include its detailuri in `completed` until the next local day.
+ * 5. Check https://www.ksscca.org/?cb=<unique-value> on the public front end:
+ *    no completed October 17-18 rows; future events of every type still show;
+ *    October 17 and 18 results links are unchanged and still work. Check the
+ *    normal homepage too; request WP Engine page-cache purge if it is stale.
+ *    Feed filtering runs at PHP render time, not inside an already cached page.
+ * 6. Comment on issue #105 with the deployed snippet, verification and undo:
+ *    restore the backed-up snippet and reverse only the shortcode replacement
+ *    (back to type="rallycross"); do not overwrite newer homepage results.
  */
 
 if ( ! function_exists( 'ksscca_calendar_feed_url' ) ) {
@@ -40,7 +67,7 @@ if ( ! function_exists( 'ksscca_calendar_fetch_events' ) ) {
 	 *                                            fetch/parse failure.
 	 */
 	function ksscca_calendar_fetch_events() {
-		$cache_key = 'ksscca_calendar_events_v2';
+		$cache_key = 'ksscca_calendar_events_v3';
 		$cached    = get_transient( $cache_key );
 		if ( false !== $cached ) {
 			return $cached;
@@ -78,6 +105,7 @@ if ( ! function_exists( 'ksscca_calendar_fetch_events' ) ) {
 			$events[] = array(
 				'name'      => (string) $event->name,
 				'start'     => (string) $event->start,
+				'end'       => (string) $event->end,
 				'type'      => (string) $event->type,
 				'detailuri' => (string) $event->detailuri,
 				'venue'     => (string) $event->venue->name,
@@ -177,25 +205,27 @@ if ( ! function_exists( 'ksscca_calendar_shortcode' ) ) {
 	function ksscca_calendar_shortcode( $atts ) {
 		$atts = shortcode_atts(
 			array(
-				'type'  => '',
-				'title' => 'Register for upcoming events',
+				'type'      => '',
+				'title'     => 'Register for upcoming events',
+				'completed' => '',
 			),
 			$atts,
 			'ksscca_calendar'
 		);
 
-		$events = ksscca_calendar_fetch_events();
-
-		if ( '' !== $atts['type'] ) {
-			$events = array_values(
-				array_filter(
-					$events,
-					function ( $event ) use ( $atts ) {
-						return false !== stripos( $event['type'], $atts['type'] );
-					}
-				)
-			);
-		}
+		$today     = wp_date( 'Y-m-d', null, new DateTimeZone( 'America/Chicago' ) );
+		$completed = array_filter( array_map( 'trim', explode( ',', $atts['completed'] ) ) );
+		$events    = array_values(
+			array_filter(
+				ksscca_calendar_fetch_events(),
+				function ( $event ) use ( $atts, $today, $completed ) {
+					$end = empty( $event['end'] ) ? $event['start'] : $event['end'];
+					return $end >= $today
+						&& ! in_array( $event['detailuri'], $completed, true )
+						&& ( '' === $atts['type'] || false !== stripos( $event['type'], $atts['type'] ) );
+				}
+			)
+		);
 
 		ob_start();
 		echo ksscca_calendar_assets();
