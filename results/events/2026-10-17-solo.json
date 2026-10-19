@@ -1,0 +1,613 @@
+{
+  "org": "KS SCCA",
+  "scoring": "best",
+  "views": [
+    "class",
+    "pax",
+    "raw"
+  ],
+  "penalties": {
+    "cone_seconds": 2.0,
+    "gate_seconds": 10.0,
+    "dnf_cones": 0,
+    "dnf_seconds": 0
+  },
+  "name": "Darana Heartland Solo / Autocross October 17",
+  "event_no": "",
+  "date": "October 17, 2026",
+  "generated": "October 18, 2026",
+  "registered": 59,
+  "with_times": 36,
+  "runs_known": false,
+  "class_order": [
+    "ss",
+    "as",
+    "cs",
+    "ds",
+    "es",
+    "fs",
+    "gs",
+    "ast",
+    "cst",
+    "dst",
+    "est",
+    "gst",
+    "fsp",
+    "xp",
+    "cp",
+    "ep",
+    "cams",
+    "camc",
+    "camt",
+    "xa",
+    "xb",
+    "csm"
+  ],
+  "class_names": {
+    "n": "Novice",
+    "am": "A Modified",
+    "as": "A Street",
+    "ast": "A Street Touring",
+    "bs": "B Street",
+    "camc": "CAM Contemporary",
+    "cams": "CAM Sport",
+    "camt": "CAM Traditional",
+    "cp": "C Prepared",
+    "cs": "C Street",
+    "csp": "C Street Prepared",
+    "cst": "C Street Touring",
+    "csx": "Club Spec MX-5",
+    "ds": "D Street",
+    "dsp": "D Street Prepared",
+    "dst": "D Street Touring",
+    "es": "E Street",
+    "est": "E Street Touring",
+    "fs": "F Street",
+    "fsp": "F Street Prepared",
+    "gs": "G Street",
+    "hs": "H Street",
+    "sm": "Street Modified",
+    "ssm": "Super Street Modified",
+    "sst": "Super Street Touring",
+    "xa": "Xtreme Street A",
+    "xal": "Xtreme Street A",
+    "xb": "Xtreme Street B",
+    "xp": "X Prepared",
+    "ss": "Super Street",
+    "gst": "G Street Touring",
+    "csm": "Club Spec Mustang",
+    "ep": "E Prepared"
+  },
+  "factors": {
+    "ss": 0.84,
+    "as": 0.83,
+    "cs": 0.814,
+    "ds": 0.811,
+    "es": 0.788,
+    "fs": 0.817,
+    "gs": 0.809,
+    "ast": 0.836,
+    "cst": 0.829,
+    "dst": 0.82,
+    "est": 0.815,
+    "gst": 0.812,
+    "fsp": 0.833,
+    "xp": 0.892,
+    "cp": 0.862,
+    "ep": 0.855,
+    "cams": 0.847,
+    "camc": 0.828,
+    "camt": 0.819,
+    "xa": 0.861,
+    "xb": 0.859,
+    "csm": 0.794
+  },
+  "top_times": [],
+  "note": "Final results supplied by Adam Pessetto. Drivers with no recorded time from the two-day registration import are omitted.",
+  "entries": [
+    {
+      "cls": "ss",
+      "num": "88",
+      "name": "Rick Chapman",
+      "car": "2024 Chevrolet Corvette Stingray",
+      "color": "",
+      "runs": [
+        "70.545"
+      ],
+      "total": "70.545",
+      "pos": 1,
+      "trophy": true,
+      "diff": "-"
+    },
+    {
+      "cls": "ss",
+      "num": "24",
+      "name": "Moua Kong",
+      "car": "1999 Toyota Camry",
+      "color": "",
+      "runs": [
+        "76.261"
+      ],
+      "total": "76.261",
+      "pos": 2,
+      "trophy": false,
+      "diff": "+5.716"
+    },
+    {
+      "cls": "as",
+      "num": "63",
+      "name": "Frank Wietharn",
+      "car": "2007 Chevrolet Corvette Z06",
+      "color": "",
+      "runs": [
+        "67.038"
+      ],
+      "total": "67.038",
+      "pos": 1,
+      "trophy": true,
+      "diff": "-"
+    },
+    {
+      "cls": "cs",
+      "num": "197",
+      "name": "Hank Dunham",
+      "car": "2004 Honda S2000",
+      "color": "",
+      "runs": [
+        "67.601"
+      ],
+      "total": "67.601",
+      "pos": 1,
+      "trophy": true,
+      "diff": "-"
+    },
+    {
+      "cls": "cs",
+      "num": "97",
+      "name": "Greg Dunham",
+      "car": "2004 Honda S2000",
+      "color": "",
+      "runs": [
+        "68.925"
+      ],
+      "total": "68.925",
+      "pos": 2,
+      "trophy": false,
+      "diff": "+1.324"
+    },
+    {
+      "cls": "ds",
+      "num": "42",
+      "name": "Greg Cheney",
+      "car": "2023 Toyota GR 86",
+      "color": "",
+      "runs": [
+        "69.699"
+      ],
+      "total": "69.699",
+      "pos": 1,
+      "trophy": true,
+      "diff": "-"
+    },
+    {
+      "cls": "es",
+      "num": "153",
+      "name": "Angela Crumer",
+      "car": "1991 Mazda Miata",
+      "color": "",
+      "runs": [
+        "82.624"
+      ],
+      "total": "82.624",
+      "pos": 1,
+      "trophy": true,
+      "diff": "-"
+    },
+    {
+      "cls": "es",
+      "num": "53",
+      "name": "John Sills",
+      "car": "1991 Mazda Miata",
+      "color": "",
+      "runs": [
+        "90.270"
+      ],
+      "total": "90.270",
+      "pos": 2,
+      "trophy": true,
+      "diff": "+7.646"
+    },
+    {
+      "cls": "fs",
+      "num": "18",
+      "name": "Elly Richardson",
+      "car": "2020 Ford Mustang Ecoboost",
+      "color": "",
+      "runs": [
+        "80.081"
+      ],
+      "total": "80.081",
+      "pos": 1,
+      "trophy": true,
+      "diff": "-"
+    },
+    {
+      "cls": "gs",
+      "num": "66",
+      "name": "Phillip Meredith",
+      "car": "Volkswagen GTI",
+      "color": "",
+      "runs": [
+        "69.116"
+      ],
+      "total": "69.116",
+      "pos": 1,
+      "trophy": true,
+      "diff": "-"
+    },
+    {
+      "cls": "cst",
+      "num": "162",
+      "name": "Jerry Irvine",
+      "car": "2007 BMW Z4 Coupe 3.0si",
+      "color": "",
+      "runs": [
+        "66.694"
+      ],
+      "total": "66.694",
+      "pos": 1,
+      "trophy": true,
+      "diff": "-"
+    },
+    {
+      "cls": "cst",
+      "num": "77",
+      "name": "Israel B. López De Jesús",
+      "car": "2008 Mazda Miata MX-5",
+      "color": "",
+      "runs": [
+        "68.370"
+      ],
+      "total": "68.370",
+      "pos": 2,
+      "trophy": true,
+      "diff": "+1.676"
+    },
+    {
+      "cls": "cst",
+      "num": "47",
+      "name": "Peter Monshizadeh",
+      "car": "2003 Honda S2000",
+      "color": "",
+      "runs": [
+        "71.323"
+      ],
+      "total": "71.323",
+      "pos": 3,
+      "trophy": true,
+      "diff": "+2.953"
+    },
+    {
+      "cls": "cst",
+      "num": "62",
+      "name": "Max Irvine",
+      "car": "2007 BMW Z4 Coupe 3.0si",
+      "color": "",
+      "runs": [
+        "72.843"
+      ],
+      "total": "72.843",
+      "pos": 4,
+      "trophy": false,
+      "diff": "+1.520"
+    },
+    {
+      "cls": "est",
+      "num": "171",
+      "name": "Blayne Rios",
+      "car": "2016 Mazda MX-5",
+      "color": "",
+      "runs": [
+        "64.720"
+      ],
+      "total": "64.720",
+      "pos": 1,
+      "trophy": true,
+      "diff": "-"
+    },
+    {
+      "cls": "est",
+      "num": "99",
+      "name": "Ryan Redenbaugh",
+      "car": "1990 Mazda Miata",
+      "color": "",
+      "runs": [
+        "67.647"
+      ],
+      "total": "67.647",
+      "pos": 2,
+      "trophy": true,
+      "diff": "+2.927"
+    },
+    {
+      "cls": "est",
+      "num": "71",
+      "name": "Henry Savasten",
+      "car": "1991 Mazda Miata",
+      "color": "",
+      "runs": [
+        "68.945"
+      ],
+      "total": "68.945",
+      "pos": 3,
+      "trophy": true,
+      "diff": "+1.298"
+    },
+    {
+      "cls": "est",
+      "num": "38",
+      "name": "Justin Florance",
+      "car": "2001 Mazda Miata",
+      "color": "",
+      "runs": [
+        "70.030"
+      ],
+      "total": "70.030",
+      "pos": 4,
+      "trophy": false,
+      "diff": "+1.085"
+    },
+    {
+      "cls": "gst",
+      "num": "76",
+      "name": "Zachary South",
+      "car": "2013 Volkswagen GTI",
+      "color": "",
+      "runs": [
+        "81.315"
+      ],
+      "total": "81.315",
+      "pos": 1,
+      "trophy": true,
+      "diff": "-"
+    },
+    {
+      "cls": "fsp",
+      "num": "68",
+      "name": "Brad Stauffer",
+      "car": "1968 Chevrolet Corvair",
+      "color": "",
+      "runs": [
+        "93.183"
+      ],
+      "total": "93.183",
+      "pos": 1,
+      "trophy": true,
+      "diff": "-"
+    },
+    {
+      "cls": "cp",
+      "num": "73",
+      "name": "Travis Durant",
+      "car": "1979 Chevrolet Camaro",
+      "color": "",
+      "runs": [
+        "66.633"
+      ],
+      "total": "66.633",
+      "pos": 1,
+      "trophy": true,
+      "diff": "-"
+    },
+    {
+      "cls": "cp",
+      "num": "49",
+      "name": "Albert Hermans",
+      "car": "1997 Ford Mustang Cobra",
+      "color": "",
+      "runs": [
+        "68.647"
+      ],
+      "total": "68.647",
+      "pos": 2,
+      "trophy": false,
+      "diff": "+2.014"
+    },
+    {
+      "cls": "ep",
+      "num": "73",
+      "name": "Adam Pessetto",
+      "car": "2009 Honda Fit",
+      "color": "",
+      "runs": [
+        "76.174"
+      ],
+      "total": "76.174",
+      "pos": 1,
+      "trophy": true,
+      "diff": "-"
+    },
+    {
+      "cls": "cams",
+      "num": "69",
+      "name": "Elliott Wright",
+      "car": "2002 Chevrolet Corvette",
+      "color": "",
+      "runs": [
+        "71.050"
+      ],
+      "total": "71.050",
+      "pos": 1,
+      "trophy": true,
+      "diff": "-"
+    },
+    {
+      "cls": "cams",
+      "num": "7",
+      "name": "Michael Hoffman",
+      "car": "2013 Chevrolet Corvette",
+      "color": "",
+      "runs": [
+        "75.101"
+      ],
+      "total": "75.101",
+      "pos": 2,
+      "trophy": true,
+      "diff": "+4.051"
+    },
+    {
+      "cls": "camc",
+      "num": "30",
+      "name": "Matthew Kuffel",
+      "car": "2015 Ford Mustang GT",
+      "color": "",
+      "runs": [
+        "68.384"
+      ],
+      "total": "68.384",
+      "pos": 1,
+      "trophy": true,
+      "diff": "-"
+    },
+    {
+      "cls": "camc",
+      "num": "42",
+      "name": "Ethan Gibbs",
+      "car": "2005 Ford Mustang GT",
+      "color": "",
+      "runs": [
+        "70.528"
+      ],
+      "total": "70.528",
+      "pos": 2,
+      "trophy": false,
+      "diff": "+2.144"
+    },
+    {
+      "cls": "camc",
+      "num": "68",
+      "name": "Rich Heisman",
+      "car": "2017 Chevrolet Camaro",
+      "color": "",
+      "runs": [
+        "79.238"
+      ],
+      "total": "79.238",
+      "pos": 3,
+      "trophy": false,
+      "diff": "+8.710"
+    },
+    {
+      "cls": "camt",
+      "num": "32",
+      "name": "Matt Kramer",
+      "car": "1995 Ford Mustang",
+      "color": "",
+      "runs": [
+        "71.029"
+      ],
+      "total": "71.029",
+      "pos": 1,
+      "trophy": true,
+      "diff": "-"
+    },
+    {
+      "cls": "camt",
+      "num": "64",
+      "name": "Dustin McBride",
+      "car": "1970 Chevrolet Chevelle",
+      "color": "",
+      "runs": [
+        "74.675"
+      ],
+      "total": "74.675",
+      "pos": 2,
+      "trophy": false,
+      "diff": "+3.646"
+    },
+    {
+      "cls": "camt",
+      "num": "7",
+      "name": "David Staresinic",
+      "car": "2000 Dodge Dakota",
+      "color": "",
+      "runs": [
+        "80.552"
+      ],
+      "total": "80.552",
+      "pos": 3,
+      "trophy": false,
+      "diff": "+5.877"
+    },
+    {
+      "cls": "xa",
+      "num": "129",
+      "name": "Cary Mah",
+      "car": "2013 Subaru BRZ",
+      "color": "",
+      "runs": [
+        "71.949"
+      ],
+      "total": "71.949",
+      "pos": 1,
+      "trophy": true,
+      "diff": "-"
+    },
+    {
+      "cls": "xa",
+      "num": "3",
+      "name": "Gaige Thomas",
+      "car": "1997 Mazda Miata",
+      "color": "",
+      "runs": [
+        "80.649"
+      ],
+      "total": "80.649",
+      "pos": 2,
+      "trophy": false,
+      "diff": "+8.700"
+    },
+    {
+      "cls": "xa",
+      "num": "14",
+      "name": "Forrest Nicholson",
+      "car": "2000 BMW 328Ci",
+      "color": "",
+      "runs": [
+        "80.942"
+      ],
+      "total": "80.942",
+      "pos": 3,
+      "trophy": false,
+      "diff": "+0.293"
+    },
+    {
+      "cls": "xb",
+      "num": "84",
+      "name": "April Griffith",
+      "car": "2005 Mazda RX-8",
+      "color": "",
+      "runs": [
+        "67.746"
+      ],
+      "total": "67.746",
+      "pos": 1,
+      "trophy": true,
+      "diff": "-"
+    },
+    {
+      "cls": "xb",
+      "num": "69",
+      "name": "Keegan Wilhelm",
+      "car": "1982 Honda Prelude",
+      "color": "",
+      "runs": [
+        "78.787"
+      ],
+      "total": "78.787",
+      "pos": 2,
+      "trophy": true,
+      "diff": "+11.041"
+    }
+  ]
+}
